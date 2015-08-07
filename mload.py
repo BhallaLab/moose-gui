@@ -92,9 +92,12 @@ def loadFile(filename, target, merge=True):
     #self.statusBar.showMessage('Loading model, please wait')
     # app = QtGui.qApp
     # app.setOverrideCursor(QtGui.QCursor(Qt.Qt.BusyCursor)) #shows a hourglass - or a busy/working arrow
-
     if modeltype == 'genesis':
         if subtype == 'kkit' or subtype == 'prototype':
+            path = '/'+target
+            if path != '/':
+                if moose.exists(path):
+                    moose.delete(path)
             model = moose.loadModel(filename, target,'gsl')
             #Harsha: Moving the model under /modelname/model and graphs under /model/graphs
             lmodel = moose.Neutral('%s/%s' %(model.path,"model"))
@@ -127,6 +130,9 @@ def loadFile(filename, target, merge=True):
         else:
             print 'Only kkit and prototype files can be loaded.'
     elif modeltype == 'cspace':
+            if target != '/':
+                if moose.exists(target):
+                    moose.delete(target)
             model = moose.loadModel(filename, target,'gsl')
             #Harsha: Moving the model under /modelname/model and graphs under /model/graphs
             lmodel = moose.Neutral('%s/%s' %(model.path,"model"))
@@ -181,6 +187,9 @@ def loadFile(filename, target, merge=True):
 
             # moose.move("cells/", cell.path)
         elif subtype == 'sbml':
+            if target != '/':
+                if moose.exists(target):
+                    moose.delete(target)
             model = moose.readSBML(filename,target,'gsl')
             addSolver(target,'gsl')
     else:
