@@ -395,7 +395,7 @@ class GraphicalView(QtGui.QGraphicsView):
 
                 if displacement.y() < 0 :
                     y0,y1= y1,y0
-
+                print "kkitview  COMPARTMENT_INTERIOR",x0,y0
                 self.selectedItems = selectedItems = self.items(x0,y0,abs(displacement.x()), abs(displacement.y()))
                 # print("Rect => ", self.customrubberBand.rect())
                 # selectedItems = self.items(self.mapToScene(self.customrubberBand.rect()).boundingRect())
@@ -407,6 +407,7 @@ class GraphicalView(QtGui.QGraphicsView):
                 self.customrubberBand.hide()
                 self.customrubberBand = None                
                 popupmenu = QtGui.QMenu('PopupMenu', self)
+
                 popupmenu.addAction("Delete", lambda : self.deleteSelections(x0,y0,x1,y1))
                 popupmenu.addAction("Zoom",   lambda : self.zoomSelections(x0,y0,x1,y1))
                 popupmenu.addAction("Move",   lambda : self.moveSelections())
@@ -826,7 +827,7 @@ class GraphicalView(QtGui.QGraphicsView):
                 pass
             srcZero = [k for k, v in self.layoutPt.mooseId_GObj.iteritems() if v == src[0]]
             srcOne = [k for k, v in self.layoutPt.mooseId_GObj.iteritems() if v == src[1]]
-            
+        
             if isinstance (moose.element(srcZero[0]),moose.MMenz):
                 gItem =self.layoutPt.mooseId_GObj[moose.element(srcZero[0])]
                 # This block is done b'cos for MMenz while loaded from ReadKKit, the msg
@@ -884,10 +885,14 @@ class GraphicalView(QtGui.QGraphicsView):
                                 if msg.destFieldsOnE2[0] == "setN":
                                     gItem =self.layoutPt.mooseId_GObj[moose.element(srcZero[0])]
                                     self.deleteItem(gItem)
+                                    self.deleteSceneObj(msg,item)
                                     return
                                 elif msg.destFieldsOnE2[0] == "setNumKf" or msg.destFieldsOnE2[0] == "setConcInit" or msg.destFieldsOnE2[0]=="increment":
                                     msgIdforDeleting = msg
-                                    self.deleteSceneObj(msgIdforDeleting,item)              
+                                    self.deleteSceneObj(msgIdforDeleting,item)
+                gItem =self.layoutPt.mooseId_GObj[moose.element(srcZero[0])]
+                self.deleteItem(gItem)
+                
             else:
                 self.getMsgId(src,srcZero,srcOne,item)
 
@@ -963,6 +968,12 @@ class GraphicalView(QtGui.QGraphicsView):
                                     self.sceneContainerPt.removeItem(l[0])
                             moose.delete(items)
                             self.sceneContainerPt.removeItem(gItem)
+                    #If pool/bufpool is input to a function and if pool/bufpool is removed then function is also removed.
+                    for msg in moose.element(item.mobj.path).msgOut:
+                        if (moose.element(msg.e2.path).className == "Variable" and msg.destFieldsOnE2[0]=="input"):
+                            funcp = moose.element(msg.e2.path).parent
+                            pool = moose.element(funcp).parent
+                            self.deleteItem(self.layoutPt.mooseId_GObj[funcp])
 
                 for l in self.layoutPt.object2line[item]:
                     sceneItems = self.sceneContainerPt.items()
@@ -976,7 +987,44 @@ class GraphicalView(QtGui.QGraphicsView):
                 setupItem(self.modelRoot,self.layoutPt.srcdesConnection) 
 
     def zoomSelections(self, x0, y0, x1, y1):
-        self.fitInView(self.mapToScene(QtCore.QRect(x0, y0, x1 - x0, y1 - y0)).boundingRect(), Qt.Qt.KeepAspectRatio)
+#        print ' xo , yo x1 ,y1 ',x0,y0,x1,y1
+        #self.fitInView(self.mapToScene(QtCore.QRect(x0, y0, x1 - x0, y1 - y0)).boundingRect(), Qt.Qt.KeepAspectRatio)
+        vTransform = self.viewportTransform()
+        self.rubberbandlist = self.sceneContainerPt.items(x0,y0,(x1-x0),(y1-y0), Qt.Qt.IntersectsItemShape)
+        for unselectitem in self.rubberbandlist:
+            if unselectitem.isSelected() == True:
+                unselectitem.setSelected(0)
+            for items in (qgraphicsitem for qgraphicsitem in self.rubberbandlist if isinstance(qgraphicsitem,PoolItem)):
+                print " items ",items
+                self.fitInView(x0,y0,(x1-x0),(y1-y0),Qt.Qt.KeepAspectRatio)
+                if((self.matrix().m11()>=1.0)and(self.matrix().m22() >=1.0)):
+                    for item in ( Txtitem for Txtitem in self.sceneContainerPt.items() if isinstance(Txtitem,PoolItem) ):
+                        item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations, False)
+
+        #self.fitInView(x0,y0,(x1-x0),(y1-y0),Qt.Qt.KeepAspectRatio)
+        '''
+        if( x1-x0 > 0  and y1-y0 >0):
+            self.rubberbandlist = self.sceneContainerPt.items(self.startScenepos.x(),self.startScenepos.y(),self.rubberbandWidth,self.rubberbandHeight, Qt.Qt.IntersectsItemShape)
+            for unselectitem in self.rubberbandlist:
+                if unselectitem.isSelected() == True:
+                    unselectitem.setSelected(0)
+            for items in (qgraphicsitem for qgraphicsitem in self.rubberbandlist if isinstance(qgraphicsitem,PoolItem)):
+                self.fitInView(self.startScenepos.x(),self.startScenepos.y(),self.rubberbandWidth,self.rubberbandHeight,Qt.Qt.KeepAspectRatio)
+                if((self.matrix().m11()>=1.0)and(self.matrix().m22() >=1.0)):
+                    for item in ( Txtitem for Txtitem in self.sceneContainerPt.items() if isinstance(Txtitem,PoolItem) ):
+                        item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations, False)
+        else:
+            self.rubberbandlist = self.sceneContainerPt.items(self.endScenepos.x(),self.endScenepos.y(),abs(self.rubberbandWidth),abs(self.rubberbandHeight), Qt.Qt.IntersectsItemShape)
+            for unselectitem in self.rubberbandlist:
+                if unselectitem.isSelected() == True:
+                    unselectitem.setSelected(0)
+            for items in (qgraphicsitem for qgraphicsitem in self.rubberbandlist if isinstance(qgraphicsitem,PoolItem)):
+                self.fitInView(self.endScenepos.x(),self.endScenepos.y(),abs(self.rubberbandWidth),abs(self.rubberbandHeight),Qt.Qt.KeepAspectRatio)
+                if((self.matrix().m11()>=1.0)and(self.matrix().m22() >=1.0)):
+                    for item in ( Txtitem for Txtitem in self.sceneContainerPt.items() if isinstance (Txtitem, PoolItem)):
+                        item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations, False)
+        self.rubberBandactive = False
+        '''
         self.deselectSelections()
 
     def wheelEvent(self,event):
