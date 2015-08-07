@@ -104,10 +104,15 @@ def setupItem(modelPath,cntDict):
                 sublist = []
                 prdlist = []
                 uniqItem,countuniqItem = countitems(items,'subOut')
+                subNo = uniqItem
                 for sub in uniqItem: 
                     sublist.append((element(sub),'s',countuniqItem[sub]))
 
                 uniqItem,countuniqItem = countitems(items,'prd')
+                prdNo = uniqItem
+                if (len(subNo) == 0 or len(prdNo) == 0):
+                    print "Substrate Product is empty ",path, " ",items
+                    
                 for prd in uniqItem:
                     prdlist.append((element(prd),'p',countuniqItem[prd]))
                 
