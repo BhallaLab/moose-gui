@@ -799,7 +799,7 @@ class kineticEditorWidget(KineticsWidget):
                 button.setDefaultAction(action)
                 #set the unicode instead of image by setting
                 #button.setText(unicode(u'\u20de'))
-                button.setIcon(QtGui.QIcon("~/../../Docs/images/classIcon/"+action.text()+".png"))
+                button.setIcon(QtGui.QIcon("icons/classIcon/"+action.text()+".png"))
                 #button.setIconSize(QtCore.QSize(200,200))
                 self._insertToolBar.addWidget(button)
         return self._toolBars
