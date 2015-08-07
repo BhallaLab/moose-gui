@@ -195,8 +195,8 @@ def checkCreate(scene,view,modelpath,string,num,event_pos,layoutPt):
                 enzinfo.y = posWrtComp.y()
             enzinfo.color = str(bgcolor.name())
             e = moose.Annotator(enzinfo)
-            e.x = posWrtComp.x()
-            e.y = posWrtComp.y()
+            #e.x = posWrtComp.x()
+            #e.y = posWrtComp.y()
             Enz_cplx = enzObj.path+'/'+string_num+'_cplx';
             cplxItem = moose.Pool(Enz_cplx)
             cplxinfo = moose.Annotator(cplxItem.path+'/info')
