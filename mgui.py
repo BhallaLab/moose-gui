@@ -72,6 +72,7 @@ from PyQt4.QtGui import *
 from MdiArea import MdiArea
 import os
 from setsolver import *
+from defines import *
 __author__ = 'Subhasis Ray , HarshaRani, Aviral Goel, NCBS'
 
 # This maps model subtypes to corresponding plugin names. Should be
@@ -337,8 +338,10 @@ class MWindow(QtGui.QMainWindow):
                 c = moose.Clock('/clock')
                 compt = moose.wildcardFind(root+'/##[ISA=ChemCompt]')
                 if compt:
-                    c.tickDt[11] = self._loadedModels[i][3]
-                    c.tickDt[16] = self._loadedModels[i][4]
+                    for simdt in CHEMICAL_SIMULATION_DT_CLOCKS:
+                        c.tickDt[simdt] = self._loadedModels[i][3]
+                    for plotdt in CHEMICAL_PLOT_UPDATE_INTERVAL_CLOCKS:
+                        c.tickDt[plotdt] = self._loadedModels[i][4]
                     if moose.exists(compt[0].path+'/ksolve'):
                         ksolve = moose.Ksolve( compt[0].path+'/ksolve' )
                         ksolve.tick = 16
