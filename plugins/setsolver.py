@@ -1,15 +1,27 @@
 import moose
 
 def deleteSolver(modelRoot):
-	if moose.wildcardFind(modelRoot+'/##[ISA=ChemCompt]'):
-		compt = moose.wildcardFind(modelRoot+'/##[ISA=ChemCompt]')
-		if ( moose.exists( compt[0].path+'/stoich' ) ):
-			st = moose.element(compt[0].path+'/stoich')
+	compts = moose.wildcardFind(modelRoot+'/##[ISA=ChemCompt]')
+	for compt in compts:
+		if moose.exists(compt.path+'/stoich'):
+			st = moose.element(compt.path+'/stoich')
 			if moose.exists((st.ksolve).path):
 				moose.delete(st.ksolve)
-			moose.delete( compt[0].path+'/stoich' )
-	for x in moose.wildcardFind( modelRoot+'/data/graph#/#' ):
-                x.tick = -1
+			moose.delete(st)
+
+# def deleteSolver2(modelRoot):
+# 	if moose.wildcardFind(modelRoot+'/##[ISA=ChemCompt]'):
+# 		compts = moose.wildcardFind(modelRoot+'/##[ISA=ChemCompt]')
+# 		#This works for both multiCompartment model and single Compartment
+# 		for compt in compts:
+# 			if ( moose.exists( compt.path+'/stoich' ) ):
+#         		st = moose.element(compt.path+'/stoich')
+#         		if moose.exists((st.ksolve).path):
+#             		moose.delete(st.ksolve)
+#             	moose.delete( st ) 
+# 	for x in moose.wildcardFind( modelRoot+'/data/graph#/#' ):
+#                 x.tick = -1
+
 def addSolver(modelRoot,solver):
 	compt = moose.wildcardFind(modelRoot+'/##[ISA=ChemCompt]')
 	comptinfo = moose.Annotator(moose.element(compt[0]).path+'/info')
@@ -47,15 +59,28 @@ def addSolver(modelRoot,solver):
 			return True
 	return False
 def setCompartmentSolver(modelRoot,solver):
-	compt = moose.wildcardFind(modelRoot+'/##[ISA=ChemCompt]')
-	if ( solver == 'gsl' ) or (solver == 'Runge Kutta'):
-		ksolve = moose.Ksolve( compt[0].path+'/ksolve' )
-	if ( solver == 'gssa' ) or (solver == 'Gillespie'):
-		ksolve = moose.Gsolve( compt[0].path+'/gsolve' )
-	if ( solver != 'ee' ):
-		stoich = moose.Stoich( compt[0].path+'/stoich' )
-		stoich.compartment = compt[0]
-		stoich.ksolve = ksolve
-		stoich.path = compt[0].path+"/##"
+	compts = moose.wildcardFind(modelRoot+'/##[ISA=ChemCompt]')
+	
+	for compt in compts:
+		if ( solver == 'gsl' ) or (solver == 'Runge Kutta'):
+			ksolve = moose.Ksolve( compt.path+'/ksolve' )
+		if ( solver == 'gssa' ) or (solver == 'Gillespie'):
+			ksolve = moose.Gsolve( compt.path+'/gsolve' )
+		if ( solver != 'ee' ):
+			stoich = moose.Stoich( compt.path+'/stoich' )
+			stoich.compartment = compt
+			stoich.ksolve = ksolve
+			stoich.path = compt.path+"/##"
+
+	stoichList = moose.wildcardFind(modelRoot+'/##[ISA=Stoich]')
+	if len( stoichList ) == 2:
+		stoichList[1].buildXreacs( stoichList[0] )
+	if len( stoichList ) == 3:
+		stoichList[1].buildXreacs (stoichList [0])
+		stoichList[1].buildXreacs (stoichList [2])
+
+	for i in stoichList:
+		i.filterXreacs()
+	
 	for x in moose.wildcardFind( modelRoot+'/data/graph#/#' ):
 		x.tick = 18
