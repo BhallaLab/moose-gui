@@ -52,9 +52,11 @@ class GraphicalView(QtGui.QGraphicsView):
         self.viewBaseType = path
     
     def resizeEvent(self, event):
-        self.fitInView(self.sceneContainerPt.itemsBoundingRect().x()-10,self.sceneContainerPt.itemsBoundingRect().y()-10,self.sceneContainerPt.itemsBoundingRect().width()+20,self.sceneContainerPt.itemsBoundingRect().height()+20,Qt.Qt.IgnoreAspectRatio)
-        #print("Called =>", event)
+        #self.fitInView(self.sceneContainerPt.itemsBoundingRect().x()-10,self.sceneContainerPt.itemsBoundingRect().y()-10,self.sceneContainerPt.itemsBoundingRect().width()+20,self.sceneContainerPt.itemsBoundingRect().height()+20,Qt.Qt.IgnoreAspectRatio)
+        print("Called =>", event)
+
         return
+    
     def resolveCompartmentInteriorAndBoundary(self, item, position):
         bound = item.rect().adjusted(3,3,-3,-3)
         return COMPARTMENT_INTERIOR if bound.contains(item.mapFromScene(position)) else COMPARTMENT_BOUNDARY
@@ -987,45 +989,13 @@ class GraphicalView(QtGui.QGraphicsView):
                 setupItem(self.modelRoot,self.layoutPt.srcdesConnection) 
 
     def zoomSelections(self, x0, y0, x1, y1):
-#        print ' xo , yo x1 ,y1 ',x0,y0,x1,y1
-        #self.fitInView(self.mapToScene(QtCore.QRect(x0, y0, x1 - x0, y1 - y0)).boundingRect(), Qt.Qt.KeepAspectRatio)
-        vTransform = self.viewportTransform()
-        self.rubberbandlist = self.sceneContainerPt.items(x0,y0,(x1-x0),(y1-y0), Qt.Qt.IntersectsItemShape)
-        for unselectitem in self.rubberbandlist:
-            if unselectitem.isSelected() == True:
-                unselectitem.setSelected(0)
-            for items in (qgraphicsitem for qgraphicsitem in self.rubberbandlist if isinstance(qgraphicsitem,PoolItem)):
-                print " items ",items
-                self.fitInView(x0,y0,(x1-x0),(y1-y0),Qt.Qt.KeepAspectRatio)
-                if((self.matrix().m11()>=1.0)and(self.matrix().m22() >=1.0)):
-                    for item in ( Txtitem for Txtitem in self.sceneContainerPt.items() if isinstance(Txtitem,PoolItem) ):
-                        item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations, False)
-
-        #self.fitInView(x0,y0,(x1-x0),(y1-y0),Qt.Qt.KeepAspectRatio)
-        '''
-        if( x1-x0 > 0  and y1-y0 >0):
-            self.rubberbandlist = self.sceneContainerPt.items(self.startScenepos.x(),self.startScenepos.y(),self.rubberbandWidth,self.rubberbandHeight, Qt.Qt.IntersectsItemShape)
-            for unselectitem in self.rubberbandlist:
-                if unselectitem.isSelected() == True:
-                    unselectitem.setSelected(0)
-            for items in (qgraphicsitem for qgraphicsitem in self.rubberbandlist if isinstance(qgraphicsitem,PoolItem)):
-                self.fitInView(self.startScenepos.x(),self.startScenepos.y(),self.rubberbandWidth,self.rubberbandHeight,Qt.Qt.KeepAspectRatio)
-                if((self.matrix().m11()>=1.0)and(self.matrix().m22() >=1.0)):
-                    for item in ( Txtitem for Txtitem in self.sceneContainerPt.items() if isinstance(Txtitem,PoolItem) ):
-                        item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations, False)
-        else:
-            self.rubberbandlist = self.sceneContainerPt.items(self.endScenepos.x(),self.endScenepos.y(),abs(self.rubberbandWidth),abs(self.rubberbandHeight), Qt.Qt.IntersectsItemShape)
-            for unselectitem in self.rubberbandlist:
-                if unselectitem.isSelected() == True:
-                    unselectitem.setSelected(0)
-            for items in (qgraphicsitem for qgraphicsitem in self.rubberbandlist if isinstance(qgraphicsitem,PoolItem)):
-                self.fitInView(self.endScenepos.x(),self.endScenepos.y(),abs(self.rubberbandWidth),abs(self.rubberbandHeight),Qt.Qt.KeepAspectRatio)
-                if((self.matrix().m11()>=1.0)and(self.matrix().m22() >=1.0)):
-                    for item in ( Txtitem for Txtitem in self.sceneContainerPt.items() if isinstance (Txtitem, PoolItem)):
-                        item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations, False)
-        self.rubberBandactive = False
-        '''
+        p0 = self.mapToScene(x0, y0)
+        p1 = self.mapToScene(x1, y1)
+        #print QtCore.QRectF(p0, p1)
+        self.fitInView(QtCore.QRectF(p0, p1), Qt.Qt.KeepAspectRatio)
         self.deselectSelections()
+        return
+        
 
     def wheelEvent(self,event):
         factor = 1.41 ** (event.delta() / 240.0)
