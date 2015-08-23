@@ -337,11 +337,11 @@ class MWindow(QtGui.QMainWindow):
             if self._loadedModels[i][0]== root:
                 c = moose.Clock('/clock')
                 compt = moose.wildcardFind(root+'/##[ISA=ChemCompt]')
+                for simdt in CHEMICAL_SIMULATION_DT_CLOCKS:
+                    c.tickDt[simdt] = self._loadedModels[i][3]
+                for plotdt in CHEMICAL_PLOT_UPDATE_INTERVAL_CLOCKS:
+                    c.tickDt[plotdt] = self._loadedModels[i][4]
                 if compt:
-                    for simdt in CHEMICAL_SIMULATION_DT_CLOCKS:
-                        c.tickDt[simdt] = self._loadedModels[i][3]
-                    for plotdt in CHEMICAL_PLOT_UPDATE_INTERVAL_CLOCKS:
-                        c.tickDt[plotdt] = self._loadedModels[i][4]
                     if moose.exists(compt[0].path+'/ksolve'):
                         ksolve = moose.Ksolve( compt[0].path+'/ksolve' )
                         ksolve.tick = 16
