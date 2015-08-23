@@ -47,13 +47,16 @@ class GraphicalView(QtGui.QGraphicsView):
         self.arrowsize = 2
         self.defaultComptsize = 5
         self.connectorlist = {"plot": None ,"clone": None,"move": None,"delete": None}
-        
+        self.setHorizontalScrollBarPolicy(PyQt4.QtCore.Qt.ScrollBarAlwaysOn)
+        self.setVerticalScrollBarPolicy(PyQt4.QtCore.Qt.ScrollBarAlwaysOn)
+
     def setRefWidget(self,path):
         self.viewBaseType = path
     
     def resizeEvent(self, event):
-        #self.fitInView(self.sceneContainerPt.itemsBoundingRect().x()-10,self.sceneContainerPt.itemsBoundingRect().y()-10,self.sceneContainerPt.itemsBoundingRect().width()+20,self.sceneContainerPt.itemsBoundingRect().height()+20,Qt.Qt.IgnoreAspectRatio)
-        print("Called =>", event)
+        # print event.size().width(),event.size().height()
+        self.fitInView(self.sceneContainerPt.itemsBoundingRect().x()-10,self.sceneContainerPt.itemsBoundingRect().y()-10,self.sceneContainerPt.itemsBoundingRect().width()+20,self.sceneContainerPt.itemsBoundingRect().height()+20,Qt.Qt.IgnoreAspectRatio)
+        #print("Called =>", event)
 
         return
     
@@ -397,7 +400,7 @@ class GraphicalView(QtGui.QGraphicsView):
 
                 if displacement.y() < 0 :
                     y0,y1= y1,y0
-                print "kkitview  COMPARTMENT_INTERIOR",x0,y0
+                #print "kkitview  COMPARTMENT_INTERIOR",x0,y0
                 self.selectedItems = selectedItems = self.items(x0,y0,abs(displacement.x()), abs(displacement.y()))
                 # print("Rect => ", self.customrubberBand.rect())
                 # selectedItems = self.items(self.mapToScene(self.customrubberBand.rect()).boundingRect())
