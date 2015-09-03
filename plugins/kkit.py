@@ -17,6 +17,7 @@ from PyQt4.QtGui import QColor
 import RunWidget
 from os.path import expanduser
 from setsolver import *
+from moose import writekkit
 
 class KkitPlugin(MoosePlugin):
     """Default plugin for MOOSE GUI"""
@@ -39,18 +40,16 @@ class KkitPlugin(MoosePlugin):
             self.fileinsertMenu.addAction(self.saveModelAction)
         self._menus.append(self.fileinsertMenu)
 
-
-        self.getEditorView()
-
     def SaveModelDialogSlot(self):
         type_sbml = 'SBML'
+        type_genesis = 'Genesis'
         if moose.Annotator(self.modelRoot+'/info'):
             moose.Annotator(self.modelRoot+'/info')
         mooseAnno = moose.Annotator(self.modelRoot+'/info')
         dirpath = mooseAnno.dirpath
         if not dirpath:
             dirpath = expanduser("~")
-        filters = {'SBML(*.xml)': type_sbml}
+        filters = {'SBML(*.xml)': type_sbml,'Genesis(*.g)':type_genesis}
 
         filename,filter_ = QtGui.QFileDialog.getSaveFileNameAndFilter(None,'Save File',dirpath,';;'.join(filters))
         extension = ""
@@ -59,6 +58,7 @@ class KkitPlugin(MoosePlugin):
             if str(filter_).rfind('.') != -1:
                 extension = filter_[str(filter_).rfind('.'):len(filter_)-1]
         if filename:
+
             filename = filename+extension
             if filters[str(filter_)] == 'SBML':
                 writeerror = moose.writeSBML(self.modelRoot,str(filename))
@@ -70,6 +70,13 @@ class KkitPlugin(MoosePlugin):
                     QtGui.QMessageBox.information(None,'Saved the Model','\n File saved to \'{filename}\''.format(filename =filename+'.xml'),QtGui.QMessageBox.Ok)
                 elif writeerror == 0:
                      QtGui.QMessageBox.information(None,'Could not save the Model','\nThe filename could not be opened for writing')
+            elif filters[str(filter_)] == 'Genesis':
+                self.test = KkitEditorView(self).getCentralWidget().mooseId_GObj
+                filename = filename+'.g'
+                writeerror = moose.writekkit.writeKkit(self.modelRoot,str(filename),self.test)
+                if writeerror == False:
+                    QtGui.QMessageBox.information(None,'Could not save the Model','\nCheck the file')
+
 
     def getPreviousPlugin(self):
         return None
@@ -160,7 +167,7 @@ class AnotherKkitRunView(RunView):
         chemprefs = self.schedular.preferences.getChemicalPreferences()
         c = moose.Clock('/clock')
         self.simulationdt = c.tickDt[11]
-        self.plotdt = c.tickDt[16]
+        self.plotdt = c.tickDt[18]
         chemprefs["simulation"]["simulation-dt"] = self.simulationdt
         chemprefs["simulation"]["plot-update-interval"] = self.plotdt
         chemprefs["simulation"]["gui-update-interval"] = 2 * self.plotdt
@@ -388,7 +395,7 @@ class  KineticsWidget(EditorWidgetBase):
             else: self.yratio = (self.size.height()-10)
             self.xratio = int(self.xratio)
             self.yratio = int(self.yratio)
-
+            
     def sizeHint(self):
         return QtCore.QSize(800,400)
 
@@ -517,11 +524,10 @@ class  KineticsWidget(EditorWidgetBase):
         elif isinstance(self,kineticRunWidget):
             self.editormooseId_GObj = self.editor.getCentralWidget().mooseId_GObj
             editorItem = self.editormooseId_GObj[moose.element(info).parent]
-            #print "editorItem ",info,editorItem
             xpos = editorItem.scenePos().x()
             ypos = editorItem.scenePos().y()
-            Annoinfo.x = xpos
-            Annoinfo.y = -ypos 
+            #Annoinfo.x = xpos
+            #Annoinfo.y = -ypos 
         graphicalObj.setDisplayProperties(xpos,ypos,textcolor,bgcolor)
 
     def positioninfo(self,iteminfo):
@@ -819,7 +825,7 @@ class kineticRunWidget(KineticsWidget):
             self.getMooseObj()
             self.mooseObjOntoscene()
             self.drawLine_arrow(itemignoreZooming=False)
-
+            
     def makePoolItem(self, poolObj, qGraCompt):
         return PoolItemCircle(poolObj, qGraCompt)
 
