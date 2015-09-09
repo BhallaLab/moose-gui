@@ -1065,7 +1065,6 @@ class GraphicalView(QtGui.QGraphicsView):
                        
         elif (isinstance (moose.element(src),PoolBase) and (isinstance(moose.element(des),Function))):
             numVariables = des.numVars
-            des.numVars+=1
             expr = ""
             expr = (des.expr+'+'+'x'+str(numVariables))
             expr = expr.lstrip("0 +")

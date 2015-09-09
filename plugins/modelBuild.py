@@ -150,9 +150,8 @@ def checkCreate(scene,view,modelpath,string,num,event_pos,layoutPt):
         posWrtComp = (itemAtView.mapFromScene(pos)).toPoint()
         mobj = itemAtView.mobj
         funcObj = moose.Function(mobj.path+'/'+string_num)
-        funcObj.numVars+=1
         funcinfo = moose.Annotator(funcObj.path+'/info')
-        moose.connect( funcObj, 'valueOut', mobj.path ,'setN' )
+        moose.connect( funcObj, 'valueOut', mobj ,'setN' )
         funcParent = layoutPt.mooseId_GObj[element(mobj.path)]
         qGItem = FuncItem(funcObj,funcParent)
         qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),QtGui.QColor('red'),QtGui.QColor('green'))
