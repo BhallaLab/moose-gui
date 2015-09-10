@@ -17,7 +17,6 @@ from PyQt4.QtGui import QColor
 import RunWidget
 from os.path import expanduser
 from setsolver import *
-from moose import writekkit
 
 class KkitPlugin(MoosePlugin):
     """Default plugin for MOOSE GUI"""
@@ -39,7 +38,7 @@ class KkitPlugin(MoosePlugin):
             self.connect(self.saveModelAction, QtCore.SIGNAL('triggered()'), self.SaveModelDialogSlot)
             self.fileinsertMenu.addAction(self.saveModelAction)
         self._menus.append(self.fileinsertMenu)
-
+        self.getEditorView()
     def SaveModelDialogSlot(self):
         type_sbml = 'SBML'
         type_genesis = 'Genesis'
@@ -71,9 +70,10 @@ class KkitPlugin(MoosePlugin):
                 elif writeerror == 0:
                      QtGui.QMessageBox.information(None,'Could not save the Model','\nThe filename could not be opened for writing')
             elif filters[str(filter_)] == 'Genesis':
-                self.test = KkitEditorView(self).getCentralWidget().mooseId_GObj
-                filename = filename+'.g'
-                writeerror = moose.writekkit.writeKkit(self.modelRoot,str(filename),self.test)
+                #self.test = KkitEditorView(self).getCentralWidget().mooseId_GObj
+                filename = filename
+                self.test = None
+                writeerror = moose.genesis.write(self.modelRoot,str(filename),self.test)
                 if writeerror == False:
                     QtGui.QMessageBox.information(None,'Could not save the Model','\nCheck the file')
 
