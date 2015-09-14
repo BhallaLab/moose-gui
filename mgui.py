@@ -331,66 +331,34 @@ class MWindow(QtGui.QMainWindow):
         """
         busyCursor()
         for model in self._loadedModels:
-            self.disableModel(model[0])
-
+            if model[0] != root:
+                self.disableModel(model[0])
         for i in range(0, len(self._loadedModels)):
             if self._loadedModels[i][0]== root:
                 c = moose.Clock('/clock')
-                compt = moose.wildcardFind(root+'/##[ISA=ChemCompt]')
+                compts = moose.wildcardFind(root+'/##[ISA=ChemCompt]')
                 for simdt in CHEMICAL_SIMULATION_DT_CLOCKS:
                     c.tickDt[simdt] = self._loadedModels[i][3]
                 for plotdt in CHEMICAL_PLOT_UPDATE_INTERVAL_CLOCKS:
                     c.tickDt[plotdt] = self._loadedModels[i][4]
-                if compt:
-                    if moose.exists(compt[0].path+'/ksolve'):
-                        ksolve = moose.Ksolve( compt[0].path+'/ksolve' )
-                        ksolve.tick = 16
-                    if moose.exists(compt[0].path+'/gsolve'):
-                        gsolve = moose.Gsolve( compt[0].path+'/gsolve' )
-                        gsolve.tick = 16
-                    for x in moose.wildcardFind( root+'/data/graph#/#' ):
-                        x.tick = 18
-                    
+        
+                if compts:
+                    #setCompartmentSolver(self._loadedModels[i][0],"gsl")
+                    addSolver(self._loadedModels[i][0],"gsl")
                 else:
                     c.tickDt[7] = self._loadedModels[i][3]
                     c.tickDt[8] = self._loadedModels[i][4]
                     neurons = moose.wildcardFind(root + "/model/cells/##[ISA=Neuron]")
                     for neuron in neurons:
-                        #print(neuron)
                         solver = moose.element(neuron.path + "/hsolve")
-                        # print("Disabling => ", solver)
                         solver.tick = 7
                     for x in moose.wildcardFind( root+'/data/graph#/#' ):
                         x.tick = 8
-
                 break
         
         self.plugin = self.loadPluginClass(str(name))(str(root), self)
         moose.reinit()
-        # if root != '/' and root not in self._loadedModels:
-        #     self._loadedModels[root] = name
-        # for k,v in self._loadedModels.items():
-        #     compt = moose.wildcardFind(k+'/##[ISA=ChemCompt]')
-        #     if compt:
-        #         if moose.exists(compt[0].path+'/ksolve'):
-        #             ksolve = moose.Ksolve( compt[0].path+'/ksolve' )
-        #             ksolve.tick = -1
-        #         if moose.exists(compt[0].path+'/stoich'):
-        #             stoich = moose.Stoich( compt[0].path+'/stoich' )
-        #             stoich.tick = -1
-        #         for x in moose.wildcardFind( k+'/data/graph#/#' ):
-        #             x.tick = -1
-        # if root != '/' and root not in self._loadedModels:
-        #     self._loadedModels[root] = name
 
-        # try:
-        #     self.plugin = self._plugins[str(name)]
-        #     print 'PLUGIN', self.plugin
-        #     self.plugin.setModelRoot(root)
-        # except KeyError:
-        #     self.plugin = self.loadPluginClass(str(name))(str(root), self)
-        #     self._plugins[str(name)] = self.plugin
-        #self.plugin.getEditorView().getCentralWidget().editObject.connect(self.objectEditSlot, QtCore.Qt.UniqueConnection)
         self.updateMenus()
         for action in self.pluginsMenu.actions():
             if str(action.text()) == str(name):
@@ -797,7 +765,6 @@ class MWindow(QtGui.QMainWindow):
                 pluginName = subtype_plugin_map['%s/%s' % (ret['modeltype'], ret['subtype'])]
             except KeyError:
                 pluginName = 'default'
-            print 'Loaded model', ret['model'].path,subtype
             self._loadedModels.append([ret['model'].path,pluginName])
             if len(self._loadedModels)>5:
                 self._loadedModels.pop(0)
@@ -929,6 +896,11 @@ class MWindow(QtGui.QMainWindow):
         if compt:
             self.simulationdt = c.tickDt[11]
             self.plotdt = c.tickDt[16]
+        #index = [(ind, self._loadedModels[ind].index(modelPath)) for ind in xrange(len(self.loadedModels)) if item in self._loadedModels[ind]]
+        for i,j in enumerate(self._loadedModels):
+            if j[0] == modelPath:
+                del(self._loadedModels[i])
+                break
 
         self._loadedModels.append([modelPath,pluginName,action,self.simulationdt,self.plotdt])
         if len(self._loadedModels)>5:
@@ -943,9 +915,10 @@ class MWindow(QtGui.QMainWindow):
             if moose.exists(compt[0].path+'/gsolve'):
                 gsolve = moose.Gsolve( compt[0].path+'/gsolve' )
                 gsolve.tick = -1
-            # if moose.exists(compt[0].path+'/stoich'):
-            #     stoich = moose.Stoich( compt[0].path+'/stoich' )
-            #     stoich.tick = -1
+            if moose.exists(compt[0].path+'/stoich'):
+                stoich = moose.Stoich( compt[0].path+'/stoich' )
+                stoich.tick = -1
+        
         else :
             neurons = moose.wildcardFind(modelPath + "/model/cells/##[ISA=Neuron]")
             for neuron in neurons:

@@ -54,6 +54,45 @@ from os.path import splitext
 from PyQt4 import QtGui, QtCore, Qt
 from plugins.setsolver import *
 
+def loadGenCsp(target,filename):
+    path = '/'+target
+    #Harsha: Moving the model under /modelname/model and graphs under /model/graphs.
+    #This is passed while loading-time which will be easy for setting the stoich path
+    mpath = '/'+target+'/'+"model"
+    if moose.exists(mpath):
+        moose.delete(mpath)
+    
+    modelpath1 = moose.Neutral('%s' %(target))
+    modelpath = moose.Neutral('%s/%s' %(modelpath1.path,"model"))
+    
+    model = moose.loadModel(filename, modelpath.path,'gsl')
+    
+    if not moose.exists(model.path+'/data'):
+        graphspath = moose.Neutral('%s/%s' %(model.path,"data"))
+    dataPath = moose.element(model.path+'/data')
+    i =0
+    nGraphs = moose.wildcardFind(model.path+'/graphs/##[TYPE=Table2]')
+    for graphs in nGraphs:
+        if not moose.exists(dataPath.path+'/graph_'+str(i)):
+            graphspath = moose.Neutral('%s/%s' %(dataPath.path,"graph_"+str(i)))
+        else:
+            graphspath = moose.element(dataPath.path+'/graph_'+str(i))
+
+        moose.move(graphs.path,graphspath)
+
+    if len(nGraphs) > 0:
+        i = i+1
+    
+    for moregraphs in moose.wildcardFind(model.path+'/moregraphs/##[TYPE=Table2]'):
+        if not moose.exists(dataPath.path+'/graph_'+str(i)):
+            graphspath = moose.Neutral('%s/%s' %(dataPath.path,"graph_"+str(i)))
+        else:
+            graphspath = moose.element(dataPath.path+'/graph_'+str(i))
+        moose.move(moregraphs.path,graphspath)
+    moose.delete(model.path+'/graphs')
+    moose.delete(model.path+'/moregraphs')
+    return(model,modelpath.path)
+
 def loadFile(filename, target, merge=True):
     """Try to load a model from specified `filename` under the element
     `target`.
@@ -94,75 +133,14 @@ def loadFile(filename, target, merge=True):
     # app.setOverrideCursor(QtGui.QCursor(Qt.Qt.BusyCursor)) #shows a hourglass - or a busy/working arrow
     if modeltype == 'genesis':
         if subtype == 'kkit' or subtype == 'prototype':
-            path = '/'+target
-            if path != '/':
-                if moose.exists(path):
-                    moose.delete(path)
-            model = moose.loadModel(filename, target,'gsl')
-            #Harsha: Moving the model under /modelname/model and graphs under /model/graphs
-            lmodel = moose.Neutral('%s/%s' %(model.path,"model"))
-            for compt in moose.wildcardFind(model.path+'/##[ISA=ChemCompt]'):
-                moose.move(compt.path,lmodel)
-            if not moose.exists(model.path+'/data'):
-                graphspath = moose.Neutral('%s/%s' %(model.path,"data"))
-            dataPath = moose.element(model.path+'/data')
-            i =0
-            nGraphs = moose.wildcardFind(model.path+'/graphs/##[TYPE=Table2]')
-            for graphs in nGraphs:
-                if not moose.exists(dataPath.path+'/graph_'+str(i)):
-                    graphspath = moose.Neutral('%s/%s' %(dataPath.path,"graph_"+str(i)))
-                else:
-                    graphspath = moose.element(dataPath.path+'/graph_'+str(i))
-
-                moose.move(graphs.path,graphspath)
-
-            if len(nGraphs) > 0:
-                i = i+1
-            #print " i ", i,moose.wildcardFind(model.path+'/moregraphs/##[TYPE=Table2]')
-            for moregraphs in moose.wildcardFind(model.path+'/moregraphs/##[TYPE=Table2]'):
-                if not moose.exists(dataPath.path+'/graph_'+str(i)):
-                    graphspath = moose.Neutral('%s/%s' %(dataPath.path,"graph_"+str(i)))
-                else:
-                    graphspath = moose.element(dataPath.path+'/graph_'+str(i))
-                moose.move(moregraphs.path,graphspath)
-            moose.delete(model.path+'/graphs')
-            moose.delete(model.path+'/moregraphs')
+            model,modelpath = loadGenCsp(target,filename)
         else:
             print 'Only kkit and prototype files can be loaded.'
+    
     elif modeltype == 'cspace':
-            if target != '/':
-                if moose.exists(target):
-                    moose.delete(target)
-            model = moose.loadModel(filename, target,'gsl')
-            #Harsha: Moving the model under /modelname/model and graphs under /model/graphs
-            lmodel = moose.Neutral('%s/%s' %(model.path,"model"))
-            for compt in moose.wildcardFind(model.path+'/##[ISA=ChemCompt]'):
-                moose.move(compt.path,lmodel)
-            if not moose.exists(model.path+'/data'):
-                graphspath = moose.Neutral('%s/%s' %(model.path,"data"))
-            dataPath = moose.element(model.path+'/data')
-            i =0
-            nGraphs = moose.wildcardFind(model.path+'/graphs/##[TYPE=Table2]')
-            for graphs in nGraphs:
-                if not moose.exists(dataPath.path+'/graph_'+str(i)):
-                    graphspath = moose.Neutral('%s/%s' %(dataPath.path,"graph_"+str(i)))
-                else:
-                    graphspath = moose.element(dataPath.path+'/graph_'+str(i))
+            model,modelpath = loadGenCsp(target,filename)
+            addSolver(modelpath,'gsl')
 
-                moose.move(graphs.path,graphspath)
-
-            if len(nGraphs) > 0:
-                i = i+1
-            #print " i ", i,moose.wildcardFind(model.path+'/moregraphs/##[TYPE=Table2]')
-            for moregraphs in moose.wildcardFind(model.path+'/moregraphs/##[TYPE=Table2]'):
-                if not moose.exists(dataPath.path+'/graph_'+str(i)):
-                    graphspath = moose.Neutral('%s/%s' %(dataPath.path,"graph_"+str(i)))
-                else:
-                    graphspath = moose.element(dataPath.path+'/graph_'+str(i))
-                moose.move(moregraphs.path,graphspath)
-            moose.delete(model.path+'/graphs')
-            moose.delete(model.path+'/moregraphs')
-            addSolver(target,'gsl')
     elif modeltype == 'xml':
         if subtype == 'neuroml':
             popdict, projdict = neuroml.loadNeuroML_L123(filename)
