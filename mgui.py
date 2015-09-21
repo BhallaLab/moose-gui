@@ -897,10 +897,11 @@ class MWindow(QtGui.QMainWindow):
             self.simulationdt = c.tickDt[11]
             self.plotdt = c.tickDt[16]
         #index = [(ind, self._loadedModels[ind].index(modelPath)) for ind in xrange(len(self.loadedModels)) if item in self._loadedModels[ind]]
-        for i,j in enumerate(self._loadedModels):
-            if j[0] == modelPath:
-                del(self._loadedModels[i])
-                break
+        # for i,j in enumerate(self._loadedModels):
+        #     if j[0] == modelPath:
+        #         #del(self._loadedModels[i])
+        #         pass
+        #         break
 
         self._loadedModels.append([modelPath,pluginName,action,self.simulationdt,self.plotdt])
         if len(self._loadedModels)>5:

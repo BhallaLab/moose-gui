@@ -111,6 +111,12 @@ def loadFile(filename, target, merge=True):
 
     modelroot: root element of the model, None if could not be located - as is the case with Python scripts
     """
+    num = 1
+    newTarget = target
+    while moose.exists(newTarget):
+        newTarget = target + "-" + str(num)
+        num = num + 1
+    target = newTarget
     istext = True
     with open(filename, 'rb') as infile:
         istext = mtypes.istextfile(infile)
