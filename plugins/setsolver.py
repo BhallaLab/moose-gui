@@ -5,10 +5,11 @@ def deleteSolver(modelRoot):
 	for compt in compts:
 		if moose.exists(compt.path+'/stoich'):
 			st = moose.element(compt.path+'/stoich')
-			if moose.exists((st.ksolve).path):
-				moose.delete(st.ksolve)
+			st_ksolve = st.ksolve
 			moose.delete(st)
-
+			if moose.exists((st_ksolve).path):
+				moose.delete(st_ksolve)
+			
 def addSolver(modelRoot,solver):
 	compt = moose.wildcardFind(modelRoot+'/##[ISA=ChemCompt]')
 	if compt:
