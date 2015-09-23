@@ -140,11 +140,13 @@ def loadFile(filename, target, merge=True):
     if modeltype == 'genesis':
         if subtype == 'kkit' or subtype == 'prototype':
             model,modelpath = loadGenCsp(target,filename)
+            moose.Annotator((moose.element(modelpath+'/info'))).modeltype = "kkit"
         else:
             print 'Only kkit and prototype files can be loaded.'
     
     elif modeltype == 'cspace':
             model,modelpath = loadGenCsp(target,filename)
+            moose.Annotator((moose.element(modelpath+'/info'))).modeltype = "cspace"
             addSolver(modelpath,'gsl')
 
     elif modeltype == 'xml':
@@ -175,6 +177,8 @@ def loadFile(filename, target, merge=True):
                 if moose.exists(target):
                     moose.delete(target)
             model = moose.readSBML(filename,target,'gsl')
+            if moose.exists(moose.element(model).path+'/model'):
+                moose.Annotator(moose.element(model).path+'/model/info').modeltype = "sbml"
             addSolver(target,'gsl')
     else:
         raise FileLoadError('Do not know how to handle this filetype: %s' % (filename))

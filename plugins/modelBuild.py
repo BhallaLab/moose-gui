@@ -16,47 +16,37 @@ def updateCompartmentSize(qGraCompt):
     if not comptBoundingRect.contains(childBoundingRect):
         qGraCompt.setRect(rectcompt.x()-comptWidth,rectcompt.y()-comptWidth,rectcompt.width()+(comptWidth*2),rectcompt.height()+(comptWidth*2))
     #view.fitInView(view.sceneContainerPt.itemsBoundingRect())
+
 # def checkCreate(string,num,itemAt,qGraCompt,modelRoot,scene,pos,posf,view,qGIMob):
-def checkCreate(scene,view,modelpath,string,num,event_pos,layoutPt):
+def checkCreate(scene,view,modelpath,mobj,string,ret_string,num,event_pos,layoutPt):
     # The variable 'compt' will be empty when dropping cubeMesh,cyclMesh, but rest it shd be
     # compartment
-    if modelpath.find('/',1) > -1:
-        modelRoot = modelpath[0:modelpath.find('/',1)]
-    else:
-        modelRoot = modelpath
-    mType = moose.Annotator((moose.element(modelRoot+'/info'))).modeltype
+    # if modelpath.find('/',1) > -1:
+    #     modelRoot = modelpath[0:modelpath.find('/',1)]
+    # else:
+    #     modelRoot = modelpath
+
+    if moose.exists(modelpath+'/info'):
+        mType = moose.Annotator((moose.element(modelpath+'/info'))).modeltype
+    
     itemAtView = view.sceneContainerPt.itemAt(view.mapToScene(event_pos))
     pos = view.mapToScene(event_pos)
     modelpath = moose.element(modelpath)
+
     if num:
-        if string == "CubeMesh":
-            string_num = "Compartment"+str(num)
-        elif string == "CylMesh":
-            string_num = "Compartment"+str(num)
-        else:
-            string_num = string+str(num)
+        string_num = ret_string+str(num)
     else:
-        if string == "CubeMesh":
-            string_num = "Compartment"
-        elif string == "CylMesh":
-            string_num = "Compartment"
-        else:
-            string_num = string
+        string_num = ret_string
 
-    if string == "Pool" or string == "BufPool" or string == "Reac" or string == "StimulusTable":
-        compartment = None
-        itemClass = type(itemAtView).__name__
-        if ( itemClass == 'QGraphicsRectItem'):
-            mobj = itemAtView.parentItem().mobj
-        else:
-            mobj = itemAtView.mobj
-        compartment = findCompartment(mobj)
-        mobj = compartment
-    if string == "CubeMesh":
-        mobj = moose.CubeMesh(modelpath.path+'/'+string_num)
+    if string == "CubeMesh" or string == "CylMesh":
+        if string == "CylMesh":
+            mobj = moose.CylMesh(modelpath.path+'/'+string_num)
+        else:    
+            mobj = moose.CubeMesh(modelpath.path+'/'+string_num)
+        
         mobj.volume = 1e-15
         mesh = moose.element(mobj.path+'/mesh')
-        qGItem = ComptItem(scene,pos.toPoint().x(),pos.toPoint().y(),800,500,mobj)
+        qGItem = ComptItem(scene,pos.toPoint().x(),pos.toPoint().y(),100,100,mobj)
         qGItem.setPen(QtGui.QPen(Qt.QColor(66,66,66,100), 5, Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
         view.sceneContainerPt.addItem(qGItem)
         qGItem.cmptEmitter.connect(qGItem.cmptEmitter,QtCore.SIGNAL("qgtextPositionChange(PyQt_PyObject)"),layoutPt.positionChange1)
@@ -64,36 +54,16 @@ def checkCreate(scene,view,modelpath,string,num,event_pos,layoutPt):
         compartment = qGItem
         layoutPt.qGraCompt[mobj]= qGItem
         view.emit(QtCore.SIGNAL("dropped"),mobj)
-    elif string == "CylMesh":
-        mobj = moose.CylMesh(modelpath.path+'/'+string_num)
-        mobj.volume = 1e-15
-        mesh = moose.element(mobj.path+'/mesh')
-        qGItem = ComptItem(scene,pos.toPoint().x(),pos.toPoint().y(),800,500,mobj)
-        qGItem.setPen(QtGui.QPen(Qt.QColor(66,66,66,100), 5, Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
-        view.sceneContainerPt.addItem(qGItem)
-        compartment = qGItem
-        layoutPt.qGraCompt[mobj]= qGItem
-        view.emit(QtCore.SIGNAL("dropped"),mobj)
-        qGItem.cmptEmitter.connect(qGItem.cmptEmitter,QtCore.SIGNAL("qgtextPositionChange(PyQt_PyObject)"),layoutPt.positionChange1)
-        qGItem.cmptEmitter.connect(qGItem.cmptEmitter,QtCore.SIGNAL("qgtextItemSelectedChange(PyQt_PyObject)"),layoutPt.objectEditSlot)
-
+    
     elif string == "Pool" or string == "BufPool":
         #getting pos with respect to compartment otherwise if compartment is moved then pos would be wrong
         posWrtComp = (itemAtView.mapFromScene(pos)).toPoint()
-        # mobj = itemAtView.mobj
-        # compartment = None
-        # compartment = findCompartment(mobj)
-        # if not isinstance(compartment,ChemCompt):
-        #     print " Dropping not possible, Pool needs Compartment as its parent"
-        # else:
-            # mobj = compartment
-
         if string == "Pool":
             poolObj = moose.Pool(mobj.path+'/'+string_num)
-            poolinfo = moose.Annotator(poolObj.path+'/info')
         else:
             poolObj = moose.BufPool(mobj.path+'/'+string_num)    
-            poolinfo = moose.Annotator(poolObj.path+'/info')
+        
+        poolinfo = moose.Annotator(poolObj.path+'/info')
         qGItem =PoolItem(poolObj,itemAtView)
         layoutPt.mooseId_GObj[poolObj] = qGItem
         posWrtComp = (itemAtView.mapFromScene(pos)).toPoint()
@@ -148,12 +118,13 @@ def checkCreate(scene,view,modelpath,string,num,event_pos,layoutPt):
             updateCompartmentSize(compt)
     elif string == "Function":
         posWrtComp = (itemAtView.mapFromScene(pos)).toPoint()
-        mobj = itemAtView.mobj
+
         funcObj = moose.Function(mobj.path+'/'+string_num)
         funcinfo = moose.Annotator(funcObj.path+'/info')
         moose.connect( funcObj, 'valueOut', mobj ,'setN' )
         funcParent = layoutPt.mooseId_GObj[element(mobj.path)]
         qGItem = FuncItem(funcObj,funcParent)
+        print " function ", posWrtComp.x(),posWrtComp.y()
         qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),QtGui.QColor('red'),QtGui.QColor('green'))
         layoutPt.mooseId_GObj[funcObj] = qGItem
         if mType == "new_kkit":
@@ -170,9 +141,7 @@ def checkCreate(scene,view,modelpath,string,num,event_pos,layoutPt):
 
     elif  string == "Enz" or string == "MMenz":
         #If 2 enz has same pool parent, then pos of the 2nd enz shd be displaced by some position, need to check how to deal with it
-        #posWrtComp = (itemAtView.mapFromScene(pos)).toPoint()
         posWrtComp = pos
-        mobj = itemAtView.mobj
         enzPool = layoutPt.mooseId_GObj[mobj]
         if ((mobj.parent).className == "Enz"):
             QtGui.QMessageBox.information(None,'Drop Not possible','\'{newString}\' has to have Pool as its parent and not Enzyme Complex'.format(newString =string),QtGui.QMessageBox.Ok)
@@ -230,48 +199,62 @@ def checkCreate(scene,view,modelpath,string,num,event_pos,layoutPt):
 
 def createObj(scene,view,modelpath,string,pos,layoutPt):
     event_pos = pos
-    num = ''
+    num = 0
+    ret_string = " "
     pos = view.mapToScene(event_pos)
     itemAt = view.sceneContainerPt.itemAt(pos)
     chemMesh = moose.wildcardFind(modelpath+'/##[ISA=ChemCompt]')
     deleteSolver(modelpath)
-    if len(chemMesh) and (string == "CubeMesh" or string == "CylMesh"):
-        QtGui.QMessageBox.information(None,'Drop Not possible','At present model building allowed only for  single compartment.',QtGui.QMessageBox.Ok)
-        return
+    mobj = ""
+    
+    if itemAt != None:
+        itemAtView = view.sceneContainerPt.itemAt(view.mapToScene(event_pos))
+        itemClass = type(itemAtView).__name__
+        if ( itemClass == 'QGraphicsRectItem'):
+            mobj = itemAtView.parentItem().mobj
+        elif(itemClass == 'QGraphicsSvgItem'):
+            mobj = itemAtView.parent().mobj
+        else:
+            mobj = itemAtView.mobj
+    elif itemAt == None:
+        if string == "CubeMesh" or string == "CylMesh":
+            mobj = moose.element(modelpath)
+
     if string == "Pool" or string == "BufPool" or string == "Reac" or string == "StimulusTable":
         if itemAt == None:
             QtGui.QMessageBox.information(None,'Drop Not possible','\'{newString}\' has to have compartment as its parent'.format(newString =string),QtGui.QMessageBox.Ok)
             return
+        else:
+            mobj = findCompartment(mobj)
+            ret_string,num = findUniqId(mobj,string,num)
+
     elif string == "Function":
         if itemAt != None:
-            if ((itemAt.mobj).className != "BufPool"):    
+            if ((mobj).className != "BufPool"):    
                 QtGui.QMessageBox.information(None,'Drop Not possible','\'{newString}\' has to have BufPool as its parent'.format(newString =string),QtGui.QMessageBox.Ok)
                 return
+            else:
+                ret_string,num = findUniqId(mobj,string,num)
         else:
             QtGui.QMessageBox.information(None,'Drop Not possible','\'{newString}\' has to have BufPool as its parent'.format(newString =string),QtGui.QMessageBox.Ok)
             return
 
     elif string == "Enz" or string == "MMenz":
         if itemAt != None:
-            if ((itemAt.mobj).className != "Pool" and (itemAt.mobj).className != "BufPool"):    
+            if ((mobj).className != "Pool" and (mobj).className != "BufPool"):    
                 QtGui.QMessageBox.information(None,'Drop Not possible','\'{newString}\' has to have Pool as its parent'.format(newString =string),QtGui.QMessageBox.Ok)
                 return
+            else:
+                ret_string,num = findUniqId(mobj,string,num)
         else:
             QtGui.QMessageBox.information(None,'Drop Not possible','\'{newString}\' has to have Pool as its parent'.format(newString =string),QtGui.QMessageBox.Ok)
             return
+    
+    elif string == "CylMesh" or string == "CubeMesh":
+        ret_string,num = findUniqId(mobj,"Compartment",0)
 
-    if itemAt != None:
-        itemAtView = view.sceneContainerPt.itemAt(view.mapToScene(event_pos))
-        itemClass = type(itemAtView).__name__
-        if ( itemClass == 'QGraphicsRectItem'):
-            mobj = itemAtView.parentItem().mobj
-        else:
-            mobj = itemAtView.mobj
-        compartment = findCompartment(mobj)
-        mobj = compartment
-        num = 0;
-        string,num = findUniqId(mobj,string,num)
-    checkCreate(scene,view,modelpath,string,num,event_pos,layoutPt)
+    if ret_string != " ":
+        checkCreate(scene,view,modelpath,mobj,string,ret_string,num,event_pos,layoutPt)
 
 def findUniqId(mobj,string,num):
     if num == 0:
@@ -283,6 +266,7 @@ def findUniqId(mobj,string,num):
     else:
         num +=1;
         return(findUniqId(mobj,string,num))
+
 def findCompartment(mooseObj):
     if mooseObj.path == '/':
         return None

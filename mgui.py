@@ -1008,10 +1008,10 @@ class MWindow(QtGui.QMainWindow):
             '''
             modelContainer = moose.Neutral('%s' %(modelPath))
             modelRoot = moose.Neutral('%s/%s' %(modelContainer.path,"model"))
-            if not moose.exists(modelContainer.path+'/info'):
-                moose.Annotator(modelContainer.path+'/info')
-
-            modelAnno = moose.element(modelContainer.path+'/info')
+            if not moose.exists(modelRoot.path+'/info'):
+                moose.Annotator(modelRoot.path+'/info')
+            
+            modelAnno = moose.element(modelRoot.path+'/info')
             modelAnno.modeltype = "new_kkit"
             modelAnno.dirpath = " "
             self.loadedModelsAction(modelRoot.path,plugin)
