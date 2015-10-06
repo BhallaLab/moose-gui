@@ -668,13 +668,14 @@ class GraphicalView(QtGui.QGraphicsView):
 
     def updateItemTransformationMode(self, on):
         for v in self.sceneContainerPt.items():
+            #v.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations,on)
             if( not isinstance(v,ComptItem)):
                 #if ( isinstance(v, PoolItem) or isinstance(v, ReacItem) or isinstance(v, EnzItem) or isinstance(v, CplxItem) ):
                 if isinstance(v,KineticsDisplayItem):
                     v.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations, on)
-    
     def keyPressEvent(self,event):
         key = event.key()
+        self.removeConnector()
         if (key ==  Qt.Qt.Key_A and (event.modifiers() & Qt.Qt.ShiftModifier)): # 'A' fits the view to iconScale factor
             itemignoreZooming = False
             self.updateItemTransformationMode(itemignoreZooming)
@@ -1071,6 +1072,7 @@ class GraphicalView(QtGui.QGraphicsView):
             expr = expr.replace(" ","")
             des.expr = expr
             moose.connect( src, 'nOut', des.x[numVariables], 'input' )
+            
         elif ( isinstance(moose.element(src),Function) and (moose.element(des).className=="Pool") ):
                 if ((element(des).parent).className != 'Enz'):
                     moose.connect(src, 'valueOut', des, 'increment', 'OneToOne')
@@ -1079,7 +1081,7 @@ class GraphicalView(QtGui.QGraphicsView):
                     QtGui.QMessageBox.information(None,'Connection Not possible','\'{srcdesString}\' not allowed to connect'.format(srcdesString = srcdesString),QtGui.QMessageBox.Ok)
                     callsetupItem = False
         elif ( isinstance(moose.element(src),Function) and (moose.element(des).className=="BufPool") ):
-                moose.connect(src, 'valueOut', des, 'setConcInit', 'OneToOne')
+                moose.connect(src, 'valueOut', des, 'setN', 'OneToOne')
         elif ( isinstance(moose.element(src),Function) and (isinstance(moose.element(des),ReacBase) ) ):
                 moose.connect(src, 'valueOut', des, 'setNumKf', 'OneToOne')
         elif (((isinstance(moose.element(src),ReacBase))or (isinstance(moose.element(src),EnzBase))) and (isinstance(moose.element(des),PoolBase))):

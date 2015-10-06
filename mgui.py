@@ -999,13 +999,15 @@ class MWindow(QtGui.QMainWindow):
                 raise mexception.ElementNameError('Model path should not containe / or whitespace')
             #plugin = str(newModelDialog.submenu.currentText())
             plugin = str(newModelDialog.getcurrentRadioButton())
-            #print "plugin ",plugin
             #Harsha: All model will be forced to load/build under /model,
             #2014 sep 10: All the model will be forced to load/build model under /modelName/model
             '''
             modelContainer = moose.Neutral('/model')
             modelRoot = moose.Neutral('%s/%s' % (modelContainer.path, modelPath))
             '''
+            if moose.exists(modelPath+'/model'):
+                moose.delete(modelPath)
+
             modelContainer = moose.Neutral('%s' %(modelPath))
             modelRoot = moose.Neutral('%s/%s' %(modelContainer.path,"model"))
             if not moose.exists(modelRoot.path+'/info'):
