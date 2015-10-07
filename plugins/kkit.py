@@ -42,9 +42,9 @@ class KkitPlugin(MoosePlugin):
     def SaveModelDialogSlot(self):
         type_sbml = 'SBML'
         type_genesis = 'Genesis'
-        if moose.Annotator(self.modelRoot+'/info'):
-            moose.Annotator(self.modelRoot+'/info')
-        mooseAnno = moose.Annotator(self.modelRoot+'/info')
+        # if moose.Annotator(self.modelRoot+'/model/info'):
+        #     moose.Annotator(self.modelRoot+'/model/info')
+        # mooseAnno = moose.Annotator(self.modelRoot+'/model/info')
         dirpath = mooseAnno.dirpath
         if not dirpath:
             dirpath = expanduser("~")
@@ -157,8 +157,10 @@ class AnotherKkitRunView(RunView):
         compt = moose.wildcardFind(self.modelRoot+'/##[ISA=ChemCompt]')
         ann = moose.Annotator(self.modelRoot+'/info')
         if compt:
-            self.runTime = (moose.Annotator(self.modelRoot+'/info')).runtime
-            solver = (moose.Annotator(self.modelRoot+'/info')).solver
+            #self.runTime = (moose.Annotator(self.modelRoot+'/info')).runtime
+            #solver = (moose.Annotator(self.modelRoot+'/info')).solver
+            self.runTime = moose.element(ann).runtime
+            solver = moose.element(ann).solver
         else:
             self.runTime = 100
             solver = "gsl"
@@ -284,7 +286,7 @@ class  KineticsWidget(EditorWidgetBase):
         EditorWidgetBase.__init__(self, *args)
         self.plugin = plugin
         self.border = 5
-        self.comptPen = 6
+        self.comptPen = 1
         self.iconScale = 1
         self.arrowsize = 2
         self.defaultComptsize = 5
@@ -497,6 +499,7 @@ class  KineticsWidget(EditorWidgetBase):
         for k, v in self.qGraCompt.items():
             # compartment's rectangle size is calculated depending on children
             rectcompt = v.childrenBoundingRect()
+
             v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
             v.setPen(QtGui.QPen(Qt.QColor(66,66,66,100), self.comptPen, Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
 

@@ -64,34 +64,39 @@ def loadGenCsp(target,filename):
     
     modelpath1 = moose.Neutral('%s' %(target))
     modelpath = moose.Neutral('%s/%s' %(modelpath1.path,"model"))
-    
+        
     model = moose.loadModel(filename, modelpath.path,'gsl')
     
-    if not moose.exists(model.path+'/data'):
-        graphspath = moose.Neutral('%s/%s' %(model.path,"data"))
-    dataPath = moose.element(model.path+'/data')
+    if not moose.exists(modelpath1.path+'/data'):
+        graphspath = moose.Neutral('%s/%s' %(modelpath1.path,"data"))
+    dataPath = moose.element(modelpath1.path+'/data')
     i =0
-    nGraphs = moose.wildcardFind(model.path+'/graphs/##[TYPE=Table2]')
+    nGraphs = moose.wildcardFind(modelpath.path+'/graphs/##[TYPE=Table2]')
     for graphs in nGraphs:
         if not moose.exists(dataPath.path+'/graph_'+str(i)):
             graphspath = moose.Neutral('%s/%s' %(dataPath.path,"graph_"+str(i)))
         else:
             graphspath = moose.element(dataPath.path+'/graph_'+str(i))
-
         moose.move(graphs.path,graphspath)
 
     if len(nGraphs) > 0:
         i = i+1
     
-    for moregraphs in moose.wildcardFind(model.path+'/moregraphs/##[TYPE=Table2]'):
+    for moregraphs in moose.wildcardFind(modelpath.path+'/moregraphs/##[TYPE=Table2]'):
         if not moose.exists(dataPath.path+'/graph_'+str(i)):
             graphspath = moose.Neutral('%s/%s' %(dataPath.path,"graph_"+str(i)))
         else:
             graphspath = moose.element(dataPath.path+'/graph_'+str(i))
         moose.move(moregraphs.path,graphspath)
-    moose.delete(model.path+'/graphs')
-    moose.delete(model.path+'/moregraphs')
-    return(model,modelpath.path)
+    if moose.exists(modelpath.path+'/info'):
+        AnnotatorOld =  moose.element(modelpath.path+'/info')
+        AnnotatorNew = moose.Annotator(modelpath1.path+'/info')
+        AnnotatorNew.runtime = AnnotatorOld.runtime
+        AnnotatorNew.solver = AnnotatorOld.solver
+        moose.delete(AnnotatorOld)
+    moose.delete(modelpath.path+'/graphs')
+    moose.delete(modelpath.path+'/moregraphs')
+    return(modelpath1,modelpath1.path)
 
 def loadFile(filename, target, merge=True):
     """Try to load a model from specified `filename` under the element
@@ -140,13 +145,18 @@ def loadFile(filename, target, merge=True):
     if modeltype == 'genesis':
         if subtype == 'kkit' or subtype == 'prototype':
             model,modelpath = loadGenCsp(target,filename)
-            moose.Annotator((moose.element(modelpath+'/info'))).modeltype = "kkit"
+            if moose.exists(moose.element(modelpath).path):
+                moose.Annotator(moose.element(modelpath).path+'/info').modeltype = "kkit"
+            else:
+                print " path doesn't exists"
+            moose.le(modelpath)
         else:
             print 'Only kkit and prototype files can be loaded.'
     
     elif modeltype == 'cspace':
             model,modelpath = loadGenCsp(target,filename)
-            moose.Annotator((moose.element(modelpath+'/info'))).modeltype = "cspace"
+            if moose.exists(modelpath):
+                moose.Annotator((moose.element(modelpath).path+'/info')).modeltype = "cspace"
             addSolver(modelpath,'gsl')
 
     elif modeltype == 'xml':
@@ -177,8 +187,8 @@ def loadFile(filename, target, merge=True):
                 if moose.exists(target):
                     moose.delete(target)
             model = moose.readSBML(filename,target,'gsl')
-            if moose.exists(moose.element(model).path+'/model'):
-                moose.Annotator(moose.element(model).path+'/model/info').modeltype = "sbml"
+            if moose.exists(moose.element(model).path):
+                moose.Annotator(moose.element(model).path+'/info').modeltype = "sbml"
             addSolver(target,'gsl')
     else:
         raise FileLoadError('Do not know how to handle this filetype: %s' % (filename))

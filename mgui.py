@@ -466,7 +466,9 @@ class MWindow(QtGui.QMainWindow):
                 break
         if newSubWindow:
             subwin = self.mdiArea.addSubWindow(widget)
-            subwin.setWindowTitle('%s: %s' % (view, widget.modelRoot))
+            title = widget.modelRoot+'/model'
+            #subwin.setWindowTitle('%s: %s' % (view, widget.modelRoot))
+            subwin.setWindowTitle('%s: %s' % (view, title))
             subwin.setSizePolicy(QtGui.QSizePolicy.Minimum |
                                  QtGui.QSizePolicy.Expanding,
                                  QtGui.QSizePolicy.Minimum |
@@ -927,7 +929,6 @@ class MWindow(QtGui.QMainWindow):
                 solver = moose.element(neuron.path + "/hsolve")
                 # print("Disabling => ", solver)
                 solver.tick = -1
-
         for table in moose.wildcardFind( modelPath+'/data/graph#/#' ):
             table.tick = -1
 
@@ -973,8 +974,8 @@ class MWindow(QtGui.QMainWindow):
                 except KeyError:
                     pluginName = 'default'
                 print 'Loaded model', ret['model'].path
-                if not moose.exists(ret['model'].path+'/info'):
-                    moose.Annotator(ret['model'].path+'/info')
+                # if not moose.exists(ret['model'].path+'/info'):
+                #     moose.Annotator(ret['model'].path+'/info')
 
                 modelAnno = moose.Annotator(ret['model'].path+'/info')
                 if ret['subtype']:
