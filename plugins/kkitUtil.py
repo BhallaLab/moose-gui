@@ -84,7 +84,7 @@ def validColorcheck(color):
             return(QColor("white"))
 
 
-def moveMin(reference, collider, margin):
+def moveMin(reference, collider, layoutPt,margin):
     referenceRect = reference.sceneBoundingRect()
     colliderRect = collider.sceneBoundingRect()
     xDistance = referenceRect.x() + referenceRect.width() / 2.0 + colliderRect.width() / 2.0 + margin - colliderRect.x()
@@ -98,18 +98,18 @@ def moveMin(reference, collider, margin):
     collider.moveBy(xDistance, yDistance)
     #else:
     #   collider.moveBy(xDistance, 0.0)
-    #self.layoutPt.drawLine_arrow(itemignoreZooming=False)
+    layoutPt.drawLine_arrow(itemignoreZooming=False)
 
-def moveX(reference, collider, margin):
+def moveX(reference, collider, layoutPt, margin):
     referenceRect = reference.sceneBoundingRect()
     colliderRect = collider.sceneBoundingRect()
     xc = abs(referenceRect.topRight().x()) - abs(colliderRect.topLeft().x())+margin
     yc = 0.0
     collider.moveBy(xc,yc)
-    #self.layoutPt.drawLine_arrow(itemignoreZooming=False)
+    layoutPt.drawLine_arrow(itemignoreZooming=False)
 
-def handleCollisions(compartments, moveCallback, margin = 5.0):
-    print " @ handleCollision",compartments
+def handleCollisions(compartments, moveCallback, layoutPt,margin = 5.0):
+    
     if len(compartments) is 0 : return
     compartments = sorted(compartments, key = lambda c: c.sceneBoundingRect().center().x())
     reference = compartments.pop(0);
@@ -119,6 +119,5 @@ def handleCollisions(compartments, moveCallback, margin = 5.0):
                       , compartments
                       )
     for collider in colliders:
-        print " r ",reference,collider
-        moveCallback(reference, collider, margin)
-    return handleCollisions(compartments, moveCallback, margin)
+        moveCallback(reference, collider, layoutPt,margin)
+    return handleCollisions(compartments, moveCallback, layoutPt,margin)

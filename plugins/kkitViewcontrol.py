@@ -3,7 +3,7 @@ from modelBuild import *
 from constants import *
 from PyQt4.QtGui import QPixmap, QImage, QPen, QGraphicsPixmapItem, QGraphicsLineItem
 from PyQt4.QtCore import pyqtSignal
-from kkitUtil import getColor
+from kkitUtil import  *
 from setsolver import *
 from PyQt4 import QtSvg
 from moose import utils
@@ -123,7 +123,14 @@ class GraphicalView(QtGui.QGraphicsView):
             # self.layoutPt.plugin.mainWindow.objectEditSlot(self.state["press"]["item"].mobj, False)
         else:
             self.resetState()
-        #print(self.state)
+            comptList = []
+            for k, v in self.layoutPt.qGraCompt.items():
+                comptList.append(v)
+            if len(comptList) > 1:
+                popupmenu = QtGui.QMenu('PopupMenu', self)
+                popupmenu.addAction("LinearLayout", lambda : handleCollisions(comptList, moveX, self.layoutPt))
+                popupmenu.addAction("VerticalLayout" ,lambda : handleCollisions(comptList, moveMin, self.layoutPt ))
+                popupmenu.exec_(self.mapToGlobal(event.pos()))
 
 
     def editorMouseMoveEvent(self, event):

@@ -286,7 +286,7 @@ class  KineticsWidget(EditorWidgetBase):
         EditorWidgetBase.__init__(self, *args)
         self.plugin = plugin
         self.border = 5
-        self.comptPen = 1
+        self.comptPen = 5
         self.iconScale = 1
         self.arrowsize = 2
         self.defaultComptsize = 5
