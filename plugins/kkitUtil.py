@@ -4,18 +4,33 @@ import numpy as np
 import os
 import config
 import pickle
-from random import randint
+import random
+import matplotlib
 
 colormap_file = open(os.path.join(config.settings[config.KEY_COLORMAP_DIR], 'rainbow2.pkl'),'rb')
 colorMap = pickle.load(colormap_file)
 colormap_file.close()
 
+ignoreColor= ["mistyrose","antiquewhite","aliceblue","azure","bisque","black","blanchedalmond","blue","cornsilk","darkolivegreen","darkslategray","dimgray","floralwhite","gainsboro","ghostwhite","honeydew","ivory","lavender","lavenderblush","lemonchiffon","lightcyan","lightgoldenrodyellow","lightgray","lightyellow","linen","mediumblue","mintcream","navy","oldlace","papayawhip","saddlebrown","seashell","snow","wheat","white","whitesmoke"]
+matplotcolor = {}
+for name,hexno in matplotlib.colors.cnames.iteritems():
+    matplotcolor[name]=hexno
+
 def getRandColor():
+    k = random.choice(matplotcolor.keys())
+    if k in ignoreColor:
+        return getRandColor()
+    else:
+        print " l =",matplotcolor[k]
+        return QColor(matplotcolor[k])
+
+def getRandColor1():
     color = (np.random.randint(low=0, high=255, size=3)).tolist()
     if not all((x <= 65 or x >= 105) for x in (color[0],color[1],color[2])):
         return QColor(color[0],color[1],color[2])
     else:
         return getRandColor()
+    
 
 def getColor(iteminfo):
     """ Getting a textcolor and background color for the given  mooseObject \
@@ -62,9 +77,48 @@ def validColorcheck(color):
         Both in Qt4.7 and 4.8 if not a valid color it makes it as back but in 4.7 there will be a warning mssg which is taken here
         checking if textcolor or backgroundcolor is valid color, if 'No' making white color as default
         where I have not taken care for checking what will be backgroundcolor for textcolor or textcolor for backgroundcolor 
-        '''
+    '''
         if QColor(color).isValid():
             return (QColor(color))
         else:
             return(QColor("white"))
 
+
+def moveMin(reference, collider, margin):
+    referenceRect = reference.sceneBoundingRect()
+    colliderRect = collider.sceneBoundingRect()
+    xDistance = referenceRect.x() + referenceRect.width() / 2.0 + colliderRect.width() / 2.0 + margin - colliderRect.x()
+    yDistance = 0.0     
+    if colliderRect.y() < referenceRect.y():
+        yDistance = (referenceRect.y() - referenceRect.height() / 2.0 - colliderRect.height() / 2.0 - margin) - colliderRect.y()
+    else:
+        yDistance = referenceRect.y() + referenceRect.height() / 2.0 + colliderRect.height() / 2.0 + margin - colliderRect.y()
+
+    #if xDistance > yDistance:
+    collider.moveBy(xDistance, yDistance)
+    #else:
+    #   collider.moveBy(xDistance, 0.0)
+    #self.layoutPt.drawLine_arrow(itemignoreZooming=False)
+
+def moveX(reference, collider, margin):
+    referenceRect = reference.sceneBoundingRect()
+    colliderRect = collider.sceneBoundingRect()
+    xc = abs(referenceRect.topRight().x()) - abs(colliderRect.topLeft().x())+margin
+    yc = 0.0
+    collider.moveBy(xc,yc)
+    #self.layoutPt.drawLine_arrow(itemignoreZooming=False)
+
+def handleCollisions(compartments, moveCallback, margin = 5.0):
+    print " @ handleCollision",compartments
+    if len(compartments) is 0 : return
+    compartments = sorted(compartments, key = lambda c: c.sceneBoundingRect().center().x())
+    reference = compartments.pop(0);
+    print reference.name
+    referenceRect = reference.sceneBoundingRect()
+    colliders = filter( lambda compartment : referenceRect.intersects(compartment.sceneBoundingRect())
+                      , compartments
+                      )
+    for collider in colliders:
+        print " r ",reference,collider
+        moveCallback(reference, collider, margin)
+    return handleCollisions(compartments, moveCallback, margin)

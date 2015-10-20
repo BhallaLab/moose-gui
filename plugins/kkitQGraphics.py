@@ -9,6 +9,8 @@ from constants import *
 class KineticsDisplayItem(QtGui.QGraphicsWidget):
     """Base class for display elemenets in kinetics layout"""
     name = ITEM
+    defaultFontName = "Helvetica"
+    defaultFontSize = 10
     def __init__(self, mooseObject, parent=None):
         QtGui.QGraphicsObject.__init__(self,parent)
         self.mobj = mooseObject
@@ -53,9 +55,8 @@ class FuncItem(KineticsDisplayItem):
     name = ITEM
     """Class for displaying Functions"""    
     #fontMetrics = None
-    defaultFontsize = 12
-    font =QtGui.QFont("Helvetica")
-    font.setPointSize(defaultFontsize)
+    font =QtGui.QFont(KineticsDisplayItem.defaultFontName)
+    font.setPointSize(KineticsDisplayItem.defaultFontSize)
     fontMetrics = QtGui.QFontMetrics(font)
     def __init__(self, mobj, parent):
         super(FuncItem, self).__init__(mobj, parent)
@@ -125,9 +126,8 @@ class PoolItem(KineticsDisplayItem):
     """Class for displaying pools. Uses a QGraphicsSimpleTextItem to
     display the name."""    
     #fontMetrics = None
-    defaultFontsize = 12
-    font =QtGui.QFont("Helvetica")
-    font.setPointSize(defaultFontsize)
+    font =QtGui.QFont(KineticsDisplayItem.defaultFontName)
+    font.setPointSize(KineticsDisplayItem.defaultFontSize)
     fontMetrics = QtGui.QFontMetrics(font)
     def __init__(self, mobj, parent):
         KineticsDisplayItem.__init__(self, mobj, parent)
@@ -153,7 +153,7 @@ class PoolItem(KineticsDisplayItem):
                         +PoolItem.fontMetrics.width('  '), 
                         self.gobj.boundingRect().height())
         self.bg.setPen(Qt.QColor(0,0,0,0))
-        self.gobj.setPos(PoolItem.fontMetrics.width(' '), 0)
+        self.gobj.setPos(PoolItem.fontMetrics.width('  '), 0)
     def setDisplayProperties(self,x,y,textcolor,bgcolor):
         """Set the display properties of this item."""
         
@@ -163,10 +163,10 @@ class PoolItem(KineticsDisplayItem):
         self.bg.setBrush(QtGui.QBrush(bgcolor))
     
     def refresh(self,scale):
-        fontsize = PoolItem.defaultFontsize*scale
-        font =QtGui.QFont("Helvetica")
+        fontsize = KineticsDisplayItem.defaultFontSize*scale
+        font =QtGui.QFont(KineticsDisplayItem.defaultFontName)
         font.setPointSize(fontsize)
-        self.gobj.setFont(font)
+        self.gobj.setFont(PoolItem.font)
 
     def boundingRect(self):
         ''' reimplimenting boundingRect for redrawning '''
@@ -228,8 +228,8 @@ class PoolItemCircle(PoolItem):
             height()/2-5,10,10)
     
     def refresh(self,scale):
-        fontsize = PoolItem.defaultFontsize*scale
-        font =QtGui.QFont("Helvetica")
+        fontsize = KineticsDisplayItem.defaultFontSize*scale
+        font =QtGui.QFont(KineticsDisplayItem.defaultFontName)
         font.setPointSize(fontsize)
         self.gobj.setFont(font)    
 
@@ -436,7 +436,7 @@ class CplxItem(KineticsDisplayItem):
     def refresh(self,scale):
         defaultWidth = CplxItem.defaultWidth*scale
         defaultHeight = CplxItem.defaultHeight*scale
-	
+    
         self.gobj.setRect(0,0,defaultWidth,defaultHeight)
 
 class ComptItem(QtGui.QGraphicsRectItem):
