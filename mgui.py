@@ -6,8 +6,8 @@
 # Maintainer:
 # Created: Mon Nov 12 09:38:09 2012 (+0530)
 # Version:
-# Last-Updated: Thu Jul 18 10:54:33 2013 (+0530)
-#           By: subha
+# Last-Updated: Fri Oct 30 11:54:33 2015 (+0530)
+#           By: Harsha
 #     Update #: 1338
 # URL:
 # Keywords:
@@ -73,6 +73,8 @@ from MdiArea import MdiArea
 import os
 from setsolver import *
 from defines import *
+from collections import OrderedDict
+
 __author__ = 'Subhasis Ray , HarshaRani, Aviral Goel, NCBS'
 
 # This maps model subtypes to corresponding plugin names. Should be
@@ -157,6 +159,7 @@ class MWindow(QtGui.QMainWindow):
         self.getMyDockWidgets()
         self.setCentralWidget(self.mdiArea)
         self.setWindowIcon(QIcon(APPLICATION_ICON_PATH))
+        
         # pixmap = QPixmap("icons/moose_icon.png")
 
         # pixmap = pixmap.scaled(self.mdiArea.size())
@@ -184,29 +187,87 @@ class MWindow(QtGui.QMainWindow):
         createKineticModelButton = QPushButton("Create Kinetic Model")
         loadKineticModelButton   = QPushButton("Load Model")
         loadNeuronalModelButton  = QPushButton("Load Neuronal Model")
-        # createKineticModelButton.setStyleSheet(
-        #     """QPushButton { font-size  : 18pt;
-        #                      font-weight: bold;
-        #                      color      : #000000;
-        #                    }
-        #     """                               )
         layout.setContentsMargins(QtCore.QMargins(20,20,20,20))
-        # layout.addWidget(QLabel(""), 0, 0)
-        layout.addWidget(createKineticModelButton)
-        # layout.addWidget(QLabel(" "), 0, 2)
-        # layout.addWidget(QLabel(" "), 1, 0)
-        layout.addWidget(loadKineticModelButton)
-        # layout.addWidget(QLabel(" "), 1, 2)
-        # layout.addWidget(QLabel(" "), 2, 0)
-        # layout.addWidget(loadNeuronalModelButton)
-        # layout.addWidget(QLabel(" "), 2, 2)
+
+        self.menuitems = OrderedDict([("Fig2C (6s)" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2C.py"),
+                                      ("Fig2D (35s)",     "../moose-examples/paper-2015/Fig2_elecModels/Fig2D.py"),
+                                      ("Fig2E (5s)" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2E.py"),
+                                      ("Fig3B_Gssa (2s)", "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
+                                      ("Fig3C_Gsl (2s)",  "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
+                                      ("Fig3D (1s)",     "../moose-examples/paper-2015/Fig3_chemModels/Fig3D.py"),
+                                      ("Fig4B (10s)",     "../moose-examples/paper-2015/Fig4_ReacDiff/Fig4B.py"  ),
+                                      ("Fig4K",         "../moose-examples/paper-2015/Fig4_ReacDiff/rxdSpineSize.py"),
+                                      ("Fig5A (20s)",     "../moose-examples/paper-2015/Fig5_CellMultiscale/Fig5A.py"),
+                                      ("Fig5BCD (240s)" ,  "../moose-examples/paper-2015/Fig6_CellMultiscale/Fig5BCD.py"),
+                                      ("Fig6A (60s)",     "../moose-examples/paper-2015/Fig6_NetMultiscale/Fig6A.py" ),
+                                      ("Reduced6 (200s)",  "../moose-examples/paper-2015/Fig6_NetMultiscale/ReducedModel.py")
+                                     ])
+        layout.setContentsMargins(QtCore.QMargins(20,20,20,20))
+        layout1 = QHBoxLayout()
+        layout1.addWidget(createKineticModelButton)
+        layout1.addWidget(loadKineticModelButton)
+        layout2 = QHBoxLayout()
+        layout3 = QHBoxLayout()
+        layout4 = QHBoxLayout()
+        layout5 = QHBoxLayout()
+        layout6 = QHBoxLayout()
+
+        listofButtons = {}
+        for i in range(0,len(self.menuitems)):
+            k = self.menuitems.popitem(0)
+            t = k[0]
+            button = QPushButton(k[0])
+            if k[0] in ["Fig2E (5s)","Fig2D (35s)","Fig2C (6s)"]:
+                layout2.addWidget(button)
+            elif k[0] in ["Fig3B_Gssa (2s)","Fig3C_Gsl (2s)","Fig3D (1s)"]:
+                layout3.addWidget(button)
+            elif k[0] in ["Fig4B (10s)","Fig4K"]:
+                layout4.addWidget(button)
+            elif k[0] in ["Fig5A (20s)","Fig5BCD (240s)"]:
+                layout5.addWidget(button)
+            elif k[0] in ["Fig6A (60s)","Reduced6 (200s)"]:
+                layout6.addWidget(button)
+            
+            if k[0] == "Fig3C_Gsl (2s)":
+                button.clicked.connect(lambda x, script = k[1]: self.run_genesis_script(script,"gsl"))
+            elif k[0] == "Fig3B_Gssa (2s)":
+                button.clicked.connect(lambda x, script = k[1]: self.run_genesis_script(script,"gssa"))
+            else:
+                button.clicked.connect(lambda x, script = k[1]: self.run_python_script(script))        
+
+        layout.addLayout(layout1,0,0)
+        layout.addLayout(layout2,1,0)
+        layout.addLayout(layout3,2,0)
+        layout.addLayout(layout4,3,0)
+        layout.addLayout(layout5,4,0)
+        layout.addLayout(layout6,5,0)
         dialog.setLayout(layout)
+
         createKineticModelButton.clicked.connect(self.newModelDialogSlot)
         loadKineticModelButton.clicked.connect(self.loadModelDialogSlot)
         loadNeuronalModelButton.clicked.connect(self.loadModelDialogSlot)
+        
         dialog.show()
         return dialog
 
+    def run_genesis_script(self,filepath,solver):
+        print " solver ",solver
+        self.popup.hide()
+        abspath = os.path.abspath(filepath)
+        directory, modulename = os.path.split(abspath)
+        modelName = os.path.splitext(modulename)[0]
+        ret = loadFile(str(abspath),'%s' %(modelName),solver,merge=False)
+        self.setPlugin("kkit", ret["model"].path)
+        self.setCurrentView("run")        
+        widget = self.plugin.view.getSchedulingDockWidget().widget()
+        widget.runSimulation()
+
+    def run_python_script(self, filepath):
+        import subprocess, shlex
+        t = os.path.abspath(filepath)
+        directory, filename = os.path.split(t)
+        p = subprocess.Popen(["python", filename], cwd=directory)
+        
     def quit(self):
         QtGui.qApp.closeAllWindows()
 
@@ -530,6 +591,36 @@ class MWindow(QtGui.QMainWindow):
             self.connect(self.loadModelAction, QtCore.SIGNAL('triggered()'), self.loadModelDialogSlot)
         self.fileMenu.addAction(self.loadModelAction)
 
+        if not hasattr(self, 'Paper_2015'):
+            self.menuitems = OrderedDict([("Fig2C (6s)" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2C.py"),
+                                      ("Fig2D (35s)",     "../moose-examples/paper-2015/Fig2_elecModels/Fig2D.py"),
+                                      ("Fig2E (5s)" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2E.py"),
+                                      ("Fig3B_Gssa (2s)", "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
+                                      ("Fig3C_Gsl (2s)",  "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
+                                      ("Fig3D (1s)",     "../moose-examples/paper-2015/Fig3_chemModels/Fig3D.py"),
+                                      ("Fig4B (10s)",     "../moose-examples/paper-2015/Fig4_ReacDiff/Fig4B.py"  ),
+                                      ("Fig4K",         "../moose-examples/paper-2015/Fig4_ReacDiff/rxdSpineSize.py"),
+                                      ("Fig5A (20s)",     "../moose-examples/paper-2015/Fig5_CellMultiscale/Fig5A.py"),
+                                      ("Fig5BCD (240s)" ,  "../moose-examples/paper-2015/Fig6_CellMultiscale/Fig5BCD.py"),
+                                      ("Fig6A (60s)",     "../moose-examples/paper-2015/Fig6_NetMultiscale/Fig6A.py" ),
+                                      ("Reduced6 (200s)",  "../moose-examples/paper-2015/Fig6_NetMultiscale/ReducedModel.py")
+                                     ])
+            self.subMenu = QtGui.QMenu('Paper_2015_Demos')
+            for i in range(0,len(self.menuitems)):
+                k = self.menuitems.popitem(0)
+                t = "self."+k[0]+"Action"
+                t = QtGui.QAction(k[0],self)
+                self.subMenu.addAction(t)
+                if k[0] == "Fig3C_Gsl (2s)":
+                    print " gsl"
+                    t.connect(t,QtCore.SIGNAL('triggered()'),lambda script = k[1]: self.run_genesis_script(script,"gsl"))
+                elif k[0] == "Fig3B_Gssa (2s)":
+                    t.connect(t,QtCore.SIGNAL('triggered()'),lambda script = k[1]: self.run_genesis_script(script,"gssa"))
+                else:
+                    t.connect(t,QtCore.SIGNAL('triggered()'),lambda : self.run_python_script(k[1]))
+                self.subMenu.addAction(t)    
+            self.fileMenu.addMenu(self.subMenu)
+
         if not hasattr(self,'loadedModels'):
             self.loadedModelAction = QtGui.QAction('Recently Loaded Models',self)
             self.loadedModelAction.setCheckable(False)
@@ -793,7 +884,7 @@ class MWindow(QtGui.QMainWindow):
             self.documentationViewer = QtGui.QTextBrowser()
             self.documentationViewer.setOpenLinks(True)
             self.documentationViewer.setOpenExternalLinks(True)
-            print " path ",config.settings[config.KEY_DOCS_DIR], os.path.join(config.settings[config.KEY_DOCS_DIR], 'html'), os.path.join(config.settings[config.KEY_DOCS_DIR], 'images')
+            #print " path ",config.settings[config.KEY_DOCS_DIR], os.path.join(config.settings[config.KEY_DOCS_DIR], 'html'), os.path.join(config.settings[config.KEY_DOCS_DIR], 'images')
             self.documentationViewer.setSearchPaths([config.settings[config.KEY_DOCS_DIR],
                                                      os.path.join(config.settings[config.KEY_DOCS_DIR], 'html'),
                                                      os.path.join(config.settings[config.KEY_DOCS_DIR], 'images')])
@@ -961,6 +1052,7 @@ class MWindow(QtGui.QMainWindow):
                 modelName = dialog.getTargetPath()
                 if '/' in modelName:
                     raise mexception.ElementNameError('Model name cannot contain `/`')
+                print " fileNames ",fileName, " modelName ",modelName
                 ret = loadFile(str(fileName),'%s' %(modelName),merge=False)
                 #ret = loadFile(str(fileName), '/model/%s' % (modelName), merge=False)
 		        #Harsha: This will clear out object editor's objectpath and make it invisible
