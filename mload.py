@@ -54,7 +54,7 @@ from os.path import splitext
 from PyQt4 import QtGui, QtCore, Qt
 from plugins.setsolver import *
 
-def loadGenCsp(target,filename):
+def loadGenCsp(target,filename,solver="gsl"):
     path = '/'+target
     #Harsha: Moving the model under /modelname/model and graphs under /model/graphs.
     #This is passed while loading-time which will be easy for setting the stoich path
@@ -64,8 +64,7 @@ def loadGenCsp(target,filename):
     
     modelpath1 = moose.Neutral('%s' %(target))
     modelpath = moose.Neutral('%s/%s' %(modelpath1.path,"model"))
-        
-    model = moose.loadModel(filename, modelpath.path,'gsl')
+    model = moose.loadModel(filename, modelpath.path,solver)
     
     if not moose.exists(modelpath1.path+'/data'):
         graphspath = moose.Neutral('%s/%s' %(modelpath1.path,"data"))
@@ -98,7 +97,8 @@ def loadGenCsp(target,filename):
     moose.delete(modelpath.path+'/moregraphs')
     return(modelpath1,modelpath1.path)
 
-def loadFile(filename, target, merge=True):
+def loadFile(filename, target, solver="gsl", merge=True):
+    print " solver @ loadFile",solver
     """Try to load a model from specified `filename` under the element
     `target`.
 
@@ -144,7 +144,7 @@ def loadFile(filename, target, merge=True):
     # app.setOverrideCursor(QtGui.QCursor(Qt.Qt.BusyCursor)) #shows a hourglass - or a busy/working arrow
     if modeltype == 'genesis':
         if subtype == 'kkit' or subtype == 'prototype':
-            model,modelpath = loadGenCsp(target,filename)
+            model,modelpath = loadGenCsp(target,filename,solver)
             if moose.exists(moose.element(modelpath).path):
                 moose.Annotator(moose.element(modelpath).path+'/info').modeltype = "kkit"
             else:
