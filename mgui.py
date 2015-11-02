@@ -182,6 +182,7 @@ class MWindow(QtGui.QMainWindow):
     def createPopup(self):
         self.popup = dialog = QDialog(self)
         dialog.setWindowFlags(Qt.Qt.Dialog | Qt.Qt.FramelessWindowHint)
+        dialog.setGeometry( 550,40,100,100)
         # dialog.setModal(True)
         layout = QGridLayout()
         createKineticModelButton = QPushButton("Create Kinetic Model")
@@ -248,6 +249,7 @@ class MWindow(QtGui.QMainWindow):
         loadNeuronalModelButton.clicked.connect(self.loadModelDialogSlot)
         
         dialog.show()
+        freeCursor()
         return dialog
 
     def run_genesis_script(self,filepath,solver):
@@ -263,11 +265,19 @@ class MWindow(QtGui.QMainWindow):
         widget.runSimulation()
 
     def run_python_script(self, filepath):
+        busyCursor()
         import subprocess, shlex
         t = os.path.abspath(filepath)
         directory, filename = os.path.split(t)
         p = subprocess.Popen(["python", filename], cwd=directory)
+        p.wait()
+        freeCursor()
         
+        
+        #freeCursor()
+    def onFinished(self):
+        print " on onFinished"
+
     def quit(self):
         QtGui.qApp.closeAllWindows()
 
