@@ -638,11 +638,11 @@ class MWindow(QtGui.QMainWindow):
                     self.fileMenu.addAction(action)
                 self.fileMenu.addSeparator()
 
-        # if not hasattr(self,'connectBioModelAction'):
-        #     self.connectBioModelAction = QtGui.QAction('&Connect BioModels', self)
-        #     self.connectBioModelAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+B", None, QtGui.QApplication.UnicodeUTF8))
-        #     self.connect(self.connectBioModelAction, QtCore.SIGNAL('triggered()'), self.connectBioModel)
-        # self.fileMenu.addAction(self.connectBioModelAction)
+        if not hasattr(self,'connectBioModelAction'):
+            self.connectBioModelAction = QtGui.QAction('&Connect BioModels', self)
+            self.connectBioModelAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+B", None, QtGui.QApplication.UnicodeUTF8))
+            self.connect(self.connectBioModelAction, QtCore.SIGNAL('triggered()'), self.connectBioModel)
+        self.fileMenu.addAction(self.connectBioModelAction)
         return self.fileMenu
 
     def getEditMenu(self):

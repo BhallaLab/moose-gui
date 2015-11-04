@@ -46,8 +46,8 @@
 # Code:
 
 
-#from suds.client import Client
-#from suds.transport.http import HttpTransport as SudsHttpTransport
+from suds.client import Client
+from suds.transport.http import HttpTransport as SudsHttpTransport
 import os
 import config
 import pickle
