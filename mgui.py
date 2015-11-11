@@ -181,22 +181,27 @@ class MWindow(QtGui.QMainWindow):
 
     def createPopup(self):
         self.popup = dialog = QDialog(self)
-        dialog.setWindowFlags(Qt.Qt.Dialog | Qt.Qt.FramelessWindowHint)
-        dialog.setGeometry( 550,40,100,100)
-        # dialog.setModal(True)
+        #dialog.setWindowFlags(Qt.Qt.Dialog | Qt.Qt.FramelessWindowHint)
+        dialog.setWindowFlags(Qt.Qt.Dialog | Qt.Qt.CustomizeWindowHint)
+        #dialog.setStyleSheet("border:1px solid rgb(0, 0, 0); ")
+        qapp = QApplication.desktop().screenGeometry();
+        dialog.setGeometry((qapp.bottomLeft().x()+100),(qapp.bottomLeft().y()-250),100,100)
+        #dialog.move(qapp.bottomLeft().x()+10,qapp.bottomLeft().y()-10)
         layout = QGridLayout()
+        self.setStyleSheet("QPushButton{border-radius: 5px; border-color: rgb(0,0,0); border-width: 2px; border-style: outset; padding-top: 2px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px}")
+        #self.setStyleSheet("QToolTip{border-radius: 5px; border-width: 2px; border-style: outset; padding-top: 2px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; color: black}")
         createKineticModelButton = QPushButton("Create Kinetic Model")
         loadKineticModelButton   = QPushButton("Load Model")
         loadNeuronalModelButton  = QPushButton("Load Neuronal Model")
         layout.setContentsMargins(QtCore.QMargins(20,20,20,20))
 
-        self.menuitems = OrderedDict([("Fig2C (6s)" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2C.py"),
+        self.menuitems = OrderedDict([("Fig2C" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2C.py"),
                                       ("Fig2D (35s)",     "../moose-examples/paper-2015/Fig2_elecModels/Fig2D.py"),
-                                      ("Fig2E (5s)" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2E.py"),
-                                      ("Fig3B_Gssa (2s)", "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
-                                      ("Fig3C_Gsl (2s)",  "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
-                                      ("Fig3D (1s)",     "../moose-examples/paper-2015/Fig3_chemModels/Fig3D.py"),
-                                      ("Fig4B (10s)",     "../moose-examples/paper-2015/Fig4_ReacDiff/Fig4B.py"  ),
+                                      ("Fig2E" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2E.py"),
+                                      ("Fig3B_Gssa", "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
+                                      ("Fig3C_Gsl",  "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
+                                      ("Fig3D",     "../moose-examples/paper-2015/Fig3_chemModels/Fig3D.py"),
+                                      ("Fig4B",     "../moose-examples/paper-2015/Fig4_ReacDiff/Fig4B.py"  ),
                                       ("Fig4K",         "../moose-examples/paper-2015/Fig4_ReacDiff/rxdSpineSize.py"),
                                       ("Fig5A (20s)",     "../moose-examples/paper-2015/Fig5_CellMultiscale/Fig5A.py"),
                                       ("Fig5BCD (240s)" ,  "../moose-examples/paper-2015/Fig6_CellMultiscale/Fig5BCD.py"),
@@ -218,11 +223,36 @@ class MWindow(QtGui.QMainWindow):
             k = self.menuitems.popitem(0)
             t = k[0]
             button = QPushButton(k[0])
-            if k[0] in ["Fig2E (5s)","Fig2D (35s)","Fig2C (6s)"]:
+            if k[0] == "Fig2E":
+                button.setToolTip("<span style=\"color:black;\">Illustrates loading a model from an SWC file, inserting  channels, and running it</span>")
+            elif k[0] == "Fig2D (35s)":
+                button.setToolTip("<span style=\"color:black;\">Illustrates loading a model from an SWC file, inserting  spines, and running it</span>")
+            elif k[0] == "Fig2C":
+                button.setToolTip("<span style=\"color:black;\">Illustrates building a panel of multiscale models to test neuronal plasticity in different contexts</span>")    
+            elif k[0] == "Fig3B_Gssa":
+                button.setToolTip("<span style=\"color:black;\">Loades Repressilator model into Gui with Gssa solver and runs the model</span>")
+            elif k[0] == "Fig3C_Gsl":
+                button.setToolTip("<span style=\"color:black;\">Loades Repressilator model into Gui with Gsl solver and runs the model</span>")
+            elif k[0] == "Fig3D":
+                button.setToolTip("<span style=\"color:black;\">This example implements a reaction-diffusion like system which is bistable and propagates losslessly</span>")
+            elif k[0] == "Fig4B":
+                button.setToolTip("<span style=\"color:black;\">This program builds a multiscale model with a few spines inserted into a simplified cellular morphology. Each spine has a signaling model in it too. The program doesn't run the model, it just displays it in 3D</span>")
+            elif k[0] == "Fig4K":
+                button.setToolTip("<span style=\"color:black;\">Builds a cell with spines and a propagating reaction wave</span>")
+            elif k[0] == "Fig5A (20s)":
+                button.setToolTip("<span style=\"color:black;\">Illustrates building a panel of multiscale models to test neuronal plasticity in different contexts</span>")
+            elif k[0] == "Fig5BCD (240s)":
+                button.setToolTip("<span style=\"color:black;\">Illustrates building a panel of multiscale models to test neuronal plasticity in different contexts</span>")
+            elif k[0] == "Fig6A (60s)":
+                button.setToolTip("<span style=\"color:black;\">This LIF network with Ca plasticity is based on: Memory Maintenance in Synapses with Calcium-Based Plasticity in the Presence of Background Activity PLOS Computational Biology, 2014</span>")
+            elif k[0] == "Reduced6 (200s)":
+                button.setToolTip("<span style=\"color:black;\">This is the Reduced version of LIF network with Ca plasticity model based on: Memory Maintenance in Synapses with Calcium-Based Plasticity in the Presence of Background Activity PLOS Computational Biology, 2014</span>")
+
+            if k[0] in ["Fig2E","Fig2D (35s)","Fig2C"]:
                 layout2.addWidget(button)
-            elif k[0] in ["Fig3B_Gssa (2s)","Fig3C_Gsl (2s)","Fig3D (1s)"]:
+            elif k[0] in ["Fig3B_Gssa","Fig3C_Gsl","Fig3D"]:
                 layout3.addWidget(button)
-            elif k[0] in ["Fig4B (10s)","Fig4K"]:
+            elif k[0] in ["Fig4B","Fig4K"]:
                 layout4.addWidget(button)
             elif k[0] in ["Fig5A (20s)","Fig5BCD (240s)"]:
                 layout5.addWidget(button)
@@ -242,6 +272,7 @@ class MWindow(QtGui.QMainWindow):
         layout.addLayout(layout4,3,0)
         layout.addLayout(layout5,4,0)
         layout.addLayout(layout6,5,0)
+        dialog.setStyleSheet("border:1px solid rgb(0, 0, 0); ")
         dialog.setLayout(layout)
 
         createKineticModelButton.clicked.connect(self.newModelDialogSlot)
