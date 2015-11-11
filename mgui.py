@@ -195,18 +195,19 @@ class MWindow(QtGui.QMainWindow):
         loadNeuronalModelButton  = QPushButton("Load Neuronal Model")
         layout.setContentsMargins(QtCore.QMargins(20,20,20,20))
 
-        self.menuitems = OrderedDict([("Fig2C" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2C.py"),
-                                      ("Fig2D (35s)",     "../moose-examples/paper-2015/Fig2_elecModels/Fig2D.py"),
-                                      ("Fig2E" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2E.py"),
-                                      ("Fig3B_Gssa", "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
-                                      ("Fig3C_Gsl",  "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
-                                      ("Fig3D",     "../moose-examples/paper-2015/Fig3_chemModels/Fig3D.py"),
-                                      ("Fig4B",     "../moose-examples/paper-2015/Fig4_ReacDiff/Fig4B.py"  ),
-                                      ("Fig4K",         "../moose-examples/paper-2015/Fig4_ReacDiff/rxdSpineSize.py"),
-                                      ("Fig5A (20s)",     "../moose-examples/paper-2015/Fig5_CellMultiscale/Fig5A.py"),
-                                      ("Fig5BCD (240s)" ,  "../moose-examples/paper-2015/Fig6_CellMultiscale/Fig5BCD.py"),
-                                      ("Fig6A (60s)",     "../moose-examples/paper-2015/Fig6_NetMultiscale/Fig6A.py" ),
-                                      ("Reduced6 (200s)",  "../moose-examples/paper-2015/Fig6_NetMultiscale/ReducedModel.py")
+        self.menuitems = OrderedDict([("Fig2C" ,            "../moose-examples/paper-2015/Fig2_elecModels/Fig2C.py"),
+                                      ("Fig2D (35s)",       "../moose-examples/paper-2015/Fig2_elecModels/Fig2D.py"),
+                                      ("Fig2E" ,            "../moose-examples/paper-2015/Fig2_elecModels/Fig2E.py"),
+                                      ("Fig3B_Gssa",        "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
+                                      ("Fig3C_Gsl",         "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
+                                      ("Fig3D",             "../moose-examples/paper-2015/Fig3_chemModels/Fig3D.py"),
+                                      ("Fig4B",             "../moose-examples/paper-2015/Fig4_ReacDiff/Fig4B.py"  ),
+                                      ("Fig4K",             "../moose-examples/paper-2015/Fig4_ReacDiff/rxdSpineSize.py"),
+                                      ("Fig5A (20s)",       "../moose-examples/paper-2015/Fig5_CellMultiscale/Fig5A.py"),
+                                      ("Fig5BCD (240s)" ,   "../moose-examples/paper-2015/Fig6_CellMultiscale/Fig5BCD.py"),
+                                      ("Fig6A (60s)",       "../moose-examples/paper-2015/Fig6_NetMultiscale/Fig6A.py" ),
+                                      ("Reduced6 (200s)",   "../moose-examples/paper-2015/Fig6_NetMultiscale/ReducedModel.py"),
+                                      ("Squid" ,            "../moose-examples/squid/squid_demo.py")
                                      ])
         layout.setContentsMargins(QtCore.QMargins(20,20,20,20))
         layout1 = QHBoxLayout()
@@ -217,7 +218,7 @@ class MWindow(QtGui.QMainWindow):
         layout4 = QHBoxLayout()
         layout5 = QHBoxLayout()
         layout6 = QHBoxLayout()
-
+        layout7 = QHBoxLayout()
         listofButtons = {}
         for i in range(0,len(self.menuitems)):
             k = self.menuitems.popitem(0)
@@ -247,7 +248,8 @@ class MWindow(QtGui.QMainWindow):
                 button.setToolTip("<span style=\"color:black;\">This LIF network with Ca plasticity is based on: Memory Maintenance in Synapses with Calcium-Based Plasticity in the Presence of Background Activity PLOS Computational Biology, 2014</span>")
             elif k[0] == "Reduced6 (200s)":
                 button.setToolTip("<span style=\"color:black;\">This is the Reduced version of LIF network with Ca plasticity model based on: Memory Maintenance in Synapses with Calcium-Based Plasticity in the Presence of Background Activity PLOS Computational Biology, 2014</span>")
-
+            elif k[0] == "Squid":
+                button.setToolTip("<span style=\"color:black;\">squid Demo</span>")
             if k[0] in ["Fig2E","Fig2D (35s)","Fig2C"]:
                 layout2.addWidget(button)
             elif k[0] in ["Fig3B_Gssa","Fig3C_Gsl","Fig3D"]:
@@ -258,7 +260,9 @@ class MWindow(QtGui.QMainWindow):
                 layout5.addWidget(button)
             elif k[0] in ["Fig6A (60s)","Reduced6 (200s)"]:
                 layout6.addWidget(button)
-            
+            elif k[0] in ["Squid"]:
+                layout7.addWidget(button)
+
             if k[0] == "Fig3C_Gsl (2s)":
                 button.clicked.connect(lambda x, script = k[1]: self.run_genesis_script(script,"gsl"))
             elif k[0] == "Fig3B_Gssa (2s)":
@@ -272,6 +276,7 @@ class MWindow(QtGui.QMainWindow):
         layout.addLayout(layout4,3,0)
         layout.addLayout(layout5,4,0)
         layout.addLayout(layout6,5,0)
+        layout.addLayout(layout7,6,0)
         dialog.setStyleSheet("border:1px solid rgb(0, 0, 0); ")
         dialog.setLayout(layout)
 
