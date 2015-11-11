@@ -633,18 +633,20 @@ class MWindow(QtGui.QMainWindow):
         self.fileMenu.addAction(self.loadModelAction)
 
         if not hasattr(self, 'Paper_2015'):
-            self.menuitems = OrderedDict([("Fig2C (6s)" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2C.py"),
-                                      ("Fig2D (35s)",     "../moose-examples/paper-2015/Fig2_elecModels/Fig2D.py"),
-                                      ("Fig2E (5s)" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2E.py"),
-                                      ("Fig3B_Gssa (2s)", "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
-                                      ("Fig3C_Gsl (2s)",  "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
-                                      ("Fig3D (1s)",     "../moose-examples/paper-2015/Fig3_chemModels/Fig3D.py"),
-                                      ("Fig4B (10s)",     "../moose-examples/paper-2015/Fig4_ReacDiff/Fig4B.py"  ),
-                                      ("Fig4K",         "../moose-examples/paper-2015/Fig4_ReacDiff/rxdSpineSize.py"),
-                                      ("Fig5A (20s)",     "../moose-examples/paper-2015/Fig5_CellMultiscale/Fig5A.py"),
-                                      ("Fig5BCD (240s)" ,  "../moose-examples/paper-2015/Fig6_CellMultiscale/Fig5BCD.py"),
-                                      ("Fig6A (60s)",     "../moose-examples/paper-2015/Fig6_NetMultiscale/Fig6A.py" ),
-                                      ("Reduced6 (200s)",  "../moose-examples/paper-2015/Fig6_NetMultiscale/ReducedModel.py")
+            self.menuitems = OrderedDict([
+                                        ("Fig2C (6s)" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2C.py"),
+                                        ("Fig2D (35s)",     "../moose-examples/paper-2015/Fig2_elecModels/Fig2D.py"),
+                                        ("Fig2E (5s)" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2E.py"),
+                                        ("Fig3B_Gssa (2s)", "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
+                                        ("Fig3C_Gsl (2s)",  "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),    
+                                        ("Fig3D (1s)",      "../moose-examples/paper-2015/Fig3_chemModels/Fig3D.py"),
+                                        ("Fig4B (10s)",     "../moose-examples/paper-2015/Fig4_ReacDiff/Fig4B.py"  ),
+                                        ("Fig4K",           "../moose-examples/paper-2015/Fig4_ReacDiff/rxdSpineSize.py"),
+                                        ("Fig5A (20s)",     "../moose-examples/paper-2015/Fig5_CellMultiscale/Fig5A.py"),
+                                        ("Fig5BCD (240s)" , "../moose-examples/paper-2015/Fig6_CellMultiscale/Fig5BCD.py"),
+                                        ("Fig6A (60s)",     "../moose-examples/paper-2015/Fig6_NetMultiscale/Fig6A.py" ),
+                                        ("Reduced6 (200s)", "../moose-examples/paper-2015/Fig6_NetMultiscale/ReducedModel.py"),
+                                        ("Squid" ,          "../moose-examples/squid/squid_demo.py")
                                      ])
             self.subMenu = QtGui.QMenu('Paper_2015_Demos')
             for i in range(0,len(self.menuitems)):
