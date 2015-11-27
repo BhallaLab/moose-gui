@@ -263,9 +263,9 @@ class MWindow(QtGui.QMainWindow):
             elif k[0] in ["Squid"]:
                 layout7.addWidget(button)
 
-            if k[0] == "Fig3C_Gsl (2s)":
+            if k[0] == "Fig3C_Gsl":
                 button.clicked.connect(lambda x, script = k[1]: self.run_genesis_script(script,"gsl"))
-            elif k[0] == "Fig3B_Gssa (2s)":
+            elif k[0] == "Fig3B_Gssa":
                 button.clicked.connect(lambda x, script = k[1]: self.run_genesis_script(script,"gssa"))
             else:
                 button.clicked.connect(lambda x, script = k[1]: self.run_python_script(script))        
@@ -289,7 +289,7 @@ class MWindow(QtGui.QMainWindow):
         return dialog
 
     def run_genesis_script(self,filepath,solver):
-        print " solver ",solver
+        print " solver at mgui 292 ",solver,filepath
         self.popup.hide()
         abspath = os.path.abspath(filepath)
         directory, modulename = os.path.split(abspath)
