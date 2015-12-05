@@ -532,7 +532,7 @@ class MWindow(QtGui.QMainWindow):
         self.toolBars = []
         self.toolBars.extend(self.getMyToolBars())
         self.toolBars.extend(self.plugin.getToolBars())
-        self.toolBars.extend(self.plugin.getCurrentView().getToolBars())
+        #self.toolBars.extend(self.plugin.getCurrentView().getToolBars())
         for toolbar in self.toolBars:
             self.addToolBar(toolbar)
             toolbar.setVisible(True)
@@ -546,7 +546,6 @@ class MWindow(QtGui.QMainWindow):
         #print 'activated', window.windowTitle(), 'view=', view
         #print 'setting current view'
         self.setCurrentView(view)
-
 
     def setCurrentView(self, view):
         """Set current view to a particular one: options are 'editor',
