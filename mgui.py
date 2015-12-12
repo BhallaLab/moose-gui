@@ -149,7 +149,7 @@ class MWindow(QtGui.QMainWindow):
         self._loadedPlugins = {}
         self._plugins       = {}
         self._loadedModels  = []
-
+        self.setUnifiedTitleAndToolBarOnMac(True)
         self.setDockOptions(self.AnimatedDocks and self.AllowNestedDocks and self.AllowTabbedDocks)
         self.mdiArea = MdiArea()
 
@@ -533,9 +533,10 @@ class MWindow(QtGui.QMainWindow):
         self.toolBars.extend(self.getMyToolBars())
         self.toolBars.extend(self.plugin.getToolBars())
         self.toolBars.extend(self.plugin.getCurrentView().getToolBars())
-        for toolbar in self.toolBars:
-            self.addToolBar(toolbar)
-            toolbar.setVisible(True)
+        if len(self.toolBars):
+        	for toolbar in self.toolBars:
+        		self.addToolBar(toolbar)
+        		toolbar.setVisible(True)
 
     def switchSubwindowSlot(self, window):
         """Change view based on what subwindow `window` is activated."""
@@ -546,7 +547,6 @@ class MWindow(QtGui.QMainWindow):
         #print 'activated', window.windowTitle(), 'view=', view
         #print 'setting current view'
         self.setCurrentView(view)
-
 
     def setCurrentView(self, view):
         """Set current view to a particular one: options are 'editor',

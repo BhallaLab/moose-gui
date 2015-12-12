@@ -130,7 +130,10 @@ extra_fields = ['this',
                 'motorConst',
                 'destFields',
                 'dt',
-                'tick'
+                'tick',
+	        'idValue',
+		'index',
+		'fieldIndex'
                 ]
 
 

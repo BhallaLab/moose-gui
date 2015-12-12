@@ -514,7 +514,7 @@ class  KineticsWidget(EditorWidgetBase):
         # For Reaction and Complex object I have skipped the process to get the facecolor and background color as \
         #    we are not using these colors for displaying the object so just passing dummy color white
         if( objClass == "reaction"  or objClass == "cplx" or objClass == "Function" or objClass == "StimulusTable"):
-            textcolor,bgcolor = "white","white"
+            textcolor,bgcolor = QColor("white"),QColor("white")
         else:
             textcolor,bgcolor = getColor(info)
             if bgcolor.name() == "#ffffff" or bgcolor == "white":
