@@ -133,21 +133,22 @@ class PlotWidgetContainer(QWidget):
         pass
 
     def updatePlots(self):
-        self.apply(lambda obj: obj.updatePlots())
+        for graphWidget in self.graphWidgets:
+            graphWidget.updatePlots()
 
     def rescalePlots(self):
-        self.apply(lambda obj: obj.rescalePlots())
+        for graphWidget in self.graphWidgets:
+            graphWidget.rescalePlots()
 
     def extendXAxes(self, xlim):
-        self.apply(lambda obj: obj.extendXAxes(xlim))
+        for graphWidget in self.graphWidgets:
+            graphWidget.extendXAxes(xlim)
 
     def plotAllData(self):
-        self.apply(lambda obj: obj.plotAllData())
-
-    def apply(self, f):
         for graphWidget in self.graphWidgets:
-            f(graphWidget)
-            #print(graphWidget)
+            graphWidget.plotAllData()
+
+    #print(graphWidget)
     # def plotAll(self):
     #     self.apply(lambda obj: obj.plotAll())
 
