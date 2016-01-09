@@ -85,7 +85,7 @@ from PyQt4.Qt import Qt
 from matplotlib import mlab
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
+from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 #from moose import utils
 import moose
 from PyQt4.QtCore import *

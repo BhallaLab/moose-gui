@@ -417,12 +417,12 @@ class GraphicalView(QtGui.QGraphicsView):
                         item.setSelected(True)
                 #print("Rubberband Selections => ", self.selections)
                 self.customrubberBand.hide()
-                self.customrubberBand = None                
+                self.customrubberBand = None
                 popupmenu = QtGui.QMenu('PopupMenu', self)
 
-                popupmenu.addAction("Delete", lambda : self.deleteSelections(x0,y0,x1,y1))
-                popupmenu.addAction("Zoom",   lambda : self.zoomSelections(x0,y0,x1,y1))
-                popupmenu.addAction("Move",   lambda : self.moveSelections())
+                popupmenu.addAction("Delete", lambda: self.deleteSelections(x0,y0,x1,y1))
+                popupmenu.addAction("Zoom",   lambda: self.zoomSelections(x0,y0,x1,y1))
+                popupmenu.addAction("Move",   lambda: self.moveSelections())
                 popupmenu.exec_(self.mapToGlobal(event.pos()))
                 # self.delete = QtGui.QAction(self.tr('delete'), self)
                 # self.connect(self.delete, QtCore.SIGNAL('triggered()'), self.deleteItems)

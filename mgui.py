@@ -638,7 +638,7 @@ class MWindow(QtGui.QMainWindow):
                                         ("Fig2D (35s)",     "../moose-examples/paper-2015/Fig2_elecModels/Fig2D.py"),
                                         ("Fig2E (5s)" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2E.py"),
                                         ("Fig3B_Gssa (2s)", "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
-                                        ("Fig3C_Gsl (2s)",  "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),    
+                                        ("Fig3C_Gsl (2s)",  "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
                                         ("Fig3D (1s)",      "../moose-examples/paper-2015/Fig3_chemModels/Fig3D.py"),
                                         ("Fig4B (10s)",     "../moose-examples/paper-2015/Fig4_ReacDiff/Fig4B.py"  ),
                                         ("Fig4K",           "../moose-examples/paper-2015/Fig4_ReacDiff/rxdSpineSize.py"),
@@ -835,17 +835,26 @@ class MWindow(QtGui.QMainWindow):
             self.viewActions = [self.editorViewAction, self.runViewAction]
         return self.viewActions
 
+    def setTabbedView(self):
+        self.mdiArea.setViewMode(QtGui.QMdiArea.TabbedView)
+
+    def setSubWindowView(self):
+        self.mdiArea.setViewMode(QtGui.QMdiArea.SubWindowView)
+
     def getSubWindowActions(self):
         if not hasattr(self, 'subWindowActions') or self.subWindowActions is None:
             self.tabbedViewAction = QtGui.QAction('&Tabbed view', self)
-            self.tabbedViewAction.triggered.connect(lambda : self.mdiArea.setViewMode(QtGui.QMdiArea.TabbedView))
+            self.tabbedViewAction.triggered.connect(self.setTabbedView)
             self.subWindowViewAction = QtGui.QAction('&SubWindow view', self)
-            self.subWindowViewAction.triggered.connect(lambda : self.mdiArea.setViewMode(QtGui.QMdiArea.SubWindowView))
+            self.subWindowViewAction.triggered.connect(self.setSubWindowView)
             self.tileSubWindowsAction = QtGui.QAction('Ti&le subwindows', self)
             self.tileSubWindowsAction.triggered.connect(self.mdiArea.tileSubWindows)
             self.cascadeSubWindowsAction = QtGui.QAction('&Cascade subwindows', self)
             self.cascadeSubWindowsAction.triggered.connect(self.mdiArea.cascadeSubWindows)
-            self.subWindowActions = [self.tabbedViewAction, self.subWindowViewAction, self.tileSubWindowsAction, self.cascadeSubWindowsAction]
+            self.subWindowActions = [self.tabbedViewAction,
+                                     self.subWindowViewAction,
+                                     self.tileSubWindowsAction,
+                                     self.cascadeSubWindowsAction]
         return self.subWindowActions
 
     def getDockWidgetsToggleActions(self):

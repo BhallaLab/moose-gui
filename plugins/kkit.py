@@ -141,6 +141,10 @@ class AnotherKkitRunView(RunView):
         self.plugin    = plugin
         self.schedular = None
 
+    def setSolverFromSettings(self, chemicalSettings):
+        self.setSolver(self.modelRoot,
+                       chemicalSettings["simulation"]["solver"])
+
     def createCentralWidget(self):
         self._centralWidget = RunWidget.RunWidget(self.modelRoot)
         self.kkitRunView   = KkitRunView(self.plugin)
@@ -153,7 +157,7 @@ class AnotherKkitRunView(RunView):
         self.schedular.runner.simulationProgressed.connect(self.kkitRunView.getCentralWidget().changeBgSize)
         self.schedular.runner.simulationReset.connect(self.kkitRunView.getCentralWidget().resetColor)
         # self.schedular.runner.simulationReset.connect(self.setSolver)
-        self.schedular.preferences.applyChemicalSettings.connect(lambda x : self.setSolver(self.modelRoot,x["simulation"]["solver"]))
+        self.schedular.preferences.applyChemicalSettings.connect(self.setSolverFromSettings)
         compt = moose.wildcardFind(self.modelRoot+'/##[ISA=ChemCompt]')
         ann = moose.Annotator(self.modelRoot+'/info')
         if compt:
