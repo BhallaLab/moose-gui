@@ -336,6 +336,10 @@ class GraphicalView(QtGui.QGraphicsView):
                         t = moose.element(cloneObj.parent().mobj)
                         name = t.name
                         if isinstance(cloneObj.parent().mobj,PoolBase):
+                            qgraphicsItemPool = self.layoutPt.mooseId_GObj[cloneObj.parent().mobj]
+                            parentfontsize = qgraphicsItemPool.gobj.font().pointSize()
+                            font = QtGui.QFont(qgraphicsItemPool.defaultFontName)
+                            font.setPointSize(parentfontsize)
                             retValue = self.objExist(lKey.path,name,iP) 
                             if retValue != None:
                                 name += retValue
@@ -354,9 +358,12 @@ class GraphicalView(QtGui.QGraphicsView):
                                 poolinfo = moose.element(poolObj.path+'/info')
                                 qGItem =PoolItem(poolObj,itemAtView)
                                 self.layoutPt.mooseId_GObj[poolObj] = qGItem
-                                bgcolor = getRandColor()
+                                #bgcolor = getRandColor()
                                 color,bgcolor = getColor(poolinfo)
+                                qGItem.gobj.setFont(font)
+                                qGItem.updateRect()
                                 qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),color,bgcolor)
+                                
                                 self.emit(QtCore.SIGNAL("dropped"),poolObj)
                             
                         if isinstance(cloneObj.parent().mobj,ReacBase):
@@ -716,9 +723,8 @@ class GraphicalView(QtGui.QGraphicsView):
                 #xpos,ypos = self.positioninfo(iteminfo)
                 xpos = item.scenePos().x()
                 ypos = item.scenePos().y()
-
                 if isinstance(item,ReacItem) or isinstance(item,EnzItem) or isinstance(item,MMEnzItem):
-                     item.setGeometry(xpos,ypos,
+                    item.setGeometry(xpos,ypos,
                                      item.gobj.boundingRect().width(),
                                      item.gobj.boundingRect().height())
                 elif isinstance(item,CplxItem):
@@ -726,10 +732,10 @@ class GraphicalView(QtGui.QGraphicsView):
                                      item.gobj.boundingRect().width(),
                                      item.gobj.boundingRect().height())
                 elif isinstance(item,PoolItem) or isinstance(item, PoolItemCircle):
-                     item.setGeometry(xpos, ypos,item.gobj.boundingRect().width()
+                    item.setGeometry(xpos, ypos,item.gobj.boundingRect().width()
                                      +PoolItem.fontMetrics.width('  '),
                                      item.gobj.boundingRect().height())
-                     item.bg.setRect(0, 0, item.gobj.boundingRect().width()+PoolItem.fontMetrics.width('  '), item.gobj.boundingRect().height())
+                    item.bg.setRect(0, 0, item.gobj.boundingRect().width()+PoolItem.fontMetrics.width('  '), item.gobj.boundingRect().height())
 
         self.layoutPt.drawLine_arrow(itemignoreZooming=False)
         self.layoutPt.comptChilrenBoundingRect()

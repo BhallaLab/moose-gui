@@ -156,7 +156,6 @@ class PoolItem(KineticsDisplayItem):
         self.gobj.setPos(PoolItem.fontMetrics.width('  '), 0)
     def setDisplayProperties(self,x,y,textcolor,bgcolor):
         """Set the display properties of this item."""
-        
         self.setGeometry(x, y,self.gobj.boundingRect().width()
                         +PoolItem.fontMetrics.width('  '), 
                         self.gobj.boundingRect().height())
@@ -170,6 +169,7 @@ class PoolItem(KineticsDisplayItem):
         font.setPointSize(fontsize)
         #self.gobj.setFont(PoolItem.font)
         self.gobj.setFont(font)
+
     def boundingRect(self):
         ''' reimplimenting boundingRect for redrawning '''
         return QtCore.QRectF(0,0,self.gobj.boundingRect().width()+PoolItem.fontMetrics.width('  '),self.gobj.boundingRect().height())
@@ -183,13 +183,14 @@ class PoolItem(KineticsDisplayItem):
         self.bg.setBrush(QtGui.QBrush(QtGui.QColor(bgcolor)))
         #pass
 
-    def updateRect(self,ratio):
+    def updateRect(self,ratio=1.0):
         width = self.gobj.boundingRect().width()+PoolItem.fontMetrics.width('  ')
         height = self.gobj.boundingRect().height()
         adjustw = width*ratio
         adjusth = height*ratio
-        self.bgColor.setRect(width/2-abs(adjustw/2),height/2-abs(adjusth/2),adjustw, adjusth)
+        self.bg.setRect(width/2-abs(adjustw/2),height/2-abs(adjusth/2),adjustw, adjusth)
         #self.bg.setRect(0,0,self.gobj.boundingRect().width()*ratio+PoolItem.fontMetrics.width('  '), self.gobj.boundingRect().height()*ratio)
+    
     def returnColor(self):
         return (self.bg.brush().color())
 
