@@ -165,10 +165,11 @@ class PoolItem(KineticsDisplayItem):
     def refresh(self,scale):
         fontsize = KineticsDisplayItem.defaultFontSize*scale
         font = QtGui.QFont(KineticsDisplayItem.defaultFontName)
+        if (fontsize < 1):
+            fontsize = self.gobj.font().pointSize()
         font.setPointSize(fontsize)
         #self.gobj.setFont(PoolItem.font)
         self.gobj.setFont(font)
-        
     def boundingRect(self):
         ''' reimplimenting boundingRect for redrawning '''
         return QtCore.QRectF(0,0,self.gobj.boundingRect().width()+PoolItem.fontMetrics.width('  '),self.gobj.boundingRect().height())
@@ -231,6 +232,8 @@ class PoolItemCircle(PoolItem):
     def refresh(self,scale):
         fontsize = KineticsDisplayItem.defaultFontSize*scale
         font =QtGui.QFont(KineticsDisplayItem.defaultFontName)
+        if (fontsize < 1):
+            fontsize = self.gobj.font().pointSize()
         font.setPointSize(fontsize)
         self.gobj.setFont(font)    
 
