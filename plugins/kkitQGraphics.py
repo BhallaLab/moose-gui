@@ -355,9 +355,10 @@ class ReacItem(KineticsDisplayItem):
         self.gobj.setPath(path)
         ReacPen = self.gobj.pen()
         defaultpenwidth = ReacItem.defaultPenWidth
-        reacWidth =  ReacItem.defaultPenWidth*scale
+        reacWidth =  defaultpenwidth*scale
         ReacPen.setWidth(reacWidth)
         self.gobj.setPen(ReacPen)
+
     def setDisplayProperties(self, x,y,textcolor,bgcolor):
         """Set the display properties of this item."""
         self.setGeometry(x,y, 

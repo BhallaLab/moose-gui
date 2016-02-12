@@ -368,6 +368,8 @@ class GraphicalView(QtGui.QGraphicsView):
                             
                         if isinstance(cloneObj.parent().mobj,ReacBase):
                             retValue = self.objExist(lKey.path,name,iR)
+                            qgraphicsItemReac = self.layoutPt.mooseId_GObj[cloneObj.parent().mobj]
+                            parentfontsize = (qgraphicsItemReac.gobj.pen()).width()
                             if retValue != None :
                                 name += retValue
                             rmooseCp = moose.copy(t,lKey.path,name,1)
@@ -380,6 +382,10 @@ class GraphicalView(QtGui.QGraphicsView):
                                 self.layoutPt.mooseId_GObj[reacObj] = qGItem
                                 posWrtComp = self.mapToScene(event.pos())
                                 qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),"white", "white")
+                                qGItem.gobj.setPath(qgraphicsItemReac.gobj.path())
+                                ReacPen = qGItem.gobj.pen()
+                                ReacPen.setWidth(parentfontsize)
+                                qGItem.gobj.setPen(ReacPen)
                                 self.emit(QtCore.SIGNAL("dropped"),reacObj)
 
                     else:
@@ -414,6 +420,7 @@ class GraphicalView(QtGui.QGraphicsView):
 
                 if displacement.y() < 0 :
                     y0,y1= y1,y0
+    
                 #print "kkitview  COMPARTMENT_INTERIOR",x0,y0
                 self.selectedItems = selectedItems = self.items(x0,y0,abs(displacement.x()), abs(displacement.y()))
                 # print("Rect => ", self.customrubberBand.rect())
