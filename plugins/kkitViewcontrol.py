@@ -318,6 +318,8 @@ class GraphicalView(QtGui.QGraphicsView):
                     tablePath = utils.create_table_path(moose.element(self.modelRoot), self.graph, element, "Conc")
                     table     = utils.create_table(tablePath, element, "Conc","Table2")
                     self.layoutPt.plugin.view.getCentralWidget().plotWidgetContainer.plotAllData()
+                    reply = QtGui.QMessageBox.information(self, "plot Object","Plot is added to Graph1",
+                                                   QtGui.QMessageBox.Ok)
             elif actionType == "clone":
                 if self.state["move"]["happened"]:
                     QtGui.QApplication.setOverrideCursor(QtGui.QCursor(Qt.Qt.ArrowCursor))
