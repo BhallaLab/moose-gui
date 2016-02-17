@@ -317,6 +317,7 @@ class GraphicalView(QtGui.QGraphicsView):
                     self.graph = moose.element(self.modelRoot+'/data/graph_0')
                     tablePath = utils.create_table_path(moose.element(self.modelRoot), self.graph, element, "Conc")
                     table     = utils.create_table(tablePath, element, "Conc","Table2")
+                    self.layoutPt.plugin.view.getCentralWidget().plotWidgetContainer.plotAllData()
             elif actionType == "clone":
                 if self.state["move"]["happened"]:
                     QtGui.QApplication.setOverrideCursor(QtGui.QCursor(Qt.Qt.ArrowCursor))
@@ -552,9 +553,9 @@ class GraphicalView(QtGui.QGraphicsView):
                     self.connectionSign.setScale(
                         (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
                                                 )
-                    position = item.mapToParent(rectangle.topLeft())
-                    self.xDisp = 15
-                    self.yDisp = 0
+                    position = item.mapToParent(rectangle.bottomRight())
+                    #self.xDisp = 15
+                    #self.yDisp = 2
                     self.connectionSign.setToolTip("plot the object")
                     self.connectorlist["plot"] = self.connectionSign
 
@@ -566,7 +567,9 @@ class GraphicalView(QtGui.QGraphicsView):
                 self.connectionSign.setScale(
                     (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
                                             )
-                position = item.mapToParent(rectangle.topRight())
+                position = item.mapToParent(rectangle.topLeft())
+                self.xDisp = 15
+                self.yDisp = 2
                 self.connectorlist["move"] = self.connectionSign
             elif l == "delete":
                 self.connectionSign = QtSvg.QGraphicsSvgItem('icons/delete.svg')
@@ -575,7 +578,7 @@ class GraphicalView(QtGui.QGraphicsView):
                 self.connectionSign.setScale(
                     (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
                                             )
-                position = item.mapToParent(rectangle.bottomRight())
+                position = item.mapToParent(rectangle.topRight())
                 self.connectionSign.setToolTip("Delete the object")
                 self.connectorlist["delete"] = self.connectionSign
 
