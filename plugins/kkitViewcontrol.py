@@ -723,8 +723,7 @@ class GraphicalView(QtGui.QGraphicsView):
             self.scale(1/1.1,1/1.1)
 
         elif (key == Qt.Qt.Key_A):  # 'a' fits the view to initial value where iconscale=1
-            self.iconScale = 1
-            self.updateScale( self.iconScale )
+            self.updateScale( 1 )
             self.fitInView(self.sceneContainerPt.itemsBoundingRect().x()-10,self.sceneContainerPt.itemsBoundingRect().y()-10,self.sceneContainerPt.itemsBoundingRect().width()+20,self.sceneContainerPt.itemsBoundingRect().height()+20,Qt.Qt.IgnoreAspectRatio)
 
     def updateScale( self, scale ):

@@ -25,7 +25,6 @@ def checkCreate(scene,view,modelpath,mobj,string,ret_string,num,event_pos,layout
     #     modelRoot = modelpath[0:modelpath.find('/',1)]
     # else:
     #     modelRoot = modelpath
-
     if moose.exists(modelpath+'/info'):
         mType = moose.Annotator((moose.element(modelpath+'/info'))).modeltype
     
@@ -58,14 +57,6 @@ def checkCreate(scene,view,modelpath,mobj,string,ret_string,num,event_pos,layout
     elif string == "Pool" or string == "BufPool":
         #getting pos with respect to compartment otherwise if compartment is moved then pos would be wrong
         posWrtComp = (itemAtView.mapFromScene(pos)).toPoint()
-        poolExit = moose.wildcardFind(mobj.path+'/##[ISA=PoolBase]')
-        if poolExit:
-            p = poolExit[0]
-            qgraphicsItemPool = layoutPt.mooseId_GObj[p]
-            parentfontsize = qgraphicsItemPool.gobj.font().pointSize()
-            font = QtGui.QFont(qgraphicsItemPool.defaultFontName)
-            font.setPointSize(parentfontsize)
-        
         if string == "Pool":
             poolObj = moose.Pool(mobj.path+'/'+string_num)
         else:
@@ -80,10 +71,6 @@ def checkCreate(scene,view,modelpath,mobj,string,ret_string,num,event_pos,layout
         posWrtComp = (itemAtView.mapFromScene(pos)).toPoint()
         bgcolor = getRandColor()
         qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),QtGui.QColor('green'),bgcolor)
-        if poolExit:
-            qGItem.gobj.setFont(font)
-            qGItem.updateRect()
-
         poolinfo.color = str(bgcolor.getRgb())
         if mType == "new_kkit":
             poolinfo.x = posWrtComp.x()
@@ -101,17 +88,6 @@ def checkCreate(scene,view,modelpath,mobj,string,ret_string,num,event_pos,layout
         reacObj = moose.Reac(mobj.path+'/'+string_num)
         reacinfo = moose.Annotator(reacObj.path+'/info')
         qGItem = ReacItem(reacObj,itemAtView)
-        
-        reacExit = moose.wildcardFind(mobj.path+'/##[ISA=ReacBase]')
-        if reacExit:
-            r = reacExit[0]
-            qgraphicsItemReac = layoutPt.mooseId_GObj[r]
-            parentfontsize = (qgraphicsItemReac.gobj.pen()).width()
-            qGItem.gobj.setPath(qgraphicsItemReac.gobj.path())
-            ReacPen = qGItem.gobj.pen()
-            ReacPen.setWidth(parentfontsize)
-            qGItem.gobj.setPen(ReacPen)
-
         qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),"white", "white")
         if mType == "new_kkit":
             reacinfo.x = posWrtComp.x()
@@ -150,7 +126,7 @@ def checkCreate(scene,view,modelpath,mobj,string,ret_string,num,event_pos,layout
         moose.connect( funcObj, 'valueOut', mobj ,'setN' )
         funcParent = layoutPt.mooseId_GObj[element(mobj.path)]
         qGItem = FuncItem(funcObj,funcParent)
-        print " function ", posWrtComp.x(),posWrtComp.y()
+        #print " function ", posWrtComp.x(),posWrtComp.y()
         qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),QtGui.QColor('red'),QtGui.QColor('green'))
         layoutPt.mooseId_GObj[funcObj] = qGItem
         if mType == "new_kkit":
@@ -222,7 +198,7 @@ def checkCreate(scene,view,modelpath,mobj,string,ret_string,num,event_pos,layout
         #Dropping is on compartment then update Compart size
         if isinstance(enzparent,moose.ChemCompt):
             updateCompartmentSize(parentcompt)
-
+    view.updateScale(view.iconScale)
 def createObj(scene,view,modelpath,string,pos,layoutPt):
     event_pos = pos
     num = 0
