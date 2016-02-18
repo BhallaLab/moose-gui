@@ -339,10 +339,6 @@ class GraphicalView(QtGui.QGraphicsView):
                         t = moose.element(cloneObj.parent().mobj)
                         name = t.name
                         if isinstance(cloneObj.parent().mobj,PoolBase):
-                            qgraphicsItemPool = self.layoutPt.mooseId_GObj[cloneObj.parent().mobj]
-                            parentfontsize = qgraphicsItemPool.gobj.font().pointSize()
-                            font = QtGui.QFont(qgraphicsItemPool.defaultFontName)
-                            font.setPointSize(parentfontsize)
                             retValue = self.objExist(lKey.path,name,iP) 
                             if retValue != None:
                                 name += retValue
@@ -359,20 +355,15 @@ class GraphicalView(QtGui.QGraphicsView):
                                 #itemAtView = self.state["release"]["item"]
                                 poolObj = moose.element(ct)
                                 poolinfo = moose.element(poolObj.path+'/info')
-                                qGItem =PoolItem(poolObj,itemAtView)
+                                qGItem = PoolItem(poolObj,itemAtView)
                                 self.layoutPt.mooseId_GObj[poolObj] = qGItem
                                 #bgcolor = getRandColor()
                                 color,bgcolor = getColor(poolinfo)
-                                qGItem.gobj.setFont(font)
-                                qGItem.updateRect()
                                 qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),color,bgcolor)
-                                
                                 self.emit(QtCore.SIGNAL("dropped"),poolObj)
                             
                         if isinstance(cloneObj.parent().mobj,ReacBase):
                             retValue = self.objExist(lKey.path,name,iR)
-                            qgraphicsItemReac = self.layoutPt.mooseId_GObj[cloneObj.parent().mobj]
-                            parentfontsize = (qgraphicsItemReac.gobj.pen()).width()
                             if retValue != None :
                                 name += retValue
                             rmooseCp = moose.copy(t,lKey.path,name,1)
@@ -385,11 +376,9 @@ class GraphicalView(QtGui.QGraphicsView):
                                 self.layoutPt.mooseId_GObj[reacObj] = qGItem
                                 posWrtComp = self.mapToScene(event.pos())
                                 qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),"white", "white")
-                                qGItem.gobj.setPath(qgraphicsItemReac.gobj.path())
-                                ReacPen = qGItem.gobj.pen()
-                                ReacPen.setWidth(parentfontsize)
-                                qGItem.gobj.setPen(ReacPen)
                                 self.emit(QtCore.SIGNAL("dropped"),reacObj)
+
+                        self.updateScale(self.iconScale)
 
                     else:
                         if itemAtView == None:
