@@ -418,6 +418,7 @@ class  KineticsWidget(EditorWidgetBase):
                     #once the text is edited in editor, laydisplay gets updated in turn resize the length, positionChanged signal shd be emitted
                     self.positionChange(mooseObject)
                     self.view.removeConnector()
+                    self.view.showConnector(item)
     def updateColorSlot(self,mooseObject, color):
         #Color slot for changing background color for PoolItem from objecteditor
         anninfo = moose.Annotator(mooseObject.path+'/info')

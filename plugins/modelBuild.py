@@ -58,17 +58,32 @@ def checkCreate(scene,view,modelpath,mobj,string,ret_string,num,event_pos,layout
     elif string == "Pool" or string == "BufPool":
         #getting pos with respect to compartment otherwise if compartment is moved then pos would be wrong
         posWrtComp = (itemAtView.mapFromScene(pos)).toPoint()
+        poolExit = moose.wildcardFind(mobj.path+'/##[ISA=PoolBase]')
+        if poolExit:
+            p = poolExit[0]
+            qgraphicsItemPool = layoutPt.mooseId_GObj[p]
+            parentfontsize = qgraphicsItemPool.gobj.font().pointSize()
+            font = QtGui.QFont(qgraphicsItemPool.defaultFontName)
+            font.setPointSize(parentfontsize)
+        
         if string == "Pool":
             poolObj = moose.Pool(mobj.path+'/'+string_num)
         else:
             poolObj = moose.BufPool(mobj.path+'/'+string_num)    
         
         poolinfo = moose.Annotator(poolObj.path+'/info')
-        qGItem =PoolItem(poolObj,itemAtView)
+        #Compartment's one Pool object is picked to get the font size
+
+        
+        qGItem = PoolItem(poolObj,itemAtView)
         layoutPt.mooseId_GObj[poolObj] = qGItem
         posWrtComp = (itemAtView.mapFromScene(pos)).toPoint()
         bgcolor = getRandColor()
         qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),QtGui.QColor('green'),bgcolor)
+        if poolExit:
+            qGItem.gobj.setFont(font)
+            qGItem.updateRect()
+
         poolinfo.color = str(bgcolor.getRgb())
         if mType == "new_kkit":
             poolinfo.x = posWrtComp.x()
@@ -86,6 +101,17 @@ def checkCreate(scene,view,modelpath,mobj,string,ret_string,num,event_pos,layout
         reacObj = moose.Reac(mobj.path+'/'+string_num)
         reacinfo = moose.Annotator(reacObj.path+'/info')
         qGItem = ReacItem(reacObj,itemAtView)
+        
+        reacExit = moose.wildcardFind(mobj.path+'/##[ISA=ReacBase]')
+        if reacExit:
+            r = reacExit[0]
+            qgraphicsItemReac = layoutPt.mooseId_GObj[r]
+            parentfontsize = (qgraphicsItemReac.gobj.pen()).width()
+            qGItem.gobj.setPath(qgraphicsItemReac.gobj.path())
+            ReacPen = qGItem.gobj.pen()
+            ReacPen.setWidth(parentfontsize)
+            qGItem.gobj.setPen(ReacPen)
+
         qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),"white", "white")
         if mType == "new_kkit":
             reacinfo.x = posWrtComp.x()
