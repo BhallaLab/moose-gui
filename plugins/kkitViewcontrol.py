@@ -119,7 +119,8 @@ class GraphicalView(QtGui.QGraphicsView):
             if itemType == COMPARTMENT_INTERIOR:
                 self.removeConnector()
             elif itemType == ITEM:
-                self.showConnector(self.state["press"]["item"])
+                if not self.move:
+                    self.showConnector(self.state["press"]["item"])
             # self.layoutPt.plugin.mainWindow.objectEditSlot(self.state["press"]["item"].mobj, False)
         else:
             self.resetState()
@@ -139,17 +140,17 @@ class GraphicalView(QtGui.QGraphicsView):
             self.state["move"]["happened"] = False
             return
 
-        # if self.move:
-        #     initial = self.mapToScene(self.state["press"]["pos"])
-        #     final = self.mapToScene(event.pos())
-        #     displacement = final - initial
-        #     #print("Displacement", displacement)
-        #     for item in self.selectedItems:
-        #         if isinstance(item, KineticsDisplayItem) and not isinstance(item,ComptItem) and not isinstance(item,CplxItem):
-        #             item.moveBy(displacement.x(), displacement.y())
-        #             self.layoutPt.positionChange(item.mobj.path)            
-        #     self.state["press"]["pos"] = event.pos()
-        #     return
+        if self.move:
+            initial = self.mapToScene(self.state["press"]["pos"])
+            final = self.mapToScene(event.pos())
+            displacement = final - initial
+            #print("Displacement", displacement)
+            for item in self.selectedItems:
+                if isinstance(item, KineticsDisplayItem) and not isinstance(item,ComptItem) and not isinstance(item,CplxItem):
+                    item.moveBy(displacement.x(), displacement.y())
+                    self.layoutPt.positionChange(item.mobj.path)            
+            self.state["press"]["pos"] = event.pos()
+            return
 
         self.state["move"]["happened"] = True
         itemType = self.state["press"]["type"]
@@ -232,9 +233,8 @@ class GraphicalView(QtGui.QGraphicsView):
     
     def editorMouseReleaseEvent(self, event):
         if self.move:
-            self.move = False
+            #self.move = False
             self.setCursor(Qt.Qt.ArrowCursor)
-        
         if self.state["press"]["mode"] == INVALID:
             self.state["release"]["mode"] = INVALID
             self.resetState()
@@ -250,8 +250,9 @@ class GraphicalView(QtGui.QGraphicsView):
 
         if clickedItemType == ITEM:
             if not self.state["move"]["happened"]:
-                self.showConnector(self.state["press"]["item"])
-                self.layoutPt.plugin.mainWindow.objectEditSlot(self.state["press"]["item"].mobj, True)
+                if not self.move:
+                    self.showConnector(self.state["press"]["item"])
+                    self.layoutPt.plugin.mainWindow.objectEditSlot(self.state["press"]["item"].mobj, True)
                 # compartment's rectangle size is calculated depending on children
                 #self.layoutPt.comptChilrenBoundingRect()
                 l = self.modelRoot
@@ -280,7 +281,7 @@ class GraphicalView(QtGui.QGraphicsView):
                         pass
                 self.removeExpectedConnection()
                 self.removeConnector()
-
+        self.move = False
         if clickedItemType  == CONNECTOR:
             actionType = str(self.state["press"]["item"].data(0).toString())
             
@@ -442,7 +443,6 @@ class GraphicalView(QtGui.QGraphicsView):
 
             # else:
             #     self.layoutPt.plugin.mainWindow.objectEditSlot(self.state["press"]["item"].mobj, True)
-
         self.resetState()
 
     def drawExpectedConnection(self, event):
@@ -1071,8 +1071,7 @@ class GraphicalView(QtGui.QGraphicsView):
                         found = True 
             if found == False:
                 # moose.connect(src, 'reac', des, 'sub', 'OneToOne')
-                moose.connect(des, 'sub', src, 'reac', 'OneToOne')    
-
+                moose.connect(des, 'sub', src, 'reac', 'OneToOne')
             else:
                 srcdesString = srcClass+' is already connected as '+ '\'Product\''+' to '+desClass +' \n \nIf you wish to connect this object then first delete the exist connection'
                 QtGui.QMessageBox.information(None,'Connection Not possible','{srcdesString}'.format(srcdesString = srcdesString),QtGui.QMessageBox.Ok)
