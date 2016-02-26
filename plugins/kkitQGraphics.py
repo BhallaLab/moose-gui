@@ -266,7 +266,9 @@ class TableItem(KineticsDisplayItem):
         path.lineTo((TableItem.defaultWidth+10),TableItem.defaultHeight/4)
 
         self.gobj = QtGui.QGraphicsPathItem(path, self)
-        self.gobj.setToolTip("Need to see what to show unlike conc/nint for pool")
+        #self.gobj.setToolTip("Need to see what to show unlike conc/nint for pool")
+        tabledoc = (element(self.mobj.path)).outputValue
+        self.gobj.setToolTip(str(tabledoc))
         self.gobj.setPen(QtGui.QPen(QtCore.Qt.black, 2,Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
         self.gobj.mobj = self.mobj
 

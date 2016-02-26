@@ -82,14 +82,6 @@ class GraphicalView(QtGui.QGraphicsView):
     def resolveItem(self, items, position):
         solution = None
         for item in items:
-            if hasattr(item, "name"):
-                #print(item.name)
-                if item.name == ITEM:
-                    return (item, ITEM)
-                if item.name == COMPARTMENT:
-                    solution = (item, self.resolveCompartmentInteriorAndBoundary(item, position))
-
-        for item in items:
             # if isinstance(item, QtGui.QGraphicsPixmapItem):
             #     return (item, CONNECTOR)
             if isinstance(item, QtSvg.QGraphicsSvgItem):
@@ -97,6 +89,14 @@ class GraphicalView(QtGui.QGraphicsView):
             
             if isinstance(item, QtGui.QGraphicsPolygonItem):
                 return (item, CONNECTION)
+
+        for item in items:
+            if hasattr(item, "name"):
+                #print(item.name)
+                if item.name == ITEM:
+                    return (item, ITEM)
+                if item.name == COMPARTMENT:
+                    solution = (item, self.resolveCompartmentInteriorAndBoundary(item, position))
 
         if solution is None:
             return (None, EMPTY)
@@ -247,7 +247,6 @@ class GraphicalView(QtGui.QGraphicsView):
         self.state["release"]["type"] = itemType
 
         clickedItemType = self.state["press"]["type"]
-
         if clickedItemType == ITEM:
             if not self.state["move"]["happened"]:
                 if not self.move:
@@ -534,6 +533,7 @@ class GraphicalView(QtGui.QGraphicsView):
                     position = item.mapToParent(rectangle.bottomLeft())
                     self.xDisp = 15
                     self.yDisp = 2
+                    self.connectionSign.setZValue(1)
                     self.connectionSign.setToolTip("Click and drag to clone the object")
                     self.connectorlist["clone"] = self.connectionSign 
             if isinstance(item.mobj,PoolBase):
@@ -547,6 +547,7 @@ class GraphicalView(QtGui.QGraphicsView):
                     position = item.mapToParent(rectangle.bottomRight())
                     #self.xDisp = 15
                     #self.yDisp = 2
+                    self.connectionSign.setZValue(1)
                     self.connectionSign.setToolTip("plot the object")
                     self.connectorlist["plot"] = self.connectionSign
 
@@ -554,13 +555,14 @@ class GraphicalView(QtGui.QGraphicsView):
                 self.connectionSign = QtSvg.QGraphicsSvgItem('icons/move.svg')
                 self.connectionSign.setData(0, QtCore.QVariant("move"))
                 self.connectionSign.setParent(self.connectionSource)
-                self.connectionSign.setToolTip("Drag to connect.")
+                self.connectionSign.setToolTip("Drag to move.")
                 self.connectionSign.setScale(
                     (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
                                             )
                 position = item.mapToParent(rectangle.topLeft())
                 self.xDisp = 15
                 self.yDisp = 2
+                self.connectionSign.setZValue(1)
                 self.connectorlist["move"] = self.connectionSign
             elif l == "delete":
                 self.connectionSign = QtSvg.QGraphicsSvgItem('icons/delete.svg')
@@ -570,6 +572,7 @@ class GraphicalView(QtGui.QGraphicsView):
                     (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
                                             )
                 position = item.mapToParent(rectangle.topRight())
+                self.connectionSign.setZValue(1)
                 self.connectionSign.setToolTip("Delete the object")
                 self.connectorlist["delete"] = self.connectionSign
 
