@@ -10,7 +10,7 @@ def updateCompartmentSize(qGraCompt):
     comptBoundingRect = qGraCompt.boundingRect()
     rectcompt = comptBoundingRect.united(childBoundingRect)
     comptPen = qGraCompt.pen()
-    comptWidth =  5
+    comptWidth =  1
     comptPen.setWidth(comptWidth)
     qGraCompt.setPen(comptPen)
     if not comptBoundingRect.contains(childBoundingRect):
@@ -46,7 +46,7 @@ def checkCreate(scene,view,modelpath,mobj,string,ret_string,num,event_pos,layout
         mobj.volume = 1e-15
         mesh = moose.element(mobj.path+'/mesh')
         qGItem = ComptItem(scene,pos.toPoint().x(),pos.toPoint().y(),100,100,mobj)
-        qGItem.setPen(QtGui.QPen(Qt.QColor(66,66,66,100), 5, Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
+        qGItem.setPen(QtGui.QPen(Qt.QColor(66,66,66,100), 1, Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
         view.sceneContainerPt.addItem(qGItem)
         qGItem.cmptEmitter.connect(qGItem.cmptEmitter,QtCore.SIGNAL("qgtextPositionChange(PyQt_PyObject)"),layoutPt.positionChange1)
         qGItem.cmptEmitter.connect(qGItem.cmptEmitter,QtCore.SIGNAL("qgtextItemSelectedChange(PyQt_PyObject)"),layoutPt.objectEditSlot)
@@ -198,7 +198,8 @@ def checkCreate(scene,view,modelpath,mobj,string,ret_string,num,event_pos,layout
         #Dropping is on compartment then update Compart size
         if isinstance(enzparent,moose.ChemCompt):
             updateCompartmentSize(parentcompt)
-    view.updateScale(view.iconScale)
+    if view.iconScale != 1:
+        view.updateScale(view.iconScale)
 def createObj(scene,view,modelpath,string,pos,layoutPt):
     event_pos = pos
     num = 0

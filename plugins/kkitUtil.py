@@ -21,7 +21,6 @@ def getRandColor():
     if k in ignoreColor:
         return getRandColor()
     else:
-        print " l =",matplotcolor[k]
         return QColor(matplotcolor[k])
 
 def getRandColor1():

@@ -289,7 +289,6 @@ class MWindow(QtGui.QMainWindow):
         return dialog
 
     def run_genesis_script(self,filepath,solver):
-        print " solver at mgui 292 ",solver,filepath
         self.popup.hide()
         abspath = os.path.abspath(filepath)
         directory, modulename = os.path.split(abspath)
@@ -541,11 +540,8 @@ class MWindow(QtGui.QMainWindow):
     def switchSubwindowSlot(self, window):
         """Change view based on what subwindow `window` is activated."""
         if not window:
-            #print 'Window is None'
             return
         view = str(window.windowTitle()).partition(':')[0]
-        #print 'activated', window.windowTitle(), 'view=', view
-        #print 'setting current view'
         self.setCurrentView(view)
 
     def setCurrentView(self, view):
@@ -655,7 +651,6 @@ class MWindow(QtGui.QMainWindow):
                 t = QtGui.QAction(k[0],self)
                 self.subMenu.addAction(t)
                 if k[0] == "Fig3C_Gsl (2s)":
-                    print " gsl"
                     t.connect(t,QtCore.SIGNAL('triggered()'),lambda script = k[1]: self.run_genesis_script(script,"gsl"))
                 elif k[0] == "Fig3B_Gssa (2s)":
                     t.connect(t,QtCore.SIGNAL('triggered()'),lambda script = k[1]: self.run_genesis_script(script,"gssa"))
@@ -1068,9 +1063,7 @@ class MWindow(QtGui.QMainWindow):
         else :
             neurons = moose.wildcardFind(modelPath + "/model/cells/##[ISA=Neuron]")
             for neuron in neurons:
-                #print(neuron)
                 solver = moose.element(neuron.path + "/hsolve")
-                # print("Disabling => ", solver)
                 solver.tick = -1
         for table in moose.wildcardFind( modelPath+'/data/graph#/#' ):
             table.tick = -1
@@ -1104,7 +1097,6 @@ class MWindow(QtGui.QMainWindow):
                 modelName = dialog.getTargetPath()
                 if '/' in modelName:
                     raise mexception.ElementNameError('Model name cannot contain `/`')
-                print " fileNames ",fileName, " modelName ",modelName
                 ret = loadFile(str(fileName),'%s' %(modelName),merge=False)
                 #ret = loadFile(str(fileName), '/model/%s' % (modelName), merge=False)
 		        #Harsha: This will clear out object editor's objectpath and make it invisible
