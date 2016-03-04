@@ -47,7 +47,7 @@
 
 from __future__ import print_function
 import re
-from . import moose
+import moose
 
 ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ## !! This was stolen from

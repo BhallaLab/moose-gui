@@ -46,7 +46,8 @@
 # Code:
 
 import moose
-from moose import mtypes, neuroml
+from moose import neuroml
+import mtypes
 from mexception import FileLoadError
 import posixpath
 from os.path import basename
