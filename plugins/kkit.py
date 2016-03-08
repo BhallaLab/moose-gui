@@ -363,6 +363,7 @@ class  KineticsWidget(EditorWidgetBase):
                 self.setLayout(hLayout)
                 hLayout.addWidget(self.view)
                 self.view.fitInView(self.sceneContainer.itemsBoundingRect().x()-10,self.sceneContainer.itemsBoundingRect().y()-10,self.sceneContainer.itemsBoundingRect().width()+20,self.sceneContainer.itemsBoundingRect().height()+20,Qt.Qt.IgnoreAspectRatio)
+
     def getMooseObj(self):
         #This fun call 2 more function
         # -- setupMeshObj(self.modelRoot),
@@ -504,7 +505,6 @@ class  KineticsWidget(EditorWidgetBase):
         for k, v in self.qGraCompt.items():
             # compartment's rectangle size is calculated depending on children
             rectcompt = v.childrenBoundingRect()
-
             v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
             v.setPen(QtGui.QPen(Qt.QColor(66,66,66,100), self.comptPen, Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
 
@@ -813,7 +813,9 @@ class kineticEditorWidget(KineticsWidget):
                 button.setDefaultAction(action)
                 #set the unicode instead of image by setting
                 #button.setText(unicode(u'\u20de'))
-                button.setIcon(QtGui.QIcon("icons/classIcon/"+action.text()+".png"))
+                Iconpath = os.path.join(config.MOOSE_GUI_DIR, 'icons/classIcon/')
+                button.setIcon(QtGui.QIcon(Iconpath+action.text()+".png"))
+                #button.setIcon(QtGui.QIcon("icons/classIcon/"+action.text()+".png"))
                 #button.setIconSize(QtCore.QSize(200,200))
                 self._insertToolBar.addWidget(button)
         return self._toolBars
