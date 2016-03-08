@@ -54,7 +54,7 @@ class GraphicalView(QtGui.QGraphicsView):
         self.viewBaseType = path
     
     def resizeEvent(self, event):
-        # print event.size().width(),event.size().height()
+        #print event.size().width(),event.size().height()
         self.fitInView(self.sceneContainerPt.itemsBoundingRect().x()-10,self.sceneContainerPt.itemsBoundingRect().y()-10,self.sceneContainerPt.itemsBoundingRect().width()+20,self.sceneContainerPt.itemsBoundingRect().height()+20,Qt.Qt.IgnoreAspectRatio)
         #print("Called =>", event)
 
@@ -258,7 +258,7 @@ class GraphicalView(QtGui.QGraphicsView):
                 if self.modelRoot.find('/',1) > 0:
                     l = self.modelRoot[0:self.modelRoot.find('/',1)]
 
-                linfo = moose.Annotator(l+'/info')
+                linfo = moose.Annotator(l+'/model/info')
                 for k, v in self.layoutPt.qGraCompt.items():
                     rectcompt = v.childrenBoundingRect()
                     if linfo.modeltype == "new_kkit":
@@ -762,7 +762,6 @@ class GraphicalView(QtGui.QGraphicsView):
         self.layoutPt.updateItemTransformationMode(itemignoreZooming)
         self.fitInView(self.sceneContainerPt.itemsBoundingRect().x()-10,self.sceneContainerPt.itemsBoundingRect().y()-10,self.sceneContainerPt.itemsBoundingRect().width()+20,self.sceneContainerPt.itemsBoundingRect().height()+20,Qt.Qt.IgnoreAspectRatio)
         self.layoutPt.drawLine_arrow(itemignoreZooming=False)
-         
 
     def deleteSelections(self,x0,y0,x1,y1):
         if( x1-x0 > 0  and y1-y0 >0):
