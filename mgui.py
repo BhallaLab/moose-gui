@@ -85,9 +85,9 @@ subtype_plugin_map = {  'genesis/kkit': 'kkit'
                      ,  'xml/neuroml': 'NeuroKit'
                      }
 
-APPLICATION_ICON_PATH = os.path.join( os.path.dirname(os.path.realpath(__file__))
-                                    , "icons/moose_icon.png"
-                                    )
+#APPLICATION_ICON_PATH = os.path.join( os.path.dirname(os.path.realpath(__file__))
+#                                    , "icons/moose_icon.png"
+#                                    )
 
 
 def busyCursor():
@@ -158,7 +158,7 @@ class MWindow(QtGui.QMainWindow):
         self.quitAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Q", None, QtGui.QApplication.UnicodeUTF8))
         self.getMyDockWidgets()
         self.setCentralWidget(self.mdiArea)
-        self.setWindowIcon(QIcon(APPLICATION_ICON_PATH))
+        #self.setWindowIcon(QIcon(APPLICATION_ICON_PATH))
         
         # pixmap = QPixmap("icons/moose_icon.png")
 
@@ -1171,8 +1171,8 @@ def main():
     # create the GUI application
     app = QtGui.QApplication(sys.argv)
     QtGui.qApp = app
-    icon = QtGui.QIcon(os.path.join(config.KEY_ICON_DIR,'moose_icon.png'))
-    app.setWindowIcon(icon)
+    #icon = QtGui.QIcon(os.path.join(config.KEY_ICON_DIR,'moose_icon.png'))
+    #app.setWindowIcon(icon)
     # instantiate the main window
     #moose.loadModel('../Demos/Genesis_files/Kholodenko.g','/kho')
     mWindow =  MWindow()
