@@ -188,6 +188,7 @@ def init_dirs():
     # locally built version
     LOCAL_BUILD = os.access(os.path.join(MOOSE_GUI_DIR, '../Makefile'), os.R_OK)
     errors = []
+    '''
     moose_cfg_dir = os.path.join(os.environ['HOME'], '.moose')
     if not os.path.exists(moose_cfg_dir):
         firsttime = True
@@ -214,6 +215,7 @@ def init_dirs():
     if not os.access(MOOSE_DOCS_DIR, os.R_OK + os.X_OK):
         print "Could not access Demos directory: %s" % (MOOSE_DOCS_DIR)
         errors.append(OSError(errno.EACCES, 'Cannot access %s' % (MOOSE_DOCS_DIR)))
+    '''
     return firsttime, errors
 
 settings = MooseSetting()
