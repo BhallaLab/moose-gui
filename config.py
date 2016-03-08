@@ -89,9 +89,10 @@ QT_VERSION = str(QtCore.QT_VERSION_STR).split('.')
 QT_MAJOR_VERSION = int(QT_VERSION[0])
 QT_MINOR_VERSION = int(QT_VERSION[1])
 
-MOOSE_DOC_URL = 'http://moose.ncbs.res.in/content/view/5/6/'
+MOOSE_DOC_URL = 'http://moose.ncbs.res.in/builtins_classes/moose_builtins.html'
 MOOSE_REPORT_BUG_URL = 'http://sourceforge.net/tracker/?func=add&group_id=165660&atid=836272'
-
+MOOSE_GUI_BUG_URL  = 'https://github.com/BhallaLab/moose-gui/issues'
+MOOSE_CORE_BUG_URL = 'https://github.com/BhallaLab/moose-core/issues'
 MOOSE_DEMOS_DIR = '/usr/share/moose/Demos'
 MOOSE_DOCS_DIR =  '/usr/share/doc/moose'
 MOOSE_GUI_DIR = os.path.dirname(os.path.abspath(__file__))

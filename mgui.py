@@ -877,9 +877,11 @@ class MWindow(QtGui.QMainWindow):
             self.connect(self.actionAbout, QtCore.SIGNAL('triggered()'), self.showAboutMoose)
             self.actionBuiltInDocumentation = QtGui.QAction('Built-in documentation', self)
             self.connect(self.actionBuiltInDocumentation, QtCore.SIGNAL('triggered()'), self.showBuiltInDocumentation)
-            self.actionBug = QtGui.QAction('Report a bug', self)
-            self.connect(self.actionBug, QtCore.SIGNAL('triggered()'), self.reportBug)
-            self.helpActions = [self.actionAbout, self.actionBuiltInDocumentation, self.actionBug]
+            self.actionGuiBug = QtGui.QAction('Report gui bug', self)
+            self.connect(self.actionGuiBug, QtCore.SIGNAL('triggered()'), self.reportGuiBug)
+            self.actionCoreBug = QtGui.QAction('Report core bug', self)
+            self.connect(self.actionCoreBug, QtCore.SIGNAL('triggered()'), self.reportCoreBug)
+            self.helpActions = [self.actionAbout, self.actionBuiltInDocumentation, self.actionCoreBug,self.actionGuiBug]
         return self.helpActions
     # Removed from the main menu item replace with File menu
     # def getConnectActions(self):
@@ -927,6 +929,8 @@ class MWindow(QtGui.QMainWindow):
             QtGui.QMessageBox.about(self, 'About MOOSE', ''.join(aboutfile.readlines()))
 
     def showDocumentation(self, source):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(config.MOOSE_DOC_URL))
+        '''
         if not hasattr(self, 'documentationViewer'):
             self.documentationViewer = QtGui.QTextBrowser()
             self.documentationViewer.setOpenLinks(True)
@@ -944,10 +948,15 @@ class MWindow(QtGui.QMainWindow):
         self.documentationViewer.setWindowTitle(source)
         self.documentationViewer.reload()
         self.documentationViewer.setVisible(True)
-
+        '''
+    def reportGuiBug(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(config.MOOSE_GUI_BUG_URL))
+    def reportCoreBug(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(config.MOOSE_CORE_BUG_URL))
+    '''        
     def reportBug(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(config.MOOSE_REPORT_BUG_URL))
-
+    '''
     def showBuiltInDocumentation(self):
         self.showDocumentation('moose_builtins.html')
 
