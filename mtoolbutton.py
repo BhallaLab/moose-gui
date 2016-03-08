@@ -55,7 +55,7 @@ class MToolButton(QtGui.QToolButton):
     """
     def __init__(self, *args):
         QtGui.QToolButton.__init__(self, *args)
-        self.dragStartPosition = None
+        self.dragStartPosition = QtCore.QPoint(0,0)
 
     def mousePressEvent(self, event):
         if event.buttons() & Qt.LeftButton:
