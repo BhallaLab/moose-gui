@@ -1,6 +1,6 @@
 from moose import Annotator
 from kkitQGraphics import PoolItem, ReacItem,EnzItem,CplxItem,ComptItem
-from PyQt4 import QtCore,QtGui
+from PyQt4 import QtCore,QtGui,QtSvg
 from PyQt4.QtGui import QColor
 import numpy as np
 import os
@@ -133,11 +133,12 @@ def calculateChildBoundingRect(compt):
     xpos = []
     for l in compt.childItems():
         ''' All the children including pool,reac,enz,polygon(arrow),table '''
-        xpos.append((l.pos().x())+(l.boundingRect().bottomRight().x()))
-        xpos.append(l.pos().x())
-        ypos.append(l.pos().y()+l.boundingRect().bottomRight().y())
-        ypos.append(l.pos().y())
-        print "@ ",l, l.pos()
+        if not isinstance(l,QtSvg.QGraphicsSvgItem):
+            xpos.append((l.pos().x())+(l.boundingRect().bottomRight().x()))
+            xpos.append(l.pos().x())
+            ypos.append(l.pos().y()+l.boundingRect().bottomRight().y())
+            ypos.append(l.pos().y())
+            
         if (isinstance(l,PoolItem) or isinstance(l,EnzItem)):
             ''' For Enz cplx height and for pool function height needs to be taken'''
 
