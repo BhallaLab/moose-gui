@@ -504,7 +504,8 @@ class  KineticsWidget(EditorWidgetBase):
     def comptChilrenBoundingRect(self):
         for k, v in self.qGraCompt.items():
             # compartment's rectangle size is calculated depending on children
-            rectcompt = v.childrenBoundingRect()
+            #rectcompt = v.childrenBoundingRect()
+            rectcompt = calculateChildBoundingRect(v)
             v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
             v.setPen(QtGui.QPen(Qt.QColor(66,66,66,100), self.comptPen, Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
 
@@ -686,11 +687,13 @@ class  KineticsWidget(EditorWidgetBase):
                         self.updateCompartmentSize(v)
                 else:
                     #if already built model then compartment size depends on max and min objects
+                    rectcompt = calculateChildBoundingRect(v)
                     v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
 
     def updateCompartmentSize(self, compartment):
         compartmentBoundary = compartment.rect()
-        childrenBoundary    = compartment.childrenBoundingRect()
+        #childrenBoundary    = compartment.childrenBoundingRect()
+        childrenBoundary = calculateChildBoundingRect(compartment)
         x = min(compartmentBoundary.x(), childrenBoundary.x())
         y = min(compartmentBoundary.y(), childrenBoundary.y())
         width = max(compartmentBoundary.width(), childrenBoundary.width())
@@ -755,7 +758,8 @@ class  KineticsWidget(EditorWidgetBase):
             self.updateArrow(mobj)
             mooseObjcompt = self.findparent(mooseObject)
             v = self.qGraCompt[mooseObjcompt]
-            childBoundingRect = v.childrenBoundingRect()
+            #childBoundingRect = v.childrenBoundingRect()
+            childBoundingRect = calculateChildBoundingRect(v)
             comptBoundingRect = v.boundingRect()
             rectcompt = comptBoundingRect.united(childBoundingRect)
             comptPen = v.pen()

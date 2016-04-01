@@ -1,4 +1,6 @@
 from moose import Annotator
+from kkitQGraphics import PoolItem, ReacItem,EnzItem,CplxItem,ComptItem
+from PyQt4 import QtCore,QtGui
 from PyQt4.QtGui import QColor
 import numpy as np
 import os
@@ -120,3 +122,33 @@ def handleCollisions(compartments, moveCallback, layoutPt,margin = 5.0):
     for collider in colliders:
         moveCallback(reference, collider, layoutPt,margin)
     return handleCollisions(compartments, moveCallback, layoutPt,margin)
+
+def calculateChildBoundingRect(compt):
+    ''' In this function I am trying to calculate BoundingRect of the compartments
+        looking into children and its children which default "ChildrenBoundingRect"
+        function doing but in multi-compartment cross-compartment reaction 
+        the arrow width is taken into account which doesn't belong to this perticular compartment
+    '''
+    ypos = []
+    xpos = []
+    for l in compt.childItems():
+        ''' All the children including pool,reac,enz,polygon(arrow),table '''
+        xpos.append((l.pos().x())+(l.boundingRect().bottomRight().x()))
+        xpos.append(l.pos().x())
+        ypos.append(l.pos().y()+l.boundingRect().bottomRight().y())
+        ypos.append(l.pos().y())
+        print "@ ",l, l.pos()
+        if (isinstance(l,PoolItem) or isinstance(l,EnzItem)):
+            ''' For Enz cplx height and for pool function height needs to be taken'''
+
+            for ll in l.childItems():
+                ''' eleminating polygonItem (arrow) [This is happen in cross-compartment model that arrow from one compartment will be child]
+                    pool's outboundary RectItem and Enz's outerboundary Ellipse is eleminating since its same 
+                '''
+                if ( (not isinstance(ll,QtGui.QGraphicsPolygonItem)) and 
+                     (not isinstance(ll,QtGui.QGraphicsRectItem)) and 
+                     (not isinstance(ll,QtGui.QGraphicsEllipseItem))
+                    ):
+                    ypos.append(l.pos().y()+ll.pos().y()+ll.boundingRect().bottomRight().y())
+    calculateRectcompt = QtCore.QRectF(min(xpos),min(ypos),(max(xpos)-min(xpos)),(max(ypos)-min(ypos)))
+    return calculateRectcompt

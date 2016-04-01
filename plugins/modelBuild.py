@@ -6,7 +6,8 @@ import PyQt4
 from setsolver import *
 
 def updateCompartmentSize(qGraCompt):
-    childBoundingRect = qGraCompt.childrenBoundingRect()
+    #childBoundingRect = qGraCompt.childrenBoundingRect()
+    childBoundingRect = calculateChildBoundingRect(qGraCompt)
     comptBoundingRect = qGraCompt.boundingRect()
     rectcompt = comptBoundingRect.united(childBoundingRect)
     comptPen = qGraCompt.pen()

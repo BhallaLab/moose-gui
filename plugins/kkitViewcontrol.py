@@ -268,6 +268,7 @@ class GraphicalView(QtGui.QGraphicsView):
                             self.layoutPt.updateCompartmentSize(v)
                     else:
                         #if already built model then compartment size depends on max and min objects
+                        rectcompt = calculateChildBoundingRect(v)
                         v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
 
             else:
