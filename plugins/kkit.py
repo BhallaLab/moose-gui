@@ -2,6 +2,7 @@ import sys
 from PyQt4 import QtGui, QtCore, Qt
 from default import *
 from moose import *
+from moose.genesis import write
 #sys.path.append('plugins')
 from mplugin import *
 from kkitUtil import *
@@ -42,10 +43,11 @@ class KkitPlugin(MoosePlugin):
     def SaveModelDialogSlot(self):
         type_sbml = 'SBML'
         type_genesis = 'Genesis'
+        dirpath = ""
         # if moose.Annotator(self.modelRoot+'/model/info'):
         #     moose.Annotator(self.modelRoot+'/model/info')
         # mooseAnno = moose.Annotator(self.modelRoot+'/model/info')
-        dirpath = mooseAnno.dirpath
+        #dirpath = mooseAnno.dirpath
         if not dirpath:
             dirpath = expanduser("~")
         filters = {'SBML(*.xml)': type_sbml,'Genesis(*.g)':type_genesis}
@@ -73,10 +75,11 @@ class KkitPlugin(MoosePlugin):
                 #self.test = KkitEditorView(self).getCentralWidget().mooseId_GObj
                 filename = filename
                 self.test = None
-                writeerror = moose.genesis.write(self.modelRoot,str(filename),self.test)
+                writeerror = write(self.modelRoot,str(filename),self.test)
                 if writeerror == False:
                     QtGui.QMessageBox.information(None,'Could not save the Model','\nCheck the file')
-
+                else:
+                    QtGui.QMessageBox.information(None,'Saved the Model','\n File saved to \'{filename}\''.format(filename =filename+'.g'),QtGui.QMessageBox.Ok)
 
     def getPreviousPlugin(self):
         return None
