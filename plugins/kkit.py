@@ -59,8 +59,7 @@ class KkitPlugin(MoosePlugin):
             if str(filter_).rfind('.') != -1:
                 extension = filter_[str(filter_).rfind('.'):len(filter_)-1]
         if filename:
-
-            filename = filename+extension
+            filename = filename
             if filters[str(filter_)] == 'SBML':
                 writeerror = moose.writeSBML(self.modelRoot,str(filename))
                 if writeerror == -2:
