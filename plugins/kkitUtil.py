@@ -66,7 +66,7 @@ def colorCheck(fc_bgcolor,fcbg):
             if tc < len(colorMap):
                 pickledColor = colorMap[tc]
             else:
-                pickledColor =(255, 0, 0)
+                pickledColor = (255, 0, 0)
             fc_bgcolor = QColor(*pickledColor)
 
         elif fc_bgcolor.isalpha() or fc_bgcolor.isalnum():
