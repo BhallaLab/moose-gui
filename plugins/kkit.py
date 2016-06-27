@@ -652,10 +652,11 @@ class  KineticsWidget(EditorWidgetBase):
                 pen.setColor(QtCore.Qt.red)
             elif(endtype != 'cplx'):
                 p1 = (next((k for k,v in self.mooseId_GObj.items() if v == src), None))
-                pinfo = p1.path+'/info'
+                pinfo = p1.parent.path+'/info'
                 color,bgcolor = getColor(pinfo)
                 #color = QColor(color[0],color[1],color[2])
-                pen.setColor(color)
+                pen.setColor(bgcolor)
+
         elif isinstance(source, moose.PoolBase) or isinstance(source,moose.Function):
             pen.setColor(QtCore.Qt.blue)
         elif isinstance(source,moose.StimulusTable):
