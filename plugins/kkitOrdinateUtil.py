@@ -184,15 +184,19 @@ def autoCoordinates(meshEntry,srcdesConnection):
     G = nx.Graph()
     for cmpt,memb in meshEntry.items():
         for enzObj in find_index(memb,'enzyme'):
-            G.add_node(enzObj.path)
+            #G.add_node(enzObj.path)
+            G.add_node(enzObj.path,label='',shape='ellipse',color='',style='filled',fontname='Helvetica',fontsize=12,fontcolor='blue')
     for cmpt,memb in meshEntry.items():
         for poolObj in find_index(memb,'pool'):
-            G.add_node(poolObj.path)
+            #G.add_node(poolObj.path)
+            G.add_node(poolObj.path,label = poolObj.name,shape = 'box',color = '',style = 'filled',fontname = 'Helvetica',fontsize = 12,fontcolor = 'blue')
         for cplxObj in find_index(memb,'cplx'):
             G.add_node(cplxObj.path)
-            G.add_edge((cplxObj.parent).path,cplxObj.path)
+            G.add_node(cplxObj.path,label = cplxObj.name,shape = 'box',color = '',style = 'filled',fontname = 'Helvetica',fontsize = 12,fontcolor = 'blue')
+            #G.add_edge((cplxObj.parent).path,cplxObj.path)
         for reaObj in find_index(memb,'reaction'):
-            G.add_node(reaObj.path)
+            #G.add_node(reaObj.path)
+            G.add_node(reaObj.path,label='',shape='larrow',color='')
         
     for inn,out in srcdesConnection.items():
         if (inn.className =='ZombieReac'): arrowcolor = 'green'
@@ -216,11 +220,18 @@ def autoCoordinates(meshEntry,srcdesConnection):
                 for items in (items for items in out ):
                     G.add_edge(element(items[0]).path,inn.path)
     
-    nx.draw(G,pos=nx.spring_layout(G))
-    #plt.savefig('/home/harsha/Desktop/netwrokXtest.png')
+    #nx.draw(G,pos=nx.spring_layout(G))
+    #nx.draw(G,pos=nx.spring_layout(G))
+    position = nx.pygraphviz_layout(G, prog = 'dot')
+    print " at 226 kkit Orfinates ",position
+    #position = nx.spring_layout(G)
+    #import matplotlib.pyplot as plt
+    #plt.savefig('/home/harsha/Trash/Trash_SBML/test.png')
+    agraph = nx.to_agraph(G)
+    agraph.draw("/home/harsha/Trash/Trash_SBML/test.png", format = 'png', prog = 'dot')
     xcord = []
     ycord = []
-    position = nx.spring_layout(G)
+    
     for item in position.items():
         xy = item[1]
         ann = moose.Annotator(item[0]+'/info')
