@@ -3,6 +3,7 @@ from PyQt4 import QtGui, QtCore, Qt
 from default import *
 from moose import *
 from moose.genesis import write
+from moose import SBML
 #sys.path.append('plugins')
 from mplugin import *
 from kkitUtil import *
@@ -62,7 +63,15 @@ class KkitPlugin(MoosePlugin):
         if filename:
             filename = filename
             if filters[str(filter_)] == 'SBML':
-                writeerror = moose.writeSBML(self.modelRoot,str(filename))
+                self.sceneObj = KkitEditorView(self).getCentralWidget().mooseId_GObj
+                self.coOrdinates = {}
+                for k,v in self.sceneObj.items():
+                    if moose.exists(moose.element(k).path+'/info'):
+                        annoInfo = Annotator(k.path+'/info')
+                        self.coOrdinates[k] = {'x':annoInfo.x, 'y':annoInfo.y}
+
+                #writeerror = moose.writeSBML(self.modelRoot,str(filename),self.coOrdinates)
+                writeerror,consistencyMessages = moose.SBML.mooseWriteSBML(self.modelRoot,str(filename),self.coOrdinates)
                 if writeerror == -2:
                     QtGui.QMessageBox.warning(None,'Could not save the Model','\n WriteSBML :  This copy of MOOSE has not been compiled with SBML writing support.')
                 elif writeerror == -1:
@@ -71,14 +80,16 @@ class KkitPlugin(MoosePlugin):
                     QtGui.QMessageBox.information(None,'Saved the Model','\n File saved to \'{filename}\''.format(filename =filename+'.xml'),QtGui.QMessageBox.Ok)
                 elif writeerror == 0:
                      QtGui.QMessageBox.information(None,'Could not save the Model','\nThe filename could not be opened for writing')
+
             elif filters[str(filter_)] == 'Genesis':
                 self.sceneObj = KkitEditorView(self).getCentralWidget().mooseId_GObj
                 self.coOrdinates = {}
+                #Here get x,y coordinates from the Annotation, to save layout position 
+                # into genesis
                 for k,v in self.sceneObj.items():
                     if moose.exists(moose.element(k).path+'/info'):
                         annoInfo = Annotator(k.path+'/info')
                         self.coOrdinates[k] = {'x':annoInfo.x, 'y':annoInfo.y}
-
                 filename = filename
                 writeerror = write(self.modelRoot,str(filename),self.coOrdinates)
                 if writeerror == False:
@@ -574,7 +585,6 @@ class  KineticsWidget(EditorWidgetBase):
             #     ypos = (y-self.ymin)*self.yratio
             ypos = (y-self.ymin)*self.yratio
         xpos = (x-self.xmin)*self.xratio
-
         return(xpos,ypos)
 
     def drawLine_arrow(self, itemignoreZooming=False):
@@ -601,7 +611,10 @@ class  KineticsWidget(EditorWidgetBase):
                         self.lineCord(src,des,items,itemignoreZooming)
             elif isinstance(out,list):
                 if len(out) == 0:
-                    print "Func pool doesn't have sumtotal"
+                    if inn.className == "StimulusTable":
+                        print inn.name +" doesn't have output"
+                    elif inn.className == "ZombieFunction" or inn.className == "Function":
+                        print inn.name + " doesn't have sumtotal "
                 else:
                     src = self.mooseId_GObj[inn]
                     for items in (items for items in out ):
