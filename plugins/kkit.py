@@ -71,7 +71,7 @@ class KkitPlugin(MoosePlugin):
                         self.coOrdinates[k] = {'x':annoInfo.x, 'y':annoInfo.y}
 
                 #writeerror = moose.writeSBML(self.modelRoot,str(filename),self.coOrdinates)
-                writeerror,consistencyMessages = moose.SBML.mooseWriteSBML(self.modelRoot,str(filename),self.coOrdinates)
+                writeerror,consistencyMessages,writtentofile = moose.SBML.mooseWriteSBML(self.modelRoot,str(filename),self.coOrdinates)
                 if writeerror == -2:
                     QtGui.QMessageBox.warning(None,'Could not save the Model','\n WriteSBML :  This copy of MOOSE has not been compiled with SBML writing support.')
                 elif writeerror == -1:

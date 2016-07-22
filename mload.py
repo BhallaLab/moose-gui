@@ -99,7 +99,6 @@ def loadGenCsp(target,filename,solver="gsl"):
     return(modelpath1,modelpath1.path)
 
 def loadFile(filename, target, solver="gsl", merge=True):
-    print " solver @ loadFile",solver
     """Try to load a model from specified `filename` under the element
     `target`.
 
