@@ -745,9 +745,9 @@ class  KineticsWidget(EditorWidgetBase):
             # Checking if src (srcdes[0]) or des (srcdes[1]) is ZombieEnz,
             # if yes then need to check if cplx is connected to any mooseObject,
             # so that when Enzyme is moved, cplx connected arrow to other mooseObject(poolItem) should also be updated
-            if( type(srcdes[0]) == EnzItem):
+            if( type(srcdes[0]) == EnzItem or type(srcdes[0] == MMEnzItem)):
                 self.cplxUpdatearrow(srcdes[0])
-            elif( type(srcdes[1]) == EnzItem):
+            elif( type(srcdes[1]) == EnzItem or type(srcdes[1] == MMEnzItem)):
                 self.cplxUpdatearrow(srcdes[1])
             # For calcArrow(src,des,endtype,itemignoreZooming) is to be provided
             arrow = calcArrow(srcdes,self.itemignoreZooming,self.iconScale)
