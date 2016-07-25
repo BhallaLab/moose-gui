@@ -76,6 +76,7 @@ def setupMeshObj(modelRoot):
 
 def sizeHint(self):
     return QtCore.QSize(800,400)
+
 def getxyCord(xcord,ycord,list1):
     for item in list1:
         # if isinstance(item,Function):
@@ -175,8 +176,6 @@ def countitems(mitems,objtype):
     return(uniqItems,countuniqItems)
 
 def autoCoordinates(meshEntry,srcdesConnection):
-    #for cmpt,memb in meshEntry.items():
-    #    print memb
     xmin = 0.0
     xmax = 1.0
     ymin = 0.0
@@ -221,14 +220,12 @@ def autoCoordinates(meshEntry,srcdesConnection):
                     G.add_edge(element(items[0]).path,inn.path)
     
     #nx.draw(G,pos=nx.spring_layout(G))
-    #nx.draw(G,pos=nx.spring_layout(G))
-    position = nx.pygraphviz_layout(G, prog = 'dot')
-    print " at 226 kkit Orfinates ",position
     #position = nx.spring_layout(G)
     #import matplotlib.pyplot as plt
     #plt.savefig('/home/harsha/Trash/Trash_SBML/test.png')
-    agraph = nx.to_agraph(G)
-    agraph.draw("/home/harsha/Trash/Trash_SBML/test.png", format = 'png', prog = 'dot')
+    position = nx.graphviz_layout(G, prog = 'dot')
+    # agraph = nx.to_agraph(G)
+    # agraph.draw("test.png", format = 'png', prog = 'dot')
     xcord = []
     ycord = []
     
@@ -239,9 +236,7 @@ def autoCoordinates(meshEntry,srcdesConnection):
         xcord.append(xy[0])
         ann.y = xy[1]
         ycord.append(xy[1])
-    # for y in position.values():
-    #     xcord.append(y[0])
-    #     ycord.append(y[1])
+    
     if xcord and ycord:
         xmin = min(xcord)
         xmax = max(xcord)
