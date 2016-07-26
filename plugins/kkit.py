@@ -3,7 +3,7 @@ from PyQt4 import QtGui, QtCore, Qt
 from default import *
 from moose import *
 from moose.genesis import write
-from moose import SBML
+#from moose import SBML
 #sys.path.append('plugins')
 from mplugin import *
 from kkitUtil import *
@@ -71,7 +71,10 @@ class KkitPlugin(MoosePlugin):
                         self.coOrdinates[k] = {'x':annoInfo.x, 'y':annoInfo.y}
 
                 #writeerror = moose.writeSBML(self.modelRoot,str(filename),self.coOrdinates)
-                writeerror,consistencyMessages,writtentofile = moose.SBML.mooseWriteSBML(self.modelRoot,str(filename),self.coOrdinates)
+               # writeerror,consistencyMessages,writtentofile = moose.SBML.mooseWriteSBML(self.modelRoot,str(filename),self.coOrdinates)
+	        writeerror = -2
+		conisitencyMessages = ""
+		writtentofile = "/test.xml"
                 if writeerror == -2:
                     QtGui.QMessageBox.warning(None,'Could not save the Model','\n WriteSBML :  This copy of MOOSE has not been compiled with SBML writing support.')
                 elif writeerror == -1:
