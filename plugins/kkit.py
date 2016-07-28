@@ -85,14 +85,32 @@ class KkitPlugin(MoosePlugin):
                      QtGui.QMessageBox.information(None,'Could not save the Model','\nThe filename could not be opened for writing')
 
             elif filters[str(filter_)] == 'Genesis':
-                self.sceneObj = KkitEditorView(self).getCentralWidget().mooseId_GObj
+                mdtype = moose.Annotator(self.modelRoot+'/info')
                 self.coOrdinates = {}
+                xycord = []
+                self.sceneObj = KkitEditorView(self).getCentralWidget().mooseId_GObj
                 #Here get x,y coordinates from the Annotation, to save layout position 
                 # into genesis
                 for k,v in self.sceneObj.items():
                     if moose.exists(moose.element(k).path+'/info'):
                         annoInfo = Annotator(k.path+'/info')
                         self.coOrdinates[k] = {'x':annoInfo.x, 'y':annoInfo.y}
+                if mdtype.modeltype != "kkit":
+                    #If coordinates come from kkit then directly transfering the co-ordinates 
+                    # else zoomed in factor is applied before saving it to genesis form
+                    for k,v in self.coOrdinates.items():
+                        xycord.append(v['x'])
+                        xycord.append(v['y'])
+                    cmin = min(xycord)
+                    cmax = max(xycord)
+                    for k,v in self.coOrdinates.items():
+                        x = v['x']
+                        xprime = int((20*(float(v['x']-cmin)/float(cmax-cmin)))-10)
+                        v['x'] = xprime
+                        y = v['y']
+                        yprime = int((20*(float(v['y']-cmin)/float(cmax-cmin)))-10)
+                        v['y'] = -yprime
+
                 filename = filename
                 writeerror = write(self.modelRoot,str(filename),self.coOrdinates)
                 if writeerror == False:
@@ -323,6 +341,13 @@ class  KineticsWidget(EditorWidgetBase):
         self.mooseId_GObj       = {}
         self.srcdesConnection   = {}
         self.editor             = None
+        self.xmin               = 0.0
+        self.xmax               = 1.0
+        self.ymin               = 0.0
+        self.ymax               = 1.0
+        self.xratio             = 1.0
+        self.yratio             = 1.0
+
 
     def reset(self):
         self.createdItem = {}
@@ -344,6 +369,7 @@ class  KineticsWidget(EditorWidgetBase):
 
     def updateModelView(self):
         self.getMooseObj()
+        minmaxratiodict = {'xmin':self.xmin,'xmax':self.xmax,'ymin':self.ymin,'ymax':self.ymax,'xratio':self.xratio,'yratio':self.yratio}
         if not self.m:
             #At the time of model building
             # when we want an empty GraphicView while creating new model,
@@ -351,7 +377,7 @@ class  KineticsWidget(EditorWidgetBase):
             if hasattr(self, 'view') and isinstance(self.view, QtGui.QWidget):
                 self.layout().removeWidget(self.view)
            #self.sceneContainer.setSceneRect(-self.width()/2,-self.height()/2,self.width(),self.height())
-            self.view = GraphicalView(self.modelRoot,self.sceneContainer,self.border,self,self.createdItem)
+            self.view = GraphicalView(self.modelRoot,self.sceneContainer,self.border,self,self.createdItem,minmaxratiodict)
 
             if isinstance(self,kineticEditorWidget):
                 self.view.setRefWidget("editorView")
@@ -369,7 +395,7 @@ class  KineticsWidget(EditorWidgetBase):
             #self.drawLine_arrow()
             if hasattr(self, 'view') and isinstance(self.view, QtGui.QWidget):
                 self.layout().removeWidget(self.view)
-            self.view = GraphicalView(self.modelRoot,self.sceneContainer,self.border,self,self.createdItem)
+            self.view = GraphicalView(self.modelRoot,self.sceneContainer,self.border,self,self.createdItem,minmaxratiodict)
             if isinstance(self,kineticEditorWidget):
                 #self.getMooseObj()
                 self.mooseObjOntoscene()
@@ -394,10 +420,10 @@ class  KineticsWidget(EditorWidgetBase):
         # setupItem
         self.m = wildcardFind(self.modelRoot+'/##[ISA=ChemCompt]')
         if self.m:
-            self.xmin = 0.0
-            self.xmax = 1.0
-            self.ymin = 0.0
-            self.ymax = 1.0
+            # self.xmin = 0.0
+            # self.xmax = 1.0
+            # self.ymin = 0.0
+            # self.ymax = 1.0
             self.autoCordinatepos = {}
             self.srcdesConnection = {}
 
@@ -586,7 +612,7 @@ class  KineticsWidget(EditorWidgetBase):
             #     ypos = 1.0-(y-self.ymin)*self.yratio
             # else:
             #     ypos = (y-self.ymin)*self.yratio
-            ypos = (y-self.ymin)*self.yratio
+            ypos = 1.0 - (y-self.ymin)*self.yratio
         xpos = (x-self.xmin)*self.xratio
         return(xpos,ypos)
 

@@ -10,8 +10,9 @@ from moose import utils
 
 class GraphicalView(QtGui.QGraphicsView):
 
-    def __init__(self, modelRoot,parent,border,layoutPt,createdItem):
+    def __init__(self, modelRoot,parent,border,layoutPt,createdItem,minmaxratio):
         QtGui.QGraphicsView.__init__(self,parent)
+        self.minmaxratio = minmaxratio
         self.state = None
         self.move  = False
         self.resetState()
@@ -169,8 +170,15 @@ class GraphicalView(QtGui.QGraphicsView):
                     if moose.exists(itemPath):
                         iInfo = itemPath+'/info'
                         anno = moose.Annotator(iInfo)
-                        anno.x = self.mapToScene(event.pos()).x()
-                        anno.y = self.mapToScene(event.pos()).y()
+                        modelAnno = moose.Annotator(self.modelRoot+'/info')
+                        if modelAnno.modeltype == "kkit":
+                            x = ((self.mapToScene(event.pos()).x())+(self.minmaxratioDict['xmin']*self.minmaxratioDict['xratio']))/self.minmaxratioDict['xratio']
+                            y = (1.0 - self.mapToScene(event.pos()).y()+(self.minmaxratioDict['ymin']*self.minmaxratioDict['yratio']))/self.minmaxratioDict['yratio']
+                            anno.x = x
+                            anno.y = y
+                        elif(modelAnno.modeltype == "new_kkit" or modelAnno.modeltype == "sbml" or modelAnno.modeltype == "cspace"):
+                            anno.x = self.mapToScene(event.pos()).x()
+                            anno.y = self.mapToScene(event.pos()).y()
                 
                 if not isinstance(item.parent(),FuncItem) and not isinstance(item.parent(),CplxItem):
                     self.removeConnector()
