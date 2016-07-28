@@ -587,8 +587,8 @@ class  KineticsWidget(EditorWidgetBase):
             #Annoinfo.x = xpos
             #Annoinfo.y = -ypos 
         graphicalObj.setDisplayProperties(xpos,ypos,textcolor,bgcolor)
-        Annoinfo.x = xpos
-        Annoinfo.y = ypos
+        #Annoinfo.x = xpos
+        #Annoinfo.y = ypos
 
     def positioninfo(self,iteminfo):
         Anno = moose.Annotator(self.modelRoot+'/info')

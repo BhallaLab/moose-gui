@@ -12,7 +12,7 @@ class GraphicalView(QtGui.QGraphicsView):
 
     def __init__(self, modelRoot,parent,border,layoutPt,createdItem,minmaxratio):
         QtGui.QGraphicsView.__init__(self,parent)
-        self.minmaxratio = minmaxratio
+        self.minmaxratioDict = minmaxratio
         self.state = None
         self.move  = False
         self.resetState()
