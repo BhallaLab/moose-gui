@@ -195,7 +195,7 @@ def autoCoordinates(meshEntry,srcdesConnection):
             #G.add_edge((cplxObj.parent).path,cplxObj.path)
         for reaObj in find_index(memb,'reaction'):
             #G.add_node(reaObj.path)
-            G.add_node(reaObj.path,label='',shape='larrow',color='')
+            G.add_node(reaObj.path,label='',shape='circle',color='')
         
     for inn,out in srcdesConnection.items():
         if (inn.className =='ZombieReac'): arrowcolor = 'green'
@@ -224,8 +224,8 @@ def autoCoordinates(meshEntry,srcdesConnection):
     #import matplotlib.pyplot as plt
     #plt.savefig('/home/harsha/Trash/Trash_SBML/test.png')
     position = nx.graphviz_layout(G, prog = 'dot')
-    # agraph = nx.to_agraph(G)
-    # agraph.draw("test.png", format = 'png', prog = 'dot')
+    #agraph = nx.to_agraph(G)
+    #agraph.draw("test.png", format = 'png', prog = 'dot')
     xcord = []
     ycord = []
     

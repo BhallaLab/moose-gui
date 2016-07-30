@@ -137,7 +137,6 @@ class GraphicalView(QtGui.QGraphicsView):
 
 
     def editorMouseMoveEvent(self, event):
-
         if self.state["press"]["mode"] == INVALID:
             self.state["move"]["happened"] = False
             return
@@ -149,7 +148,7 @@ class GraphicalView(QtGui.QGraphicsView):
             for item in self.selectedItems:
                 if isinstance(item, KineticsDisplayItem) and not isinstance(item,ComptItem) and not isinstance(item,CplxItem):
                     item.moveBy(displacement.x(), displacement.y())
-                    self.layoutPt.positionChange(item.mobj.path)            
+                    self.layoutPt.positionChange(item.mobj.path)   
             self.state["press"]["pos"] = event.pos()
             return
 
@@ -162,7 +161,8 @@ class GraphicalView(QtGui.QGraphicsView):
             actionType = str(item.data(0).toString())
             if actionType == "move":
                 QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
-                initial = item.parent().pos()
+                initial = self.mapToScene(self.state["press"]["pos"])
+                #initial = item.parent().pos()
                 final = self.mapToScene(event.pos())
                 displacement = final-initial
                 if isinstance(item.parent(),KineticsDisplayItem):
@@ -249,8 +249,9 @@ class GraphicalView(QtGui.QGraphicsView):
     
     def editorMouseReleaseEvent(self, event):
         if self.move:
-            #self.move = False
+            self.move = False
             self.setCursor(Qt.Qt.ArrowCursor)
+
         if self.state["press"]["mode"] == INVALID:
             self.state["release"]["mode"] = INVALID
             self.resetState()
@@ -418,7 +419,6 @@ class GraphicalView(QtGui.QGraphicsView):
                 startingPosition = self.state["press"]["pos"]
                 endingPosition = event.pos()
                 displacement   = endingPosition - startingPosition
-
                 x0 = startingPosition.x() 
                 x1 = endingPosition.x()
                 y0 = startingPosition.y() 
