@@ -539,6 +539,7 @@ class GraphicalView(QtGui.QGraphicsView):
             self.xDisp = 0
             self.yDisp = 0
             self.connectionSign = None
+
             if isinstance(item.mobj,PoolBase) or isinstance(item.mobj,ReacBase):
                 if l == "clone":
                     self.connectionSign = QtSvg.QGraphicsSvgItem('icons/clone.svg')
@@ -553,6 +554,7 @@ class GraphicalView(QtGui.QGraphicsView):
                     self.connectionSign.setZValue(1)
                     self.connectionSign.setToolTip("Click and drag to clone the object")
                     self.connectorlist["clone"] = self.connectionSign 
+                    
             if isinstance(item.mobj,PoolBase):
                 if l == "plot":
                     self.connectionSign = QtSvg.QGraphicsSvgItem('icons/plot.svg')
@@ -569,29 +571,35 @@ class GraphicalView(QtGui.QGraphicsView):
                     self.connectorlist["plot"] = self.connectionSign
 
             if l == "move":
-                self.connectionSign = QtSvg.QGraphicsSvgItem('icons/move.svg')
-                self.connectionSign.setData(0, QtCore.QVariant("move"))
-                self.connectionSign.setParent(self.connectionSource)
-                self.connectionSign.setToolTip("Drag to move.")
-                self.connectionSign.setScale(
-                    (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
-                                            )
-                position = item.mapToParent(rectangle.topLeft())
-                self.xDisp = 15
-                self.yDisp = 2
-                self.connectionSign.setZValue(1)
-                self.connectorlist["move"] = self.connectionSign
+                if ((item.mobj.parent.className == "ZombieEnz") or (item.mobj.parent.className == "Enz")):
+                    pass
+                else:
+                    self.connectionSign = QtSvg.QGraphicsSvgItem('icons/move.svg')
+                    self.connectionSign.setData(0, QtCore.QVariant("move"))
+                    self.connectionSign.setParent(self.connectionSource)
+                    self.connectionSign.setToolTip("Drag to move.")
+                    self.connectionSign.setScale(
+                        (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
+                                                )
+                    position = item.mapToParent(rectangle.topLeft())
+                    self.xDisp = 15
+                    self.yDisp = 2
+                    self.connectionSign.setZValue(1)
+                    self.connectorlist["move"] = self.connectionSign
             elif l == "delete":
-                self.connectionSign = QtSvg.QGraphicsSvgItem('icons/delete.svg')
-                self.connectionSign.setParent(self.connectionSource)
-                self.connectionSign.setData(0, QtCore.QVariant("delete"))
-                self.connectionSign.setScale(
-                    (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
-                                            )
-                position = item.mapToParent(rectangle.topRight())
-                self.connectionSign.setZValue(1)
-                self.connectionSign.setToolTip("Delete the object")
-                self.connectorlist["delete"] = self.connectionSign
+                if ((item.mobj.parent.className == "ZombieEnz") or (item.mobj.parent.className == "Enz")):
+                    pass
+                else:
+                    self.connectionSign = QtSvg.QGraphicsSvgItem('icons/delete.svg')
+                    self.connectionSign.setParent(self.connectionSource)
+                    self.connectionSign.setData(0, QtCore.QVariant("delete"))
+                    self.connectionSign.setScale(
+                        (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
+                                                )
+                    position = item.mapToParent(rectangle.topRight())
+                    self.connectionSign.setZValue(1)
+                    self.connectionSign.setToolTip("Delete the object")
+                    self.connectorlist["delete"] = self.connectionSign
 
             if self.connectionSign != None:
                 self.connectionSign.setFlag(QtGui.QGraphicsItem.ItemIsSelectable,True)

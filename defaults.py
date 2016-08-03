@@ -6,9 +6,11 @@ PLOT_FIELDS={
     'ZombiePool':['n','conc'],
     'ZombieBufPool':['n','conc'],	
     'HHChannel2D':['Ik','Gk'],
-    'CaConc':['Ca']
+    'CaConc':['Ca'],
+    'CubeMesh':['volume']
     }
 FIELD_UNITS={
+    'volume':'m3',
     'Vm':'V',
     'conc':'mM',
     'concInit':'mM',
