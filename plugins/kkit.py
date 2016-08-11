@@ -3,7 +3,7 @@ from PyQt4 import QtGui, QtCore, Qt
 from default import *
 from moose import *
 from moose.genesis import write
-#from moose import SBML
+from moose import SBML
 #sys.path.append('plugins')
 from mplugin import *
 from kkitUtil import *
@@ -71,12 +71,13 @@ class KkitPlugin(MoosePlugin):
                         self.coOrdinates[k] = {'x':annoInfo.x, 'y':annoInfo.y}
 
                 #writeerror = moose.writeSBML(self.modelRoot,str(filename),self.coOrdinates)
-               # writeerror,consistencyMessages,writtentofile = moose.SBML.mooseWriteSBML(self.modelRoot,str(filename),self.coOrdinates)
-	        writeerror = -2
-		conisitencyMessages = ""
-		writtentofile = "/test.xml"
+                writeerror = -2
+                conisitencyMessages = ""
+                writtentofile = "/test.xml"
+                writeerror,consistencyMessages,writtentofile = moose.SBML.mooseWriteSBML(self.modelRoot,str(filename),self.coOrdinates)
                 if writeerror == -2:
-                    QtGui.QMessageBox.warning(None,'Could not save the Model','\n WriteSBML :  This copy of MOOSE has not been compiled with SBML writing support.')
+                    #QtGui.QMessageBox.warning(None,'Could not save the Model','\n WriteSBML :  This copy of MOOSE has not been compiled with SBML writing support.')
+                    QtGui.QMessageBox.warning(None,'Could not save the Model',consistencyMessages)
                 elif writeerror == -1:
                     QtGui.QMessageBox.warning(None,'Could not save the Model','\n This model is not valid SBML Model, failed in the consistency check')
                 elif writeerror == 1:
@@ -553,7 +554,6 @@ class  KineticsWidget(EditorWidgetBase):
     def comptChilrenBoundingRect(self):
         for k, v in self.qGraCompt.items():
             # compartment's rectangle size is calculated depending on children
-            #rectcompt = v.childrenBoundingRect()
             rectcompt = calculateChildBoundingRect(v)
             v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
             v.setPen(QtGui.QPen(Qt.QColor(66,66,66,100), self.comptPen, Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
@@ -734,7 +734,8 @@ class  KineticsWidget(EditorWidgetBase):
             l = elePath[0:pos]
             linfo = moose.Annotator(l+'/info')
             for k, v in self.qGraCompt.items():
-                rectcompt = v.childrenBoundingRect()
+                #rectcompt = v.childrenBoundingRect()
+                rectcompt = calculateChildBoundingRect(v)
                 comptBoundingRect = v.boundingRect()
                 if not comptBoundingRect.contains(rectcompt):
                     self.updateCompartmentSize(v)
@@ -751,8 +752,12 @@ class  KineticsWidget(EditorWidgetBase):
                 '''
     def updateCompartmentSize(self, compartment):
         compartmentBoundary = compartment.rect()
+        #print " compartmentBoundary ",compartmentBoundary, "  ",compartment.childrenBoundingRect()
+        #compartmentBoundary =compartment.childrenBoundingRect()
         #childrenBoundary    = compartment.childrenBoundingRect()
+        #print " 758 ",compartment.childrenBoundaryRect()
         childrenBoundary = calculateChildBoundingRect(compartment)
+        #print " ch ",childrenBoundary
         x = min(compartmentBoundary.x(), childrenBoundary.x())
         y = min(compartmentBoundary.y(), childrenBoundary.y())
         width = max(compartmentBoundary.width(), childrenBoundary.width())
