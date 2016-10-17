@@ -443,6 +443,7 @@ class  KineticsWidget(EditorWidgetBase):
                 self.xmin,self.xmax,self.ymin,self.ymax,self.autoCordinatepos = autoCoordinates(self.meshEntry,self.srcdesConnection)
             # TODO: size will be dummy at this point, but size I need the availiable size from the Gui
             self.size= QtCore.QSize(1000 ,550)
+
             if self.xmax-self.xmin != 0:
                 self.xratio = (self.size.width()-10)/(self.xmax-self.xmin)
             else: self.xratio = self.size.width()-10
@@ -450,8 +451,13 @@ class  KineticsWidget(EditorWidgetBase):
             if self.ymax-self.ymin:
                 self.yratio = (self.size.height()-10)/(self.ymax-self.ymin)
             else: self.yratio = (self.size.height()-10)
+            
             self.xratio = int(self.xratio)
             self.yratio = int(self.yratio)
+            if self.xratio == 0:
+                self.xratio = 1
+            if self.yratio == 0:
+                self.yratio = 1
             
     def sizeHint(self):
         return QtCore.QSize(800,400)
@@ -534,8 +540,13 @@ class  KineticsWidget(EditorWidgetBase):
                 self.mooseId_GObj[element(tabObj.getId())] = tabItem
 
             for funcObj in find_index(memb,'function'):
-                funcinfo = moose.element(funcObj.parent).path+'/info'
-                funcParent =self.mooseId_GObj[element(funcObj.parent)]
+                funcinfo = moose.element(funcObj).path+'/info'
+                if funcObj.parent.className == "ZombieBufPool" or funcObj.parent.className == "BufPool":
+                    funcinfo = moose.element(funcObj).path+'/info'
+                    Af = Annotator(funcinfo)
+                    funcParent =self.mooseId_GObj[element(funcObj.parent)]
+                elif funcObj.parent.className == "CubeMesh" or funcObj.parent.className == "CylMesh":
+                    funcParent = self.qGraCompt[cmpt]
                 funcItem = FuncItem(funcObj,funcParent)
                 self.mooseId_GObj[element(funcObj.getId())] = funcItem
                 self.setupDisplay(funcinfo,funcItem,"Function")
@@ -576,9 +587,22 @@ class  KineticsWidget(EditorWidgetBase):
                 bgcolor = getRandColor()
                 Annoinfo.color = str(bgcolor.name())
         if isinstance(self,kineticEditorWidget):
-            xpos,ypos = self.positioninfo(info)
+            funct = ["Function","ZombieFunction"]
+            comptt = ["CubeMesh","CylMesh"]
+
+            if objClass in funct:
+                poolt = ["ZombieBufPool","BufPool"]
+                if graphicalObj.mobj.parent.className in poolt:
+                    xpos = 0
+                    ypos = 30
+                if graphicalObj.mobj.parent.className in comptt:
+                    xpos,ypos = self.positioninfo(info)
+            else:
+                xpos,ypos = self.positioninfo(info)
+
             self.xylist = [xpos,ypos]
             self.xyCord[moose.element(info).parent] = [xpos,ypos]
+
         elif isinstance(self,kineticRunWidget):
             self.editormooseId_GObj = self.editor.getCentralWidget().mooseId_GObj
             editorItem = self.editormooseId_GObj[moose.element(info).parent]

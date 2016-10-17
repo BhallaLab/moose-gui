@@ -180,7 +180,8 @@ class GraphicalView(QtGui.QGraphicsView):
                             anno.x = self.mapToScene(event.pos()).x()
                             anno.y = self.mapToScene(event.pos()).y()
                 
-                if not isinstance(item.parent(),FuncItem) and not isinstance(item.parent(),CplxItem):
+                #if not isinstance(item.parent(),FuncItem) and not isinstance(item.parent(),CplxItem):
+                if not isinstance(item.parent(),CplxItem):
                     self.removeConnector()
                     item.parent().moveBy(displacement.x(), displacement.y())
                     if isinstance(item.parent(),PoolItem):
@@ -578,9 +579,14 @@ class GraphicalView(QtGui.QGraphicsView):
                     self.connectionSign.setData(0, QtCore.QVariant("move"))
                     self.connectionSign.setParent(self.connectionSource)
                     self.connectionSign.setToolTip("Drag to move.")
-                    self.connectionSign.setScale(
-                        (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
+                    if ( item.mobj.className == "ZombieFunction" or item.mobj.className == "Function"):
+                        self.connectionSign.setScale(
+                        (0.75 * rectangle.height()) / self.connectionSign.boundingRect().height()
                                                 )
+                    else:
+                        self.connectionSign.setScale(
+                            (1 * rectangle.height()) / self.connectionSign.boundingRect().height()
+                                                    )
                     position = item.mapToParent(rectangle.topLeft())
                     self.xDisp = 15
                     self.yDisp = 2
@@ -593,8 +599,13 @@ class GraphicalView(QtGui.QGraphicsView):
                     self.connectionSign = QtSvg.QGraphicsSvgItem('icons/delete.svg')
                     self.connectionSign.setParent(self.connectionSource)
                     self.connectionSign.setData(0, QtCore.QVariant("delete"))
-                    self.connectionSign.setScale(
-                        (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
+                    if ( item.mobj.className == "ZombieFunction" or item.mobj.className == "Function"):
+                        self.connectionSign.setScale(
+                        (0.75 * rectangle.height()) / self.connectionSign.boundingRect().height()
+                                                )
+                    else:
+                        self.connectionSign.setScale(
+                            (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
                                                 )
                     position = item.mapToParent(rectangle.topRight())
                     self.connectionSign.setZValue(1)

@@ -70,5 +70,5 @@ def setCompartmentSolver(modelRoot,solver):
 	for i in stoichList:
 		i.filterXreacs()
 	
-	for x in moose.wildcardFind( modelRoot+'/data/graph#/#' ):
-		x.tick = 18
+	# for x in moose.wildcardFind( modelRoot+'/data/graph#/#' ):
+	# 	x.tick = 18
