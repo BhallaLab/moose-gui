@@ -1125,7 +1125,8 @@ class GraphicalView(QtGui.QGraphicsView):
             
         elif ( isinstance(moose.element(src),Function) and (moose.element(des).className=="Pool") ):
                 if ((element(des).parent).className != 'Enz'):
-                    moose.connect(src, 'valueOut', des, 'increment', 'OneToOne')
+                    #moose.connect(src, 'valueOut', des, 'increment', 'OneToOne')
+                    moose.connect(src, 'valueOut', des, 'setConc', 'OneToOne')
                 else:
                     srcdesString = element(src).className+'-- EnzCplx'
                     QtGui.QMessageBox.information(None,'Connection Not possible','\'{srcdesString}\' not allowed to connect'.format(srcdesString = srcdesString),QtGui.QMessageBox.Ok)
