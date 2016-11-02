@@ -59,21 +59,24 @@ def colorCheck(fc_bgcolor,fcbg):
     if isinstance(fc_bgcolor,str):
         if fc_bgcolor.startswith("#"):
             fc_bgcolor = QColor(fc_bgcolor)
-        elif fc_bgcolor.isdigit():
-            """ color is int  a map from int to r,g,b triplets from pickled color map file """
-            tc = int(fc_bgcolor)
-            tc = tc*2
-            if tc < len(colorMap):
-                pickledColor = colorMap[tc]
-            else:
-                pickledColor = (255, 0, 0)
-            fc_bgcolor = QColor(*pickledColor)
-
-        elif fc_bgcolor.isalpha() or fc_bgcolor.isalnum():
-            fc_bgcolor = validColorcheck(fc_bgcolor)
         else:
-            fc_bgcolor = QColor(*eval(fc_bgcolor))
-            # fc_bgcolor = validColorcheck(fc_bgcolor)
+            import re
+            fc_bgcolor = re.sub('[^a-zA-Z0-9-_*.]', '', fc_bgcolor)
+            if fc_bgcolor.isdigit():
+                """ color is int  a map from int to r,g,b triplets from pickled color map file """
+                tc = int(fc_bgcolor)
+                tc = tc*2
+                if tc < len(colorMap):
+                    pickledColor = colorMap[tc]
+                else:
+                    pickledColor = (255, 0, 0)
+                fc_bgcolor = QColor(*pickledColor)
+
+            elif fc_bgcolor.isalpha() or fc_bgcolor.isalnum():
+                fc_bgcolor = validColorcheck(fc_bgcolor)
+            else:
+                fc_bgcolor = QColor(*eval(fc_bgcolor))
+                # fc_bgcolor = validColorcheck(fc_bgcolor)
     return(fc_bgcolor)
 
 def validColorcheck(color):
@@ -135,17 +138,15 @@ def calculateChildBoundingRect(compt):
     ypos = []
     xpos = []
     for l in compt.childItems():
-
         ''' All the children including pool,reac,enz,polygon(arrow),table '''
         if not isinstance(l,QtSvg.QGraphicsSvgItem):
-            xpos.append((l.pos().x())+(l.boundingRect().bottomRight().x()))
-            xpos.append(l.pos().x())
-            ypos.append(l.pos().y()+l.boundingRect().bottomRight().y())
-            ypos.append(l.pos().y())
-            
+            if (not isinstance(l,QtGui.QGraphicsPolygonItem)):
+                xpos.append((l.pos().x())+(l.boundingRect().bottomRight().x()))
+                xpos.append(l.pos().x())
+                ypos.append(l.pos().y()+l.boundingRect().bottomRight().y())
+                ypos.append(l.pos().y())
         if (isinstance(l,PoolItem) or isinstance(l,EnzItem)):
             ''' For Enz cplx height and for pool function height needs to be taken'''
-
             for ll in l.childItems():
                 ''' eleminating polygonItem (arrow) [This is happen in cross-compartment model that arrow from one compartment will be child]
                     pool's outboundary RectItem and Enz's outerboundary Ellipse is eleminating since its same 
@@ -159,5 +160,4 @@ def calculateChildBoundingRect(compt):
         calculateRectcompt = QtCore.QRectF(min(xpos),min(ypos),(max(xpos)-min(xpos)),(max(ypos)-min(ypos)))
     else:
         calculateRectcompt = compt.rect()
-        
     return calculateRectcompt
