@@ -56,27 +56,26 @@ def colorCheck(fc_bgcolor,fcbg):
         if string its taken as colorname further down in validColorcheck checked for valid color, \
         but for tuple and list its taken as r,g,b value.
     """
+    #import re
+    #fc_bgcolor = re.sub('[^a-zA-Z0-9-_*.]', '', fc_bgcolor)
     if isinstance(fc_bgcolor,str):
         if fc_bgcolor.startswith("#"):
             fc_bgcolor = QColor(fc_bgcolor)
-        else:
-            import re
-            fc_bgcolor = re.sub('[^a-zA-Z0-9-_*.]', '', fc_bgcolor)
-            if fc_bgcolor.isdigit():
-                """ color is int  a map from int to r,g,b triplets from pickled color map file """
-                tc = int(fc_bgcolor)
-                tc = tc*2
-                if tc < len(colorMap):
-                    pickledColor = colorMap[tc]
-                else:
-                    pickledColor = (255, 0, 0)
-                fc_bgcolor = QColor(*pickledColor)
-
-            elif fc_bgcolor.isalpha() or fc_bgcolor.isalnum():
-                fc_bgcolor = validColorcheck(fc_bgcolor)
+        elif fc_bgcolor.isdigit():
+            """ color is int  a map from int to r,g,b triplets from pickled color map file """
+            tc = int(fc_bgcolor)
+            tc = tc*2
+            if tc < len(colorMap):
+                pickledColor = colorMap[tc]
             else:
-                fc_bgcolor = QColor(*eval(fc_bgcolor))
-                # fc_bgcolor = validColorcheck(fc_bgcolor)
+                pickledColor = (255, 0, 0)
+            fc_bgcolor = QColor(*pickledColor)
+
+        elif fc_bgcolor.isalpha() or fc_bgcolor.isalnum():
+            fc_bgcolor = validColorcheck(fc_bgcolor)
+        else:
+            fc_bgcolor = QColor(*eval(fc_bgcolor))
+            # fc_bgcolor = validColorcheck(fc_bgcolor)
     return(fc_bgcolor)
 
 def validColorcheck(color):

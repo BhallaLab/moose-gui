@@ -232,7 +232,7 @@ class ObjectEditModel(QtCore.QAbstractTableModel):
             else:
                 oldValue = self.mooseObject.getField(field)
                 value = type(oldValue)(value)
-                self.mooseObject.setField(field, value)
+                tt = self.mooseObject.setField(field, value)
                 self.undoStack.append((index, oldValue))
             if field == 'name':
                 self.emit(QtCore.SIGNAL('objectNameChanged(PyQt_PyObject)'), self.mooseObject)
@@ -288,7 +288,7 @@ class ObjectEditModel(QtCore.QAbstractTableModel):
                     flag |= QtCore.Qt.ItemIsEditable
             
             if isinstance(self.mooseObject, moose.PoolBase) or isinstance(self.mooseObject,moose.Function): 
-                if field == 'volume':# or field == 'expr':
+                if field == 'volume' or field == 'expr':
                     pass
                 elif setter in self.mooseObject.getFieldNames('destFinfo'):
                     flag |= QtCore.Qt.ItemIsEditable

@@ -1123,17 +1123,34 @@ class GraphicalView(QtGui.QGraphicsView):
             des.expr = expr
             moose.connect( src, 'nOut', des.x[numVariables], 'input' )
             
-        elif ( isinstance(moose.element(src),Function) and (moose.element(des).className=="Pool") ):
+        elif ( isinstance(moose.element(src),Function) and (moose.element(des).className=="Pool") or  
+               isinstance(moose.element(src),ZombieFunction) and (moose.element(des).className=="ZombiePool")
+            ):
                 if ((element(des).parent).className != 'Enz'):
                     #moose.connect(src, 'valueOut', des, 'increment', 'OneToOne')
-                    moose.connect(src, 'valueOut', des, 'setConc', 'OneToOne')
+                    found = False
+                    if len(moose.element(src).neighbors["valueOut"]):
+                        for psl in moose.element(src).neighbors["valueOut"]:
+                            if moose.element(psl) == moose.element(des):
+                                found = True
+                    if found == False:
+                        moose.connect(src, 'valueOut', des, 'setN', 'OneToOne')
+                    else:
+                        srcdesString = '\"'+moose.element(src).name+'\" is already connected to \"'+ moose.element(des).name +'\" \n'
+                        QtGui.QMessageBox.information(None,'Connection Not possible','{srcdesString}'.format(srcdesString = srcdesString),QtGui.QMessageBox.Ok)
+
+                    
                 else:
                     srcdesString = element(src).className+'-- EnzCplx'
                     QtGui.QMessageBox.information(None,'Connection Not possible','\'{srcdesString}\' not allowed to connect'.format(srcdesString = srcdesString),QtGui.QMessageBox.Ok)
                     callsetupItem = False
-        elif ( isinstance(moose.element(src),Function) and (moose.element(des).className=="BufPool") ):
+        elif ( isinstance(moose.element(src),Function) and (moose.element(des).className=="BufPool") or  
+               isinstance(moose.element(src),ZombieFunction) and (moose.element(des).className=="ZombieBufPool")
+            ):
                 moose.connect(src, 'valueOut', des, 'setN', 'OneToOne')
-        elif ( isinstance(moose.element(src),Function) and (isinstance(moose.element(des),ReacBase) ) ):
+        elif ( isinstance(moose.element(src),Function) and (isinstance(moose.element(des),ReacBase) ) or
+               isinstance(moose.element(src),ZombieFunction) and (moose.element(des).className=="ZombieReac")
+            ):
                 moose.connect(src, 'valueOut', des, 'setNumKf', 'OneToOne')
         elif (((isinstance(moose.element(src),ReacBase))or (isinstance(moose.element(src),EnzBase))) and (isinstance(moose.element(des),PoolBase))):
             found = False
