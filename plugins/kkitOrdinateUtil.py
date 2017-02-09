@@ -2,6 +2,7 @@ from moose import *
 import numpy as np
 import networkx as nx
 from collections import Counter
+from networkx.drawing.nx_agraph import graphviz_layout
 
 def xyPosition(objInfo,xory):
     try:
@@ -219,10 +220,11 @@ def autoCoordinates(meshEntry,srcdesConnection):
                 for items in (items for items in out ):
                     G.add_edge(element(items[0]).path,inn.path)
     
-    if int( nx.__version__.split( '.' )[-1] ) >= 11:
-    	position = nx.spring_layout( G )
-    else:
-    	position = nx.graphviz_layout(G, prog = 'dot')
+    position = graphviz_layout(G)
+    # if int( nx.__version__.split( '.' )[-1] ) >= 11:
+    # 	position = nx.spring_layout( G )
+    # else:
+    # 	position = nx.graphviz_layout(G, prog = 'dot')
 
     xcord = []
     ycord = []
