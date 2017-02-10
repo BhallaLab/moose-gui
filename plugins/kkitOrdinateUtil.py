@@ -222,10 +222,10 @@ def autoCoordinates(meshEntry,srcdesConnection):
     
     position = graphviz_layout(G)
     # if int( nx.__version__.split( '.' )[-1] ) >= 11:
-    # 	position = nx.spring_layout( G )
+    #  	position = nx.spring_layout( G )
     # else:
-    # 	position = nx.graphviz_layout(G, prog = 'dot')
-
+    #  	position = nx.graphviz_layout(G, prog = 'dot')
+    
     xcord = []
     ycord = []
     

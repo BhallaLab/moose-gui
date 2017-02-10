@@ -592,7 +592,7 @@ class  KineticsWidget(EditorWidgetBase):
             comptt = ["CubeMesh","CylMesh"]
 
             if objClass in funct:
-                poolt = ["ZombieBufPool","BufPool"]
+                poolt = ["ZombieBufPool","BufPool","ZombiePool","Pool"]
                 if graphicalObj.mobj.parent.className in poolt:
                     xpos = 0
                     ypos = 30
