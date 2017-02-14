@@ -6,7 +6,7 @@
 # Maintainer:
 # Created: Mon Nov 12 09:38:09 2012 (+0530)
 # Version:
-# Last-Updated: Fri Oct 30 11:54:33 2015 (+0530)
+# Last-Updated: Tue Feb 14 15:20:33 2017 (+0530)
 #           By: Harsha
 #     Update #: 1338
 # URL:
@@ -564,7 +564,7 @@ class MWindow(QtGui.QMainWindow):
                 break
         if newSubWindow:
             subwin = self.mdiArea.addSubWindow(widget)
-            title = widget.modelRoot+'/model'
+            title = widget.modelRoot
             #subwin.setWindowTitle('%s: %s' % (view, widget.modelRoot))
             subwin.setWindowTitle('%s: %s' % (view, title))
             subwin.setSizePolicy(QtGui.QSizePolicy.Minimum |
@@ -1106,7 +1106,7 @@ class MWindow(QtGui.QMainWindow):
             ret,pluginName = self.checkPlugin(dialog)
             if pluginName == 'kkit':
                 if (ret['subtype'] == 'sbml' and ret['foundlib'] == False):
-                    reply = QtGui.QMessageBox.question(self, "libsbml not found","\n No python-libsbml is found.  Read SBML is not possible.\n \n This can be installed using pip python-libsbml",
+                    reply = QtGui.QMessageBox.question(self, "python-libsbml is not found.","\n Read SBML is not possible.\n This can be installed using \n \n pip python-libsbml  or \n apt-get install python-libsbml",
                                                QtGui.QMessageBox.Ok)
                     if reply == QtGui.QMessageBox.Ok:
                         QtGui.QApplication.restoreOverrideCursor()
