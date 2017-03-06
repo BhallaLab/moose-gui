@@ -6,7 +6,7 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Feb 14 2017"
+__updated__     =   "Mar 4 2017"
 
 import sys
 from PyQt4 import QtGui, QtCore, Qt
@@ -33,6 +33,7 @@ from setsolver import *
 
 class KkitPlugin(MoosePlugin):
     """Default plugin for MOOSE GUI"""
+    #objectSolverChanged = pyqtSignal()
     def __init__(self, *args):
         #print args
         MoosePlugin.__init__(self, *args)
@@ -250,6 +251,7 @@ class AnotherKkitRunView(RunView):
             reinit = addSolver(modelRoot,solver)
             if reinit:
                 self.getSchedulingDockWidget().widget().resetSimulation()
+                #self.plugin.objectSolverChanged.emit()
 
             #self.kkitRunView.getCentralWidget().addSolver(solver)
 

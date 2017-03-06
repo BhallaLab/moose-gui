@@ -6,7 +6,7 @@
 # Maintainer:
 # Created: Mon Nov 12 09:38:09 2012 (+0530)
 # Version:
-# Last-Updated: Tue Feb 14 15:20:33 2017 (+0530)
+# Last-Updated: Sat Mar 4 15:20:33 2017 (+0530)
 #           By: Harsha
 #     Update #: 1338
 # URL:
@@ -476,11 +476,12 @@ class MWindow(QtGui.QMainWindow):
         if name == 'kkit':
             self.objectEditDockWidget.objectNameChanged.connect(self.plugin.getEditorView().getCentralWidget().updateItemSlot)
             self.objectEditDockWidget.colorChanged.connect(self.plugin.getEditorView().getCentralWidget().updateColorSlot)
+            #self.plugin.objectSolverChanged.connect(self.plugin.mainWindow.objectEditClearSlot)
 
         self.setCurrentView('editor')
         freeCursor()
         return self.plugin
-
+    
     def updateExistingMenu(self, menu):
         """Check if a menu with same title
         already exists. If so, update the same and return
@@ -1068,10 +1069,15 @@ class MWindow(QtGui.QMainWindow):
     '''
     #Harsha: added visible=True so that loadModelDialogSlot and NewModelDialogSlot call this function
     #        to clear out object path
+
     def objectEditSlot(self, mobj, visible=True):
         """Slot for switching the current object in object editor."""
         self.objectEditDockWidget.setObject(mobj)
         self.objectEditDockWidget.setVisible(visible)
+
+    # def objectEditClearSlot(self):
+    #     #clearning the views which is stored
+    #     self.objectEditDockWidget.clearDict()
 
     def loadedModelsAction(self,modelPath,pluginName):
         #Harsha: added under file Menu, Recently Loaded Models
@@ -1191,6 +1197,7 @@ class MWindow(QtGui.QMainWindow):
             #ret = loadFile(str(fileName), '/model/%s' % (modelName), merge=False)
             #This will clear out object editor's objectpath and make it invisible
             self.objectEditSlot('/',False)
+
             #if subtype is None, in case of cspace then pluginLookup = /cspace/None
             #     which will not call kkit plugin so cleaning to /cspace
             pluginLookup = '%s/%s' % (ret['modeltype'], ret['subtype'])
