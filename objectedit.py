@@ -6,7 +6,7 @@
 # Maintainer:
 # Created: Wed Jun 30 11:18:34 2010 (+0530)
 # Version:
-# Last-Updated: Tue Mar 7 01:45:59 2017 (+0530)
+# Last-Updated: Tue Mar 7 12:45:59 2017 (+0530)
 #           By: Harsha
 #     Update #: 
 # URL:
@@ -252,7 +252,7 @@ class ObjectEditModel(QtCore.QAbstractTableModel):
         return True
 
     def undo(self):
-        print 'Undo'
+        print ('Undo')
         if len(self.undoStack) == 0:
             raise Info('No more undo information')
         index, oldvalue, = self.undoStack.pop()
@@ -411,7 +411,7 @@ class ObjectEditView(QtGui.QTableView):
             self.setColor(getColor(self.model().mooseObject.path+'/info')[1])
         except:
             pass
-        print 'Created view with', mobject
+        print ('Created view with %s' %(mobject))
 
     def setColor(self, color):
         self.colorButton.setStyleSheet(

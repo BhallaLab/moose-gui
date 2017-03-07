@@ -6,9 +6,9 @@
 # Maintainer:
 # Created: Mon Nov 12 09:38:09 2012 (+0530)
 # Version:
-# Last-Updated: Sat Mar 4 15:20:33 2017 (+0530)
+# Last-Updated: Sat Mar 7 13:47:33 2017 (+0530)
 #           By: Harsha
-#     Update #: 1338
+#     Update #: 
 # URL:
 # Keywords:
 # Compatibility:
@@ -1206,7 +1206,7 @@ class MWindow(QtGui.QMainWindow):
             except KeyError:
                 pluginName = 'default'
             if ret['foundlib']:
-                print 'Loaded model', ret['model'].path
+                print ('Loaded model %s' %(ret['model'].path))
             return ret,pluginName
 
     def dialog_check(self,ret):
