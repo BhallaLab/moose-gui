@@ -7,7 +7,6 @@ notifications:
 
 
 install:
-    - #sudo apt-key del 1488344719
     - sudo apt-get clean
     - sudo apt-get update
     - wget http://download.opensuse.org/repositories/home:moose/xUbuntu_12.04/Release.key
