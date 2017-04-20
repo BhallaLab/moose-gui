@@ -195,6 +195,9 @@ class PoolItem(KineticsDisplayItem):
         #This func will adjust the background color with respect to text size
         self.gobj.setText(self.mobj.name)
         self.bg.setRect(0, 0, self.gobj.boundingRect().width()+PoolItem.fontMetrics.width('  '), self.gobj.boundingRect().height())
+        self.setGeometry(self.pos().x(),self.pos().y(),self.gobj.boundingRect().width()
+                        +PoolItem.fontMetrics.width(''), 
+                        self.gobj.boundingRect().height())
     
     def updateColor(self,bgcolor):
         self.bg.setBrush(QtGui.QBrush(QtGui.QColor(bgcolor)))
