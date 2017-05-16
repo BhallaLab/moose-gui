@@ -7,7 +7,7 @@ __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
 __updated__     =   "Mar 7 2017"
-
+import math
 import sys
 from PyQt4 import QtGui, QtCore, Qt
 from default import *
@@ -30,6 +30,7 @@ from PyQt4.QtGui import QColor
 import RunWidget
 from os.path import expanduser
 from setsolver import *
+
 
 class KkitPlugin(MoosePlugin):
     """Default plugin for MOOSE GUI"""
