@@ -54,7 +54,11 @@ sys.path.append('../python')
 import os
 from collections import defaultdict
 import posixpath # We use this to create MOOSE paths
-from PyQt4 import QtGui, QtCore, Qt
+try:
+    from PyQt5 import QtGui, QtCore, Qt
+except ImportError as e:
+    from PyQt4 import QtGui, QtCore, Qt
+
 import config
 import mplugin
 import moose
@@ -67,8 +71,6 @@ from objectedit import ObjectEditDockWidget
 from newmodeldialog import DialogWidget
 import re
 from biomodelsclient import BioModelsClientWidget
-from PyQt4 import Qt, QtCore, QtGui
-from PyQt4.QtGui import *
 from MdiArea import MdiArea
 import os
 from setsolver import *

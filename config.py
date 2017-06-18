@@ -53,8 +53,11 @@ import sys
 import tempfile
 import logging
 import errno
-from PyQt4.Qt import Qt
-from PyQt4 import QtGui, QtCore
+
+try:
+    from PyQt5 import QtGui, QtCore, Qt
+except ImportError as e:
+    from PyQt4 import QtGui, QtCore, Qt
 
 TEMPDIR = tempfile.gettempdir()
 KEY_FIRSTTIME = 'firsttime'
