@@ -7,7 +7,7 @@ __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
 __updated__     =   "Jul 27 2017"
 
-#from moose import *
+from moose import *
 import numpy as np
 from moose import wildcardFind,element,PoolBase,CplxEnzBase,Annotator,exists
 from networkx.drawing.nx_agraph import graphviz_layout

@@ -15,6 +15,7 @@ from PyQt4 import QtGui, QtCore, Qt
 from moose import *
 from PyQt4.QtGui import QPixmap, QImage, QGraphicsPixmapItem
 from constants import *
+from os import path
 
 class KineticsDisplayItem(QtGui.QGraphicsWidget):
     """Base class for display elemenets in kinetics layout"""
@@ -71,7 +72,7 @@ class FuncItem(KineticsDisplayItem):
         super(FuncItem, self).__init__(mobj, parent)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
         iconmap_file = (path.join(config.settings[config.KEY_ICON_DIR], 'classIcon/Function.png'))
--       self.funcImage = QImage(iconmap_file).scaled(15,33)
+        self.funcImage = QImage(iconmap_file).scaled(15,33)
         self.bg = QtGui.QGraphicsRectItem(self)
         self.bg.setAcceptHoverEvents(True)
         self.gobj = QtGui.QGraphicsPixmapItem(QtGui.QPixmap.fromImage(self.funcImage),self.bg)
@@ -497,7 +498,9 @@ class ComptItem(QtGui.QGraphicsRectItem):
         QT_MINOR_VERSION = int(QT_VERSION[1])
         if QT_MINOR_VERSION >= 6:
         #if config.QT_MINOR_VERSION >= 6:
-            self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges, 1) 
+            self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges, 1)
+        self.setAcceptHoverEvents(True)
+        self.setToolTip(iParent.name)
     '''
     def hoverEnterEvent(self, event):
         self.updateResizeHandles()
