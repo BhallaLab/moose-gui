@@ -2,12 +2,12 @@
 #
 # Filename: mload.py
 # Description:
-# Author:
-# Maintainer:
+# Author: Subhasis
+# Maintainer:HarshaRani
 # Created: Fri Feb  8 09:38:40 2013 (+0530)
 # Version:
-# Last-Updated: Wed May 22 12:16:35 2013 (+0530)
-#           By: subha
+# Last-Updated: Wed Jul 26 23:16:35 2017 (+0530)
+#           By: HarshaRani
 #     Update #: 213
 # URL:
 # Keywords:
@@ -119,6 +119,8 @@ def loadFile(filename, target, solver="gsl", merge=True):
     modelroot: root element of the model, None if could not be located - as is the case with Python scripts
     """
     num = 1
+    libsfound = True
+    model = '/'
     newTarget = target
     while moose.exists(newTarget):
         newTarget = target + "-" + str(num)
@@ -229,7 +231,8 @@ def loadFile(filename, target, solver="gsl", merge=True):
     # app.restoreOverrideCursor()
     return {'modeltype': modeltype,
             'subtype': subtype,
-            'model': model}
+            'model': model,
+            'foundlib' : libsfound}
 
 
 #

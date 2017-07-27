@@ -1,5 +1,18 @@
-from moose import *
+__author__      =   "HarshaRani"
+__credits__     =   ["Upi Lab"]
+__license__     =   "GPL3"
+__version__     =   "1.0.0"
+__maintainer__  =   "HarshaRani"
+__email__       =   "hrani@ncbs.res.in"
+__status__      =   "Development"
+__updated__     =   "Jul 27 2017"
+
+#from moose import *
 import numpy as np
+from moose import wildcardFind,element,PoolBase,CplxEnzBase,Annotator,exists
+from networkx.drawing.nx_agraph import graphviz_layout
+import numpy as np
+import networkx as nx
 
 def setupMeshObj(modelRoot):
     ''' Setup compartment and its members pool,reaction,enz cplx under self.meshEntry dictionaries \ 

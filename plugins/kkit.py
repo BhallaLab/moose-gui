@@ -6,7 +6,8 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Mar 7 2017"
+__updated__     =   "Jul 27 2017"
+
 import math
 import sys
 from PyQt4 import QtGui, QtCore, Qt
@@ -109,8 +110,8 @@ class KkitPlugin(MoosePlugin):
                         y = -annoInfo.y *10
                         self.coOrdinates[k] = {'x':x, 'y':y}
 
-                error,writen = mooseWriteKkit(self.modelRoot,str(filename),self.coOrdinates)
-                if writen == False:
+                error,written = mooseWriteKkit(self.modelRoot,str(filename),self.coOrdinates)
+                if written == False:
                     QtGui.QMessageBox.information(None,'Could not save the Model','\nCheck the file')
                 else:
                     if error == "":
@@ -613,13 +614,13 @@ class  KineticsWidget(EditorWidgetBase):
             if isinstance(out,tuple):
                 src = self.mooseId_GObj[inn]
                 if len(out[0])== 0:
-                    print inn.className + ' : ' +inn.name+ " doesn't output message"
+                    print (inn.className + ' : ' +inn.name+ " doesn't output message")
                 else:
                     for items in (items for items in out[0] ):
                         des = self.mooseId_GObj[element(items[0])]
                         self.lineCord(src,des,items,itemignoreZooming)
                 if len(out[1]) == 0:
-                    print inn.className + ' : ' +inn.name+ " doesn't output message"
+                    print (inn.className + ' : ' +inn.name+ " doesn't output message")
                 else:
                     for items in (items for items in out[1] ):
                         des = self.mooseId_GObj[element(items[0])]
@@ -627,9 +628,9 @@ class  KineticsWidget(EditorWidgetBase):
             elif isinstance(out,list):
                 if len(out) == 0:
                     if inn.className == "StimulusTable":
-                        print inn.name +" doesn't have output"
+                        print (inn.name +" doesn't have output")
                     elif inn.className == "ZombieFunction" or inn.className == "Function":
-                        print inn.name + " doesn't have sumtotal "
+                        print (inn.name + " doesn't have sumtotal ")
                 else:
                     src = self.mooseId_GObj[inn]
                     for items in (items for items in out ):
@@ -640,7 +641,7 @@ class  KineticsWidget(EditorWidgetBase):
         endtype = type_no[1]
         line = 0
         if (src == "") and (des == ""):
-            print "Source or destination is missing or incorrect"
+            print ("Source or destination is missing or incorrect")
             return
         srcdes_list = [src,des,endtype,line]
         arrow = calcArrow(srcdes_list,itemignoreZooming,self.iconScale)
@@ -653,7 +654,7 @@ class  KineticsWidget(EditorWidgetBase):
             line = line +1
 
         if type_no[2] > 5:
-            print "Higher order reaction will not be displayed"
+            print ("Higher order reaction will not be displayed")
 
     def drawLine(self,srcdes_list,arrow):
         src = srcdes_list[0]
@@ -988,7 +989,7 @@ if __name__ == "__main__":
     try:
         filepath = '../../Demos/Genesis_files/'+modelPath+'.g'
         filepath = '/home/harsha/genesis_files/gfile/'+modelPath+'.g'
-        print filepath
+        print( "%s" %(filepath))
         f = open(filepath, "r")
         loadModel(filepath,'/'+modelPath)
 
@@ -1004,6 +1005,6 @@ if __name__ == "__main__":
 
     except  IOError, what:
       (errno, strerror) = what
-      print "Error number",errno,"(%s)" %strerror
+      print ("Error number",errno,"(%s)" %(strerror))
       sys.exit(0)
     sys.exit(app.exec_())
