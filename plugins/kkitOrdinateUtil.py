@@ -5,8 +5,11 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Jul 27 2017"
+__updated__     =   "Sep 18 2017"
 
+'''
+
+'''
 from moose import *
 import numpy as np
 from moose import wildcardFind,element,PoolBase,CplxEnzBase,Annotator,exists
@@ -93,7 +96,7 @@ def setupItem(modelPath,cntDict):
                 uniqItem,countuniqItem = countitems(items,'prd')
                 prdNo = uniqItem
                 if (len(subNo) == 0 or len(prdNo) == 0):
-                    print "Substrate Product is empty ",path, " ",items
+                    print ("Substrate Product is empty ",path, " ",items)
                     
                 for prd in uniqItem:
                     prdlist.append((element(prd),'p',countuniqItem[prd]))
@@ -169,9 +172,10 @@ def xyPosition(objInfo,xory):
 
                                     
 def autoCoordinates(meshEntry,srcdesConnection):
-    print " kkit Ordinatesutil autoCoordinates "
-    
+   
     G = nx.Graph()
+    #import pygraphviz as pgv
+    #G = pgv.AGraph(fontname='Helvetica',fontsize=9,strict=False,directed=None)
     for cmpt,memb in meshEntry.items():
         for enzObj in find_index(memb,'enzyme'):
             #G.add_node(enzObj.path)
@@ -194,18 +198,18 @@ def autoCoordinates(meshEntry,srcdesConnection):
         else: arrowcolor = 'blue'
         if isinstance(out,tuple):
             if len(out[0])== 0:
-                print inn.className + ':' +inn.name + "  doesn't have input message"
+                print (inn.className + ':' +inn.name + "  doesn't have input message")
             else:
                 for items in (items for items in out[0] ):
                     G.add_edge(element(items[0]).path,inn.path)
             if len(out[1]) == 0:
-                print inn.className + ':' + inn.name + "doesn't have output mssg"
+                print (inn.className + ':' + inn.name + "doesn't have output mssg")
             else:
                 for items in (items for items in out[1] ):
                     G.add_edge(inn.path,element(items[0]).path)
         elif isinstance(out,list):
             if len(out) == 0:
-                print "Func pool doesn't have sumtotal"
+                print ("Func pool doesn't have sumtotal")
             else:
                 for items in (items for items in out ):
                     G.add_edge(element(items[0]).path,inn.path)
@@ -228,9 +232,11 @@ def autoCoordinates(meshEntry,srcdesConnection):
         anno = Annotator(item[0]+'/info')
         Ax = (xy[0]-xmin)/(xmax-xmin)
         Ay = (xy[1]-ymin)/(ymax-ymin)
-        anno.x = round(Ax,1)
-        anno.y = round(Ay,1)
-
+        #anno.x = round(Ax,1)
+        #anno.y = round(Ay,1)
+        #not roundingoff to max and min the co-ordinates for bigger model would overlay the co-ordinates
+        anno.x = xy[0]
+        anno.y = xy[1]
 def find_index(value, key):
     """ Value.get(key) to avoid expection which would raise if empty value in dictionary for a given key """
     if value.get(key) != None:

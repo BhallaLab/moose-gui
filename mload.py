@@ -118,6 +118,7 @@ def loadFile(filename, target, solver="gsl", merge=True):
 
     modelroot: root element of the model, None if could not be located - as is the case with Python scripts
     """
+    loaderror = ""
     num = 1
     libsfound = True
     model = '/'
@@ -217,7 +218,7 @@ def loadFile(filename, target, solver="gsl", merge=True):
                 if target != '/':
                     if moose.exists(target):
                         moose.delete(target)
-                model = mooseReadSBML(filename,target)
+                model,loaderror = mooseReadSBML(filename,target)
                 if moose.exists(moose.element(model).path):
                     moose.Annotator(moose.element(model).path+'/info').modeltype = "sbml"
                 addSolver(target,'gsl')
@@ -232,7 +233,8 @@ def loadFile(filename, target, solver="gsl", merge=True):
     return {'modeltype': modeltype,
             'subtype': subtype,
             'model': model,
-            'foundlib' : libsfound}
+            'foundlib' : libsfound,
+            'loaderror' : loaderror}
 
 
 #

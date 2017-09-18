@@ -13,10 +13,8 @@ import sys
 from PyQt4 import QtGui, QtCore, Qt
 from default import *
 from moose import *
-#from moose.genesis import write
 from moose import SBML
 from moose.genesis.writeKkit import mooseWriteKkit
-#sys.path.append('plugins')
 from mplugin import *
 from kkitUtil import *
 from kkitQGraphics import PoolItem, ReacItem,EnzItem,CplxItem,ComptItem
@@ -106,8 +104,8 @@ class KkitPlugin(MoosePlugin):
                     if moose.exists(moose.element(k).path+'/info'):
                         annoInfo = Annotator(k.path+'/info')
                         #co-ordinates will be in decimals converting to int which should be b/w 0 to 10
-                        x = annoInfo.x *10
-                        y = -annoInfo.y *10
+                        x = annoInfo.x * 10
+                        y = -annoInfo.y * 10
                         self.coOrdinates[k] = {'x':x, 'y':y}
 
                 error,written = mooseWriteKkit(self.modelRoot,str(filename),self.coOrdinates)
@@ -330,7 +328,7 @@ class  KineticsWidget(EditorWidgetBase):
         self.arrowsize = 2
         self.reset()
 
-        self.defaultSceneheight = 500
+        self.defaultSceneheight = 800 
         self.defaultScenewidth  = 1000
         self.positionInfoExist  = True
         self.defaultComptsize   = 5
@@ -340,12 +338,6 @@ class  KineticsWidget(EditorWidgetBase):
         self.qGraCompt          = {}
         self.xyCord             = {}
         self.editor             = None
-        # self.xmin               = 0.0
-        # self.xmax               = 1.0
-        # self.ymin               = 0.0
-        # self.ymax               = 1.0
-        # self.xratio             = 1.0
-        # self.yratio             = 1.0
         
     def reset(self):
         self.createdItem = {}
@@ -432,7 +424,9 @@ class  KineticsWidget(EditorWidgetBase):
                 self.srcdesConnection.clear()
             else:
                 self.srcdesConnection = {}
+            
             setupItem(self.modelRoot,self.srcdesConnection)
+            
             if not self.positionInfoExist:
                 autoCoordinates(self.meshEntry,self.srcdesConnection)
                                     
@@ -599,8 +593,12 @@ class  KineticsWidget(EditorWidgetBase):
         '''By this time, model loaded from kkit,cspace,SBML would have info field created and co-ordinates are added
             either by autocoordinates (for cspace,SBML(unless it is not saved from moose)) or from kkit
         '''
-        x = self.defaultScenewidth * float(element(iteminfo).getField('x'))
-        y = self.defaultSceneheight *float(element(iteminfo).getField('y'))    
+        if moose.Annotator(self.plugin.modelRoot+'/info').modeltype == 'kkit':
+            x = self.defaultScenewidth * float(element(iteminfo).getField('x'))
+            y = self.defaultSceneheight * float(element(iteminfo).getField('y'))
+        else:
+            x = float(element(iteminfo).getField('x'))
+            y = float(element(iteminfo).getField('y'))
         return(x,y)
         
     def drawLine_arrow(self, itemignoreZooming=False):
@@ -719,7 +717,7 @@ class  KineticsWidget(EditorWidgetBase):
             elePath = moose.element(mooseObject).path
             pos = elePath.find('/',1)
             l = elePath[0:pos]
-            linfo = moose.Annotator(l+'/info')
+            #linfo = moose.Annotator(l+'/info')
             for k, v in self.qGraCompt.items():
                 #rectcompt = v.childrenBoundingRect()
                 rectcompt = calculateChildBoundingRect(v)

@@ -292,6 +292,7 @@ class MWindow(QtGui.QMainWindow):
         self.popup.hide()
         abspath = os.path.abspath(filepath)
         directory, modulename = os.path.split(abspath)
+
         modelName = os.path.splitext(modulename)[0]
         ret = loadFile(str(abspath),'%s' %(modelName),solver,merge=False)
         self.setPlugin("kkit", ret["model"].path)
@@ -1160,7 +1161,18 @@ class MWindow(QtGui.QMainWindow):
                         return
                 else:
                     compt = moose.wildcardFind(ret['model'].path+'/##[ISA=ChemCompt]')
-                    if not len(compt):
+                    if ret['loaderror'] != "":
+                        reply = QtGui.QMessageBox.question(self, " ", ret['loaderror']+" \n \n Do you want another file",
+                                                   QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+                        if reply == QtGui.QMessageBox.Yes:
+                            dialog = LoaderDialog(self,self.tr('Load model from file'))
+                            if dialog.exec_():
+                                ret,pluginName = self.checkPlugin(dialog)
+                                ret,valid = self.dialog_check(ret)
+                        else:
+                            QtGui.QApplication.restoreOverrideCursor()        
+                            return
+                    elif not len(compt):
                         reply = QtGui.QMessageBox.question(self, "Model is empty","Model has no compartment, atleast one compartment should exist to display the widget\n Do you want another file",
                                                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
                         if reply == QtGui.QMessageBox.Yes:
@@ -1219,9 +1231,8 @@ class MWindow(QtGui.QMainWindow):
                 pluginName = subtype_plugin_map['%s/%s' % (ret['modeltype'], ret['subtype'])]
             except KeyError:
                 pluginName = 'default'
-
             if ret['foundlib']:
-                print ('Loaded model %s' %(ret['model'].path))
+                print ('Loaded model %s' %(ret['model']))
             
             return ret,pluginName
 
