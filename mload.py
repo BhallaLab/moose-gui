@@ -208,7 +208,7 @@ def loadFile(filename, target, solver="gsl", merge=True):
 
             # moose.move("cells/", cell.path)
         elif subtype == 'sbml':
-            foundLibtaSBML_ = False
+            foundLibSBML_ = False
             try:
                 import libsbml
                 foundLibSBML_ = True
