@@ -1,5 +1,5 @@
 from moose import Annotator
-from kkitQGraphics import PoolItem, ReacItem,EnzItem,CplxItem,ComptItem
+from kkitQGraphics import PoolItem, ReacItem,EnzItem,CplxItem,GRPItem,ComptItem
 from PyQt4 import QtCore,QtGui,QtSvg
 from PyQt4.QtGui import QColor
 import numpy as np
@@ -119,7 +119,7 @@ def handleCollisions(compartments, moveCallback, layoutPt,margin = 5.0):
     if len(compartments) is 0 : return
     compartments = sorted(compartments, key = lambda c: c.sceneBoundingRect().center().x())
     reference = compartments.pop(0);
-    print reference.name
+    print (reference.name)
     referenceRect = reference.sceneBoundingRect()
     colliders = filter( lambda compartment : referenceRect.intersects(compartment.sceneBoundingRect())
                       , compartments
@@ -141,10 +141,16 @@ def calculateChildBoundingRect(compt):
         ''' All the children including pool,reac,enz,polygon(arrow),table '''
         if not isinstance(l,QtSvg.QGraphicsSvgItem):
             if (not isinstance(l,QtGui.QGraphicsPolygonItem)):
-                xpos.append((l.pos().x())+(l.boundingRect().bottomRight().x()))
-                xpos.append(l.pos().x())
-                ypos.append(l.pos().y()+l.boundingRect().bottomRight().y())
-                ypos.append(l.pos().y())
+                if (not isinstance(l,GRPItem)):
+                    xpos.append((l.pos().x())+(l.boundingRect().bottomRight().x()))
+                    xpos.append(l.pos().x())
+                    ypos.append(l.pos().y()+l.boundingRect().bottomRight().y())
+                    ypos.append(l.pos().y())
+                else:
+                    xpos.append(l.rect().x())
+                    xpos.append(l.boundingRect().bottomRight().x())
+                    ypos.append(l.rect().y())
+                    ypos.append(l.boundingRect().bottomRight().y())
         if (isinstance(l,PoolItem) or isinstance(l,EnzItem)):
             ''' For Enz cplx height and for pool function height needs to be taken'''
             for ll in l.childItems():
