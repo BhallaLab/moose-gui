@@ -826,7 +826,7 @@ class  KineticsWidget(EditorWidgetBase):
         #If the item position changes, the corresponding arrow's are calculated
         if isinstance(element(mooseObject),ChemCompt):
             for k, v in self.qGraCompt.items():
-                mesh = mooseObject
+                mesh = moose.element(mooseObject).path
                 if k.path == mesh:
                     for rectChilditem in v.childItems():
                         if isinstance(rectChilditem, KineticsDisplayItem):
