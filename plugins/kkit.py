@@ -328,8 +328,8 @@ class  KineticsWidget(EditorWidgetBase):
         self.arrowsize = 2
         self.reset()
 
-        self.defaultSceneheight = 800 
-        self.defaultScenewidth  = 1000
+        self.defaultSceneheight = 800#1000 
+        self.defaultScenewidth  = 1000#2400
         self.positionInfoExist  = True
         self.defaultComptsize   = 5
         self.srcdesConnection   = {}
@@ -436,8 +436,9 @@ class  KineticsWidget(EditorWidgetBase):
             #     autoCoordinates(self.meshEntry,self.srcdesConnection)
             if not self.noPositionInfo:
                 self.autocoordinates = True
-                self.xmin,self.xmax,self.ymin,self.ymax,self.autoCordinatepos = autoCoordinates(self.meshEntry,self.srcdesConnection)
-                #autoCoordinates(self.meshEntry,self.srcdesConnection)
+                #self.xmin,self.xmax,self.ymin,self.ymax,self.autoCordinatepos = autoCoordinates(self.meshEntry,self.srcdesConnection)
+                #print " after ",self.xmin,self.xmax, self.ymin, self.ymax,self.autoCordinatepos
+                autoCoordinates(self.meshEntry,self.srcdesConnection)
         
         self.size = QtCore.QSize(1000 ,550)
         if self.xmax-self.xmin != 0:
@@ -595,7 +596,6 @@ class  KineticsWidget(EditorWidgetBase):
                         group_parent = self.qGraGrp[v]
                     self.createGroup(k,group_parent)
         for cmpt_grp,memb in self.meshEntry.items():
-            print "KKIT 603--------------",cmpt_grp
             if len(memb):
                 if isinstance(moose.element(cmpt_grp),moose.ChemCompt):
                     qtGrpparent = self.qGraCompt[cmpt_grp]
@@ -643,11 +643,9 @@ class  KineticsWidget(EditorWidgetBase):
                     minfo = mObj.path+'/info'
                     mItem = TableItem(mObj,qtGrpparent)
                 self.mooseId_GObj[element(mObj.getId())] = mItem
-                #print " kkit 651 ",mclass
                 self.setupDisplay(minfo,mItem,mclass)
 
     def createGroup(self,key,parent):
-        print " 656  ------ key ",key
         self.new_GRP = GRPItem(parent,0,0,0,0,key)
         self.qGraGrp[key] = self.new_GRP
         self.new_GRP.setRect(20,20,20,20)
@@ -657,11 +655,8 @@ class  KineticsWidget(EditorWidgetBase):
             grpcolor = moose.Annotator(moose.element(k.path+'/info')).color
             #Todo: One may need to calculate explicitly the boundary for Group also if there is a cross-group connection, then
             # childrenBoundrect() will take the QPolygonItem position
-            print " ## ",k.path
             rectcompt = v.childrenBoundingRect()
-            print " @ \t \t 667 ",rectcompt
             v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
-            print " @\t \t 669 ",v.boundingRect()
             v.setPen(QtGui.QPen(Qt.QColor(grpcolor), self.comptPen, Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
     
     def comptChildrenBoundingRect(self):
@@ -728,6 +723,8 @@ class  KineticsWidget(EditorWidgetBase):
         if moose.Annotator(self.plugin.modelRoot+'/info').modeltype == 'kkit':
             x = self.defaultScenewidth * float(element(iteminfo).getField('x'))
             y = self.defaultSceneheight * float(element(iteminfo).getField('y'))
+            #x = x /self.defaultScenewidth
+            #y = y /self.defaultSceneheight
         else:
             x = float(element(iteminfo).getField('x'))
             y = float(element(iteminfo).getField('y'))
@@ -844,23 +841,17 @@ class  KineticsWidget(EditorWidgetBase):
                                             self.updateArrow(j)
                             self.updateArrow(rectChilditem)
         elif element(mooseObject).className == 'Neutral':
-            #print " MME 828 Neutral"
-            # print " x" ,moose.element('/Anno_acc47/model/kinetics/PKA/R2C2/info').x
-            # print " y ",moose.element('/Anno_acc47/model/kinetics/PKA/R2C2/info').y
-            for k,v in self.qGraGrp.items():
-                print " self.qGraGrp ",self.qGraGrp
+           for k,v in self.qGraGrp.items():
                 if k.path == element(mooseObject).path:
                     for grpChilditem in v.childItems():
                         if isinstance(grpChilditem, KineticsDisplayItem):
                             if moose.exists(grpChilditem.mobj.path):
                                 iInfo = grpChilditem.mobj.path+'/info'
                                 anno = moose.Annotator(iInfo)
-                                #print " \t \t before ",iInfo,anno.x ," ",anno.y
                                 x = grpChilditem.scenePos().x()/self.defaultScenewidth
                                 y = grpChilditem.scenePos().y()/self.defaultSceneheight
-                                #print " After ",x , " ",y
-                                #anno.x = x
-                                #anno.y = y
+                                anno.x = x
+                                anno.y = y
                             if isinstance(moose.element(grpChilditem.mobj.path),PoolBase):
                                 t = moose.element(grpChilditem.mobj.path)
                                 moose.element(t).children
@@ -871,36 +862,21 @@ class  KineticsWidget(EditorWidgetBase):
                                             j = self.mooseId_GObj[moose.element(i)]
                                             self.updateArrow(j)
                             self.updateArrow(grpChilditem)
-                            print " ___________Group_____________"
-                            print k ," V ",v 
-                            print v.childrenBoundingRect()
-                            print " boundingRect of group ",v.boundingRect()
-                            First = v.boundingRect()
-                            Second = v.childrenBoundingRect()
-                            self.updateGrpSize(v)
+                            grpcompt = self.qGraCompt[self.objPar[k]]
+                            rectcompt = calculateChildBoundingRect(grpcompt)       
         else:
-            #print " 886 in else"
             mobj = self.mooseId_GObj[element(mooseObject)]
             self.updateArrow(mobj)
             elePath = moose.element(mooseObject).path
             pos = elePath.find('/',1)
             l = elePath[0:pos]
             linfo = moose.Annotator(l+'/info')
-            # if isinstance(movedGraphObj,KineticsDisplayItem):
-            #print " 894 kkit positionChage else is KineticsDisplayItem",mobj, " e3 ",mooseObject
-            #itemPath = movedGraphObj.mobj.path
             if moose.exists(l):
-                #linfo = itemPath+'/info'
                 anno = moose.Annotator(linfo)
                 x = mobj.scenePos().x()/self.defaultScenewidth
                 y = mobj.scenePos().y()/self.defaultSceneheight
-                #print " 903 commenting the co-ordinates ",mobj.scenePos(), "X ",x, " Y ",y
-                
-                # print " 404 ",iInfo, x, y
-                # anno.x = x
-                # anno.y = y
             for gk,gv in self.qGraGrp.items():
-                rectgrp = calculateChildBoundingRect(v)
+                rectgrp = calculateChildBoundingRect(gv)
                 grpBoundingRect = gv.boundingRect()
                 if not grpBoundingRect.contains(rectgrp):
                     self.updateCompartmentSize(v)
@@ -925,13 +901,6 @@ class  KineticsWidget(EditorWidgetBase):
         y = childrenBoundary.y()
         height = childrenBoundary.height()
         width = childrenBoundary.width()
-        # print " 971 ", compartmentBoundary, " ## ",childrenBoundary
-        # x = min(compartmentBoundary.x(), childrenBoundary.x())
-        # y = min(compartmentBoundary.y(), childrenBoundary.y())
-        # width = max(compartmentBoundary.width(), childrenBoundary.width())
-        # height = max(compartmentBoundary.height(), childrenBoundary.height())
-        # print " compartmentBoundary ",compartmentBoundary
-        # print "childrenBoundary ",childrenBoundary
         compartment.setRect( x-10
                  , y-10
                  , width + 20
@@ -939,12 +908,7 @@ class  KineticsWidget(EditorWidgetBase):
                  )
     def updateCompartmentSize(self, compartment):
         compartmentBoundary = compartment.rect()
-        #print " compartmentBoundary ",compartmentBoundary, "  ",compartment.childrenBoundingRect()
-        #compartmentBoundary =compartment.childrenBoundingRect()
-        #childrenBoundary    = compartment.childrenBoundingRect()
-        #print " 758 ",compartment.childrenBoundaryRect()
         childrenBoundary = calculateChildBoundingRect(compartment)
-        #print " ch ",childrenBoundary
         x = min(compartmentBoundary.x(), childrenBoundary.x())
         y = min(compartmentBoundary.y(), childrenBoundary.y())
         width = max(compartmentBoundary.width(), childrenBoundary.width())
@@ -981,23 +945,6 @@ class  KineticsWidget(EditorWidgetBase):
             if isinstance(item,CplxItem):
                 self.updateArrow(item)
 
-    # def deleteSolver(self):
-    #     print " delete Solver"
-    #     print "### ",moose.wildcardFind(self.modelRoot+'/data/graph#/#')
-    #     if moose.wildcardFind(self.modelRoot+'/##[ISA=ChemCompt]'):
-    #         compt = moose.wildcardFind(self.modelRoot+'/##[ISA=ChemCompt]')
-    #         print " deletSolver ",
-    #         # print moose.exists(compt[0].path+'/stoich'), " ksolve ", moose.exists(compt[0].path+'/ksolve')
-    #         # print "gsolve ", moose.delete( compt[0].path+'/gsolve' )
-    #         if ( moose.exists( compt[0].path+'/stoich' ) ):
-    #             #print "delete"
-    #             moose.delete( compt[0].path+'/stoich' )
-    #         if ( moose.exists( compt[0].path+'/ksolve' ) ):
-    #             moose.delete( compt[0].path+'/ksolve' )
-    #         if ( moose.exists( compt[0].path+'/gsolve' ) ):
-    #             moose.delete( compt[0].path+'/gsolve' )
-    #         for x in moose.wildcardFind( self.modelRoot+'/data/graph#/#' ):
-    #                 x.tick = -1
     def positionChange1(self,mooseObject):
         #If the item position changes, the corresponding arrow's are calculated
         if ( (isinstance(element(mooseObject),CubeMesh)) or (isinstance(element(mooseObject),CylMesh))):
@@ -1124,58 +1071,6 @@ class kineticRunWidget(KineticsWidget):
         for item in self.sceneContainer.items():
             if isinstance(item,PoolItemCircle):
                 item.returnEllispeSize()
-
-    # def addSolver(self,solver):
-    #     print "\t addSolver--------"
-    #     compt = moose.wildcardFind(self.modelRoot+'/##[ISA=ChemCompt]')
-    #     comptinfo = moose.Annotator(moose.element(compt[0]).path+'/info')
-    #     print " $$$$$$$$$$$$$$ ",moose.element(compt[0].path)
-    #     previousSolver = comptinfo.solver
-
-    #     print "pre solver from kkit ",previousSolver, solver
-    #     currentSolver = previousSolver
-    #     if solver == "Gillespie":
-    #         currentSolver = "Gillespie"
-    #     elif solver == "Runge Kutta":
-    #         currentSolver = "Runge Kutta"
-    #     elif solver == " Exponential Euler":
-    #         currentSolver == "Exponential Euler"
-
-    #     if previousSolver != currentSolver:
-    #         if ( moose.exists( compt[0].path+'/stoich' ) ):
-    #             print "1"
-    #             self.deleteSolver()
-    #             self.setCompartmentSolver(compt,currentSolver)
-    #         elif ( moose.exists( compt[0].path+'/stoich' ) ):
-    #             print "2"
-    #             self.setCompartmentSolver(compt, currentSolver)
-    #         comptinfo.solver = currentSolver
-    #     else:
-    #         print "3", moose.exists(compt[0].path+'/stoich')
-    #         if not ( moose.exists( compt[0].path+'/stoich' ) ):
-    #             self.setCompartmentSolver(compt,currentSolver)
-    #     for x in moose.wildcardFind( self.modelRoot+'/data/graph#/#' ):
-    #                 x.tick = 18
-    #     #self.solverStatus()
-    # def setCompartmentSolver(self,compt,solver):
-    #     if solver == 'GSL' or solver == "Runge Kutta":
-    #         solver = 'gsl'
-    #     elif solver == 'Gillespie':
-    #         solver = 'gssa'
-    #     elif solver == "Exponential Euler":
-    #         solver = 'ee'
-    #     print "setCompartmentSolver ",solver
-    #     if ( solver == 'gsl' ):
-    #         ksolve = moose.Ksolve( compt[0].path+'/ksolve' )
-    #     if ( solver == 'gssa' ):
-    #         ksolve = moose.Gsolve( compt[0].path+'/gsolve' )
-    #     if (solver!= 'ee'):
-    #         stoich = moose.Stoich( compt[0].path+'/stoich' )
-    #         stoich.compartment = compt[0]
-    #         stoich.ksolve = ksolve
-    #         stoich.path = compt[0].path+'/##'
-    #     moose.reinit()
-
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     size = QtCore.QSize(1024 ,768)

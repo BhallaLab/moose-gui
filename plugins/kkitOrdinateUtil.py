@@ -411,23 +411,24 @@ def xyPosition(objInfo,xory):
 def autoCoordinates(meshEntry,srcdesConnection):
    
     G = nx.Graph()
-    #import pygraphviz as pgv
-    #G = pgv.AGraph(fontname='Helvetica',fontsize=9,strict=False,directed=None)
     for cmpt,memb in meshEntry.items():
-        for enzObj in find_index(memb,'enzyme'):
-            #G.add_node(enzObj.path)
-            G.add_node(enzObj.path,label='',shape='ellipse',color='',style='filled',fontname='Helvetica',fontsize=12,fontcolor='blue')
+        if memb in ["enzyme"]:
+            for enzObj in find_index(memb,'enzyme'):
+                #G.add_node(enzObj.path)
+                G.add_node(enzObj.path,label='',shape='ellipse',color='',style='filled',fontname='Helvetica',fontsize=12,fontcolor='blue')
     for cmpt,memb in meshEntry.items():
-        for poolObj in find_index(memb,'pool'):
-            #G.add_node(poolObj.path)
-            G.add_node(poolObj.path,label = poolObj.name,shape = 'box',color = '',style = 'filled',fontname = 'Helvetica',fontsize = 12,fontcolor = 'blue')
-        for cplxObj in find_index(memb,'cplx'):
-            G.add_node(cplxObj.path)
-            G.add_node(cplxObj.path,label = cplxObj.name,shape = 'box',color = '',style = 'filled',fontname = 'Helvetica',fontsize = 12,fontcolor = 'blue')
-            #G.add_edge((cplxObj.parent).path,cplxObj.path)
-        for reaObj in find_index(memb,'reaction'):
-            #G.add_node(reaObj.path)
-            G.add_node(reaObj.path,label='',shape='circle',color='')
+        #if memb.has_key
+        if memb in ["pool","cplx","reaction"]:
+            for poolObj in find_index(memb,'pool'):
+                #G.add_node(poolObj.path)
+                G.add_node(poolObj.path,label = poolObj.name,shape = 'box',color = '',style = 'filled',fontname = 'Helvetica',fontsize = 9,fontcolor = 'blue')
+            for cplxObj in find_index(memb,'cplx'):
+                G.add_node(cplxObj.path)
+                G.add_node(cplxObj.path,label = cplxObj.name,shape = 'box',color = '',style = 'filled',fontname = 'Helvetica',fontsize = 12,fontcolor = 'blue')
+                #G.add_edge((cplxObj.parent).path,cplxObj.path)
+            for reaObj in find_index(memb,'reaction'):
+                #G.add_node(reaObj.path)
+                G.add_node(reaObj.path,label='',shape='circle',color='')
         
     for inn,out in srcdesConnection.items():
         if (inn.className =='ZombieReac'): arrowcolor = 'green'
@@ -450,7 +451,6 @@ def autoCoordinates(meshEntry,srcdesConnection):
             else:
                 for items in (items for items in out ):
                     G.add_edge(element(items[0]).path,inn.path)
-    
     position = graphviz_layout(G)
     xcord, ycord = [],[]
     for item in position.items():

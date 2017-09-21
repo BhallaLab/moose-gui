@@ -1,3 +1,17 @@
+__author__      =   "HarshaRani"
+__credits__     =   ["Upi Lab"]
+__license__     =   "GPL3"
+__version__     =   "1.0.0"
+__maintainer__  =   "HarshaRani"
+__email__       =   "hrani@ncbs.res.in"
+__status__      =   "Development"
+__updated__     =   "Sep 20 2017"
+
+'''
+Sep 20: Group related function added
+        -resolveGroupInteriorAndBoundary, findGraphic_groupcompt, graphicsIsInstance
+        -@resolveItem,editorMousePressEvent,editorMouseMoveEvent,editorMouseReleaseEvent checks made for group
+'''
 import sys
 from modelBuild import *
 from constants import *
@@ -61,13 +75,14 @@ class GraphicalView(QtGui.QGraphicsView):
         #print("Called =>", event)
 
         return
-    def resolveGroupInteriorAndBoundary(self, item, position):
-        bound = item.rect().adjusted(3,3,-3,-3)
-        return GROUP_INTERIOR if bound.contains(item.mapFromScene(position)) else GROUP_BOUNDARY
     
     def resolveCompartmentInteriorAndBoundary(self, item, position):
         bound = item.rect().adjusted(3,3,-3,-3)
         return COMPARTMENT_INTERIOR if bound.contains(item.mapFromScene(position)) else COMPARTMENT_BOUNDARY
+
+    def resolveGroupInteriorAndBoundary(self, item, position):
+        bound = item.rect().adjusted(3,3,-3,-3)
+        return GROUP_INTERIOR if bound.contains(item.mapFromScene(position)) else GROUP_BOUNDARY
 
     def resetState(self):
         self.state = { "press"      :   { "mode"     :  INVALID
@@ -99,7 +114,6 @@ class GraphicalView(QtGui.QGraphicsView):
 
         for item in items:
             if hasattr(item, "name"):
-                #print(item.name)
                 if item.name == ITEM:
                     return (item, ITEM)
                 if item.name == GROUP:
@@ -113,7 +127,7 @@ class GraphicalView(QtGui.QGraphicsView):
         if solution is None:
             return (None, EMPTY)
         return solution
-
+    
     def findGraphic_groupcompt(self,gelement):
         while not (self.graphicsIsInstance(gelement, ["GRPItem","ComptItem"])):
             gelement = gelement.parentItem()
@@ -123,10 +137,6 @@ class GraphicalView(QtGui.QGraphicsView):
         return gelement.__class__.__name__ in classNames
 
     def editorMousePressEvent(self, event):
-        # self.deselectSelections()
-        # if self.state["press"]["item"] is not None:
-        #     self.state["press"]["item"].setSelected(False)
-        # self.resetState()
         self.clickPosition  = self.mapToScene(event.pos())
         (item, itemType) = self.resolveItem(self.items(event.pos()), self.clickPosition)
 
@@ -135,19 +145,20 @@ class GraphicalView(QtGui.QGraphicsView):
             self.state["press"]["item"] = item
             self.state["press"]["type"] = itemType
             self.state["press"]["pos"]  = event.pos()
-            #If connector exist and if mousePress on Compartment interior,
-            # then removing any connect if exist
             if  isinstance(item, QtSvg.QGraphicsSvgItem):
                 ##This kept for reference, so that if object (P,R,E,Tab,Fun) is moved outside, compartment
                 #then it need to be pull back to original position
                 self.state["press"]["scenepos"]  = item.parent().scenePos() 
-
-            if itemType == COMPARTMENT_INTERIOR or itemType == GROUP_BOUNDARY or itemType == GROUP_INTERIOR:
+            
+            if itemType == COMPARTMENT_INTERIOR or itemType == GROUP_BOUNDARY  or itemType == GROUP_INTERIOR:
                 self.removeConnector()
+                if itemType == GROUP_BOUNDARY:
+                    pass
+                    #item.setPen(QtGui.QPen(QtGui.QPen(QtCore.Qt.black, 1.8,Qt.Qt.DashLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin)))
+                    #item.drawRect(item.boundingRect())
             elif itemType == ITEM:
                 if not self.move:
                     self.showConnector(self.state["press"]["item"])
-            # self.layoutPt.plugin.mainWindow.objectEditSlot(self.state["press"]["item"].mobj, False)
         else:
             self.resetState()
             if itemType == GROUP_BOUNDARY:
@@ -163,87 +174,35 @@ class GraphicalView(QtGui.QGraphicsView):
                     popupmenu.addAction("VerticalLayout" ,lambda : handleCollisions(list(self.layoutPt.qGraCompt.values()), moveMin, self.layoutPt ))
                     popupmenu.exec_(self.mapToGlobal(event.pos()))
 
-            # comptList = []
-            # for k, v in self.layoutPt.qGraCompt.items():
-            #     comptList.append(v)
-            # if len(comptList) > 1:
-            #     popupmenu = QtGui.QMenu('PopupMenu', self)
-            #     popupmenu.addAction("LinearLayout", lambda : handleCollisions(comptList, moveX, self.layoutPt))
-            #     popupmenu.addAction("VerticalLayout" ,lambda : handleCollisions(comptList, moveMin, self.layoutPt ))
-            #     popupmenu.exec_(self.mapToGlobal(event.pos()))
-
-
-    def editorMouseMoveEvent(self, event):
+    
+    def editorMouseMoveEvent(self,event):
         if self.state["press"]["mode"] == INVALID:
             self.state["move"]["happened"] = False
             return
-
         if self.move:
-            # initial = self.mapToScene(self.state["press"]["pos"])
-            # final = self.mapToScene(event.pos())
-            # displacement = final - initial
-            # for item in self.selectedItems:
-            #     if isinstance(item, KineticsDisplayItem) and not isinstance(item,ComptItem) and not isinstance(item,CplxItem):
-            #         item.moveBy(displacement.x(), displacement.y())
-            #         self.layoutPt.positionChange(item.mobj.path)   
             self.state["press"]["pos"] = event.pos()
             return
-
+        
         self.state["move"]["happened"] = True
         itemType = self.state["press"]["type"]
         item     = self.state["press"]["item"]
         
         if itemType == CONNECTOR:
-            ''' connecting 2 object is removed and movement is impled'''
             actionType = str(item.data(0).toString())
             if actionType == "move":
                 QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
                 initial = self.mapToScene(self.state["press"]["pos"])
-                #initial = item.parent().pos()
                 final = self.mapToScene(event.pos())
                 displacement = final-initial
-
-                # if isinstance(item.parent(),KineticsDisplayItem):
-                #     itemPath = item.parent().mobj.path
-                #     if moose.exists(itemPath):
-                #         iInfo = itemPath+'/info'
-                #         anno = moose.Annotator(iInfo)
-                #         modelAnno = moose.Annotator(self.modelRoot+'/info')
-                #         x = item.parent().scenePos().x()/self.layoutPt.defaultScenewidth
-                #         y = item.parent().scenePos().y()/self.layoutPt.defaultSceneheight
-                #         anno.x = x
-                #         anno.y = y
-                #         '''
-                #         if modelAnno.modeltype == "kkit":
-                #             # x = ((self.mapToScene(event.pos()).x())+(self.minmaxratioDict['xmin']*self.minmaxratioDict['xratio']))/self.minmaxratioDict['xratio']
-                #             # y = (1.0 - self.mapToScene(event.pos()).y()+(self.minmaxratioDict['ymin']*self.minmaxratioDict['yratio']))/self.minmaxratioDict['yratio']
-                #             # anno.x = x
-                #             # anno.y = y
-                #             print " kvc CONNECTOR ",item.parent().mobj, displacement.x(), " y ",displacement.y()
-                #             print "scenePos CONNECTOR",item.parent().scenePos().x(),item.parent().scenePos().y(), 
-                #             print "dive x ",item.parent().scenePos().x()/1000, " y ",item.parent().scenePos().y()/500
-                #             #item.parent().update()
-                #             #self.updateScale(1)
-                #             x = item.parent().scenePos().x()/1000
-                #             y = item.parent().scenePos().y()/500
-                #             anno.x = x
-                #             anno.y = y
-                #         elif(modelAnno.modeltype == "new_kkit" or modelAnno.modeltype == "sbml" or modelAnno.modeltype == "cspace"):
-                #             anno.x = self.mapToScene(event.pos()).x()
-                #             anno.y = self.mapToScene(event.pos()).y()
-                #         '''
-                # #if not isinstance(item.parent(),FuncItem) and not isinstance(item.parent(),CplxItem):
-                # if not isinstance(item.parent(),CplxItem):
                 self.removeConnector()
                 item.parent().moveBy(displacement.x(), displacement.y())
+                self.layoutPt.updateArrow(item.parent())
                 if isinstance(item.parent(),PoolItem):
                     for funcItem in item.parent().childItems():
                         if isinstance(funcItem,FuncItem):
                             self.layoutPt.updateArrow(funcItem)
-          
                 self.state["press"]["pos"] = event.pos()
-                #self.layoutPt.positionChange(item.parent().mobj)
-            if actionType == "clone":
+            elif actionType == "clone":
                 pixmap = QtGui.QPixmap(24, 24)
                 pixmap.fill(QtCore.Qt.transparent)
                 painter = QtGui.QPainter()
@@ -255,7 +214,6 @@ class GraphicalView(QtGui.QGraphicsView):
                 painter.drawLine(12,7,12,17)
                 painter.drawLine(7,12,17,12)
                 painter.end()
-                #self.setCursor(QtGui.QCursor(pixmap))
                 QtGui.QApplication.setOverrideCursor(QtGui.QCursor(pixmap))
 
         if itemType == ITEM:
@@ -291,26 +249,16 @@ class GraphicalView(QtGui.QGraphicsView):
 
             self.customrubberBand.setGeometry(QtCore.QRect(QtCore.QPoint(x0, y0), QtCore.QSize(abs(displacement.x()), abs(displacement.y()))))
             
-
-        # if itemType == COMPARTMENT:
-        #     rubberband selection
-
-        # if itemType == COMPARTMENT_BOUNDARY:
-            
-        # if itemType == ITEM:
-        #     dragging the item
-    
     def editorMouseReleaseEvent(self,event):
-        print "EMRE "
         if self.move:
             self.move = False
             self.setCursor(Qt.Qt.ArrowCursor)
-            #return
     
         if self.state["press"]["mode"] == INVALID:
             self.state["release"]["mode"] = INVALID
             self.resetState()
             return
+
         self.clickPosition  = self.mapToScene(event.pos())
         (item, itemType) = self.resolveItem(self.items(event.pos()), self.clickPosition)
         self.state["release"]["mode"] = VALID
@@ -318,7 +266,6 @@ class GraphicalView(QtGui.QGraphicsView):
         self.state["release"]["type"] = itemType
         clickedItemType = self.state["press"]["type"]
         if clickedItemType == ITEM:
-            print " Code to come "
             if not self.state["move"]["happened"]:
                 if not self.move:
                     self.showConnector(self.state["press"]["item"])
@@ -328,9 +275,7 @@ class GraphicalView(QtGui.QGraphicsView):
                 l = self.modelRoot
                 if self.modelRoot.find('/',1) > 0:
                     l = self.modelRoot[0:self.modelRoot.find('/',1)]
-
                 linfo = moose.Annotator(l+'/model/info')
-                print " editorMouseReleaseEvent ",item
                 for k, v in self.layoutPt.qGraCompt.items():
                     rectcompt = v.childrenBoundingRect()
                     if linfo.modeltype == "new_kkit":
@@ -355,7 +300,6 @@ class GraphicalView(QtGui.QGraphicsView):
                 self.removeConnector()
             self.move = False
         elif clickedItemType  == CONNECTOR:
-            print " clickedItemType was connector"
             actionType = str(self.state["press"]["item"].data(0).toString())
             pressItem = self.state["press"]["item"]
 
@@ -371,19 +315,8 @@ class GraphicalView(QtGui.QGraphicsView):
                     QtGui.QMessageBox.warning(None,'Could not move the object', "The object can't be moved to empty space")
                 else:
                     pressItem = self.state["press"]["item"]
-                    print " **************************** ",item, pressItem, pressItem.parent().mobj
                     self.layoutPt.positionChange(item.mobj) 
                     self.updateScale(self.iconScale)
-                    #self.layoutPt.updateCompartmentSize(item)
-
-                    # c = wildcardFind(self.modelRoot+'/#[ISA=ChemCompt]')
-                    # n = wildcardFind(self.modelRoot+'/##[ISA=Neutral')
-                    # for cs in c:
-                    #     compt = self.layoutPt.qGraCompt(cs)
-                    #     self.layoutPt.updateCompartmentSize(compt)
-                    # for cs in n:
-                    #     compt = self.layoutPt.qGraGrp(cs)
-                    #     self.layoutPt.updateCompartmentSize(compt)
 
             if actionType == "delete":
                 self.removeConnector()
@@ -440,9 +373,7 @@ class GraphicalView(QtGui.QGraphicsView):
                             retValue = self.objExist(lKey.path,name,iP) 
                             if retValue != None:
                                 name += retValue
-
                             pmooseCp = moose.copy(t,lKey.path,name,1)
-                            #if moose.copy failed then check for path != '/'
                             if pmooseCp.path != '/':
                                 ct = moose.element(pmooseCp)
                                 concInit = pmooseCp.concInit[0]
@@ -467,7 +398,6 @@ class GraphicalView(QtGui.QGraphicsView):
                             rmooseCp = moose.copy(t,lKey.path,name,1)
                             if rmooseCp.path != '/':
                                 ct = moose.element(rmooseCp)
-                                #itemAtView = self.state["release"]["item"]
                                 reacObj = moose.element(ct)
                                 reacinfo = moose.Annotator(reacObj.path+'/info')
                                 qGItem = ReacItem(reacObj,itemAtView)
@@ -475,25 +405,25 @@ class GraphicalView(QtGui.QGraphicsView):
                                 posWrtComp = self.mapToScene(event.pos())
                                 qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),"white", "white")
                                 self.emit(QtCore.SIGNAL("dropped"),reacObj)
-
                         self.updateScale(self.iconScale)
-
                     else:
                         if itemAtView == None:
                             QtGui.QMessageBox.information(None,'Dropping Not possible ','Dropping not allowed outside the compartment',QtGui.QMessageBox.Ok)
                         else:
                             srcdesString = ((self.state["release"]["item"]).mobj).className
                             QtGui.QMessageBox.information(None,'Dropping Not possible','Dropping on \'{srcdesString}\' not allowed'.format(srcdesString = srcdesString),QtGui.QMessageBox.Ok)
+
         if clickedItemType == CONNECTION:
             popupmenu = QtGui.QMenu('PopupMenu', self)
             popupmenu.addAction("Delete", lambda : self.deleteConnection(item))
             popupmenu.exec_(self.mapToGlobal(event.pos()))
         
         if clickedItemType == COMPARTMENT_BOUNDARY or clickedItemType == GROUP_BOUNDARY:
-            item.setSelected(True)
-            if not self.state["move"]["happened"]:
-                self.layoutPt.plugin.mainWindow.objectEditSlot(self.state["press"]["item"].mobj, True)
-            self.resetState()
+            if item != None:
+                item.setSelected(True)
+                if not self.state["move"]["happened"]:
+                    self.layoutPt.plugin.mainWindow.objectEditSlot(self.state["press"]["item"].mobj, True)
+                self.resetState()
 
         if clickedItemType == COMPARTMENT_INTERIOR or clickedItemType == GROUP_INTERIOR:
             if self.state["move"]["happened"]:
@@ -511,15 +441,11 @@ class GraphicalView(QtGui.QGraphicsView):
                 if displacement.y() < 0 :
                     y0,y1= y1,y0
     
-                #print "kkitview  COMPARTMENT_INTERIOR",x0,y0
                 self.selectedItems = selectedItems = self.items(x0,y0,abs(displacement.x()), abs(displacement.y()))
-                # print("Rect => ", self.customrubberBand.rect())
-                # selectedItems = self.items(self.mapToScene(self.customrubberBand.rect()).boundingRect())
                 self.selectSelections(selectedItems)
                 for item in selectedItems:
                     if isinstance(item, KineticsDisplayItem) and not isinstance(item,ComptItem):
                         item.setSelected(True)
-                #print("Rubberband Selections => ", self.selections)
                 self.customrubberBand.hide()
                 self.customrubberBand = None
                 popupmenu = QtGui.QMenu('PopupMenu', self)
@@ -528,222 +454,8 @@ class GraphicalView(QtGui.QGraphicsView):
                 popupmenu.addAction("Zoom",   lambda: self.zoomSelections(x0,y0,x1,y1))
                 popupmenu.addAction("Move",   lambda: self.moveSelections())
                 popupmenu.exec_(self.mapToGlobal(event.pos()))        
-
         self.resetState()
-    def editorMouseReleaseEvent2(self, event):
-        if self.move:
-            self.move = False
-            self.setCursor(Qt.Qt.ArrowCursor)
-
-        if self.state["press"]["mode"] == INVALID:
-            self.state["release"]["mode"] = INVALID
-            self.resetState()
-            return
-
-        self.clickPosition  = self.mapToScene(event.pos())
-        (item, itemType) = self.resolveItem(self.items(event.pos()), self.clickPosition)
-        self.state["release"]["mode"] = VALID
-        self.state["release"]["item"] = item
-        self.state["release"]["type"] = itemType
-        clickedItemType = self.state["press"]["type"]
-        if clickedItemType == ITEM:
-            if not self.state["move"]["happened"]:
-                if not self.move:
-                    self.showConnector(self.state["press"]["item"])
-                    self.layoutPt.plugin.mainWindow.objectEditSlot(self.state["press"]["item"].mobj, True)
-                # compartment's rectangle size is calculated depending on children
-                #self.layoutPt.comptChilrenBoundingRect()
-                l = self.modelRoot
-                if self.modelRoot.find('/',1) > 0:
-                    l = self.modelRoot[0:self.modelRoot.find('/',1)]
-
-                linfo = moose.Annotator(l+'/model/info')
-                for k, v in self.layoutPt.qGraCompt.items():
-                    rectcompt = v.childrenBoundingRect()
-                    if linfo.modeltype == "new_kkit":
-                        #if newly built model then compartment is size is fixed for some size.
-                        comptBoundingRect = v.boundingRect()
-                        if not comptBoundingRect.contains(rectcompt):
-                            self.layoutPt.updateCompartmentSize(v)
-                    else:
-                        #if already built model then compartment size depends on max and min objects
-                        rectcompt = calculateChildBoundingRect(v)
-                        v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
-
-            else:
-                if isinstance(self.state["release"]["item"], KineticsDisplayItem):
-                    if not moose.element(self.state["press"]["item"].mobj) == moose.element(self.state["release"]["item"].mobj):
-                        self.populate_srcdes( self.state["press"]["item"].mobj
-                                            , self.state["release"]["item"].mobj
-                                            )
-                    else:
-                        pass
-                self.removeExpectedConnection()
-                self.removeConnector()
-        self.move = False
-        if clickedItemType  == CONNECTOR:
-            actionType = str(self.state["press"]["item"].data(0).toString())
-            
-            
-            if actionType == "move":
-                QtGui.QApplication.setOverrideCursor(QtGui.QCursor(Qt.Qt.ArrowCursor))
-
-            if actionType == "delete":
-                self.removeConnector()
-                pixmap = QtGui.QPixmap(24, 24)
-                pixmap.fill(QtCore.Qt.transparent)
-                painter = QtGui.QPainter()
-                painter.begin(pixmap)
-                painter.setRenderHints(painter.Antialiasing)
-                pen = QtGui.QPen(QtGui.QBrush(QtGui.QColor("black")), 1)
-                pen.setWidthF(1.5)
-                painter.setPen(pen)
-                painter.drawLine(8,8,16,16)
-                painter.drawLine(8,16,16,8)
-                painter.end()
-                QtGui.QApplication.setOverrideCursor(QtGui.QCursor(pixmap))
-                reply = QtGui.QMessageBox.question(self, "Deleting Object","Do want to delete object and its connections",
-                                                   QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                if reply == QtGui.QMessageBox.Yes:
-                    #delete solver first as topology is changing
-                    deleteSolver(self.modelRoot)
-                    self.deleteObj([item.parent()])
-                    QtGui.QApplication.restoreOverrideCursor()
-                else:
-                    QtGui.QApplication.restoreOverrideCursor()
-
-            elif actionType == "plot":
-                element = moose.element(item.parent().mobj.path)
-                if isinstance (element,moose.PoolBase):
-                    self.graph = moose.element(self.modelRoot+'/data/graph_0')
-                    tablePath = utils.create_table_path(moose.element(self.modelRoot), self.graph, element, "Conc")
-                    table     = utils.create_table(tablePath, element, "Conc","Table2")
-                    self.layoutPt.plugin.view.getCentralWidget().plotWidgetContainer.plotAllData()
-                    reply = QtGui.QMessageBox.information(self, "plot Object","Plot is added to Graph1",
-                                                   QtGui.QMessageBox.Ok)
-            elif actionType == "clone":
-                if self.state["move"]["happened"]:
-                    QtGui.QApplication.setOverrideCursor(QtGui.QCursor(Qt.Qt.ArrowCursor))
-                    self.state["press"]["item"].parent().mobj
-                    cloneObj = self.state["press"]["item"]
-                    posWrtComp = self.mapToScene(event.pos())
-                    itemAtView = self.sceneContainerPt.itemAt(self.mapToScene(event.pos()))
-                    self.removeConnector()
-                    if isinstance(itemAtView,ComptItem):
-                        #Solver should be deleted
-                            ## if there is change in 'Topology' of the model
-                            ## or if copy has to made then oject should be in unZombify mode
-                        deleteSolver(self.modelRoot)
-                        lKey = [key for key, value in self.layoutPt.qGraCompt.iteritems() if value == itemAtView][0]
-                        iR = 0
-                        iP = 0
-                        t = moose.element(cloneObj.parent().mobj)
-                        name = t.name
-                        if isinstance(cloneObj.parent().mobj,PoolBase):
-                            retValue = self.objExist(lKey.path,name,iP) 
-                            if retValue != None:
-                                name += retValue
-
-                            pmooseCp = moose.copy(t,lKey.path,name,1)
-                            #if moose.copy failed then check for path != '/'
-                            if pmooseCp.path != '/':
-                                ct = moose.element(pmooseCp)
-                                concInit = pmooseCp.concInit[0]
-                                #this is b'cos if pool copied across the comptartment,
-                                #then it doesn't calculate nInit according but if one set 
-                                #concInit then it would, just a hack
-                                ct.concInit = concInit
-                                #itemAtView = self.state["release"]["item"]
-                                poolObj = moose.element(ct)
-                                poolinfo = moose.element(poolObj.path+'/info')
-                                qGItem = PoolItem(poolObj,itemAtView)
-                                self.layoutPt.mooseId_GObj[poolObj] = qGItem
-                                #bgcolor = getRandColor()
-                                color,bgcolor = getColor(poolinfo)
-                                qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),color,bgcolor)
-                                self.emit(QtCore.SIGNAL("dropped"),poolObj)
-                            
-                        if isinstance(cloneObj.parent().mobj,ReacBase):
-                            retValue = self.objExist(lKey.path,name,iR)
-                            if retValue != None :
-                                name += retValue
-                            rmooseCp = moose.copy(t,lKey.path,name,1)
-                            if rmooseCp.path != '/':
-                                ct = moose.element(rmooseCp)
-                                #itemAtView = self.state["release"]["item"]
-                                reacObj = moose.element(ct)
-                                reacinfo = moose.Annotator(reacObj.path+'/info')
-                                qGItem = ReacItem(reacObj,itemAtView)
-                                self.layoutPt.mooseId_GObj[reacObj] = qGItem
-                                posWrtComp = self.mapToScene(event.pos())
-                                qGItem.setDisplayProperties(posWrtComp.x(),posWrtComp.y(),"white", "white")
-                                self.emit(QtCore.SIGNAL("dropped"),reacObj)
-
-                        self.updateScale(self.iconScale)
-
-                    else:
-                        if itemAtView == None:
-                            QtGui.QMessageBox.information(None,'Dropping Not possible ','Dropping not allowed outside the compartment',QtGui.QMessageBox.Ok)
-                        else:
-                            srcdesString = ((self.state["release"]["item"]).mobj).className
-                            QtGui.QMessageBox.information(None,'Dropping Not possible','Dropping on \'{srcdesString}\' not allowed'.format(srcdesString = srcdesString),QtGui.QMessageBox.Ok)
-        if clickedItemType == CONNECTION:
-            popupmenu = QtGui.QMenu('PopupMenu', self)
-            popupmenu.addAction("Delete", lambda : self.deleteConnection(item))
-            popupmenu.exec_(self.mapToGlobal(event.pos()))
-        
-        if clickedItemType == COMPARTMENT_BOUNDARY or clickedItemType == GROUP_BOUNDARY:
-            if not self.state["move"]["happened"]:
-                self.layoutPt.plugin.mainWindow.objectEditSlot(self.state["press"]["item"].mobj, True)
-            self.resetState()
-
-        if clickedItemType == COMPARTMENT_INTERIOR:
-            if self.state["move"]["happened"]:
-                startingPosition = self.state["press"]["pos"]
-                endingPosition = event.pos()
-                displacement   = endingPosition - startingPosition
-                x0 = startingPosition.x() 
-                x1 = endingPosition.x()
-                y0 = startingPosition.y() 
-                y1 = endingPosition.y()
-
-                if displacement.x() < 0 :
-                    x0,x1= x1,x0
-
-                if displacement.y() < 0 :
-                    y0,y1= y1,y0
     
-                #print "kkitview  COMPARTMENT_INTERIOR",x0,y0
-                self.selectedItems = selectedItems = self.items(x0,y0,abs(displacement.x()), abs(displacement.y()))
-                # print("Rect => ", self.customrubberBand.rect())
-                # selectedItems = self.items(self.mapToScene(self.customrubberBand.rect()).boundingRect())
-                self.selectSelections(selectedItems)
-                for item in selectedItems:
-                    if isinstance(item, KineticsDisplayItem) and not isinstance(item,ComptItem):
-                        item.setSelected(True)
-                #print("Rubberband Selections => ", self.selections)
-                self.customrubberBand.hide()
-                self.customrubberBand = None
-                popupmenu = QtGui.QMenu('PopupMenu', self)
-
-                popupmenu.addAction("Delete", lambda: self.deleteSelections(x0,y0,x1,y1))
-                popupmenu.addAction("Zoom",   lambda: self.zoomSelections(x0,y0,x1,y1))
-                popupmenu.addAction("Move",   lambda: self.moveSelections())
-                popupmenu.exec_(self.mapToGlobal(event.pos()))
-                # self.delete = QtGui.QAction(self.tr('delete'), self)
-                # self.connect(self.delete, QtCore.SIGNAL('triggered()'), self.deleteItems)
-                # self.zoom = QtGui.QAction(self.tr('zoom'), self)
-                # self.connect(self.zoom, QtCore.SIGNAL('triggered()'), self.zoomItem)
-                # self.move = QtGui.QAction(self.tr('move'), self)
-                # self.connect(self.move, QtCore.SIGNAL('triggered()'), self.moveItem)
-    
-
-
-
-            # else:
-            #     self.layoutPt.plugin.mainWindow.objectEditSlot(self.state["press"]["item"].mobj, True)
-        self.resetState()
-
     def deleteGroup(self,item,layoutPt):
         key = [k for k,v in self.layoutPt.qGraGrp.items() if v == item]
         if key[0] in self.layoutPt.qGraGrp:
@@ -775,30 +487,7 @@ class GraphicalView(QtGui.QGraphicsView):
                                            , destinationPoint.y()
                                            )
 
-        '''
-        print " drawExpectedConnection ()() ",self.state["item"]["press"].mobj
-        sourcePoint      = self.connectionSource.mapToScene(
-            self.connectionSource.boundingRect().center()
-                                          )
-        destinationPoint = self.mapToScene(event.pos())
-        if self.expectedConnection is None:
-            self.expectedConnection = QGraphicsLineItem( sourcePoint.x()
-                                                       , sourcePoint.y()
-                                                       , destinationPoint.x()
-                                                       , destinationPoint.y()
-                                                       )
-            self.expectedConnection.setPen(QPen(Qt.Qt.DashLine))
-
-            self.sceneContainerPt.addItem(self.expectedConnection)
-        else:
-            self.expectedConnection.setLine( sourcePoint.x()
-                                           , sourcePoint.y()
-                                           , destinationPoint.x()
-                                           , destinationPoint.y()
-                                           )
-        '''
     def removeExpectedConnection(self):
-        #print("removeExpectedConnection")
         self.sceneContainerPt.removeItem(self.expectedConnection)
         self.expectedConnection = None
         self.connectionSource   = None
@@ -809,18 +498,9 @@ class GraphicalView(QtGui.QGraphicsView):
                 if k is not None:
                     self.sceneContainerPt.removeItem(k)
                     self.connectorlist[l] = None
-            '''
-            if self.connectionSign is not None:
-                    # self.sceneContainerPt.removeItem(self.connectionSign)
-                    # self.connectionSign = None
-            '''
         except:
             #print("Exception received!")
             pass
-        # if self.connectionSign is not None:
-        #     print "self.connectionSign ",self.connectionSign
-        #     self.sceneContainerPt.removeItem(self.connectionSign)
-        #     self.connectionSign = None
 
     def showConnector(self, item):
         self.removeConnector()
@@ -978,39 +658,9 @@ class GraphicalView(QtGui.QGraphicsView):
             des  = [j for j in destination if isinstance(j,KineticsDisplayItem)]
             if len(des):
                 self.populate_srcdes(src.mobj,des[0].mobj)
-                #print " pop", self.layoutPt.srcdesConnection()
         self.setCursor(Qt.Qt.ArrowCursor)
         QtGui.QGraphicsView.mouseReleaseEvent(self, event)
-        '''if(self.customrubberBand):
-            self.customrubberBand.hide()
-            self.customrubberBand = 0
-            if event.button() == QtCore.Qt.LeftButton and self.itemSelected == False :
-                self.endingPos = event.pos()
-                self.endScenepos = self.mapToScene(self.endingPos)
-                self.rubberbandWidth = (self.endScenepos.x()-self.startScenepos.x())
-                self.rubberbandHeight = (self.endScenepos.y()-self.startScenepos.y())
-                selecteditems = self.sceneContainerPt.selectedItems()
-                #print "selecteditems ",selecteditems
-                if self.rubberbandWidth != 0 and self.rubberbandHeight != 0 and len(selecteditems) != 0 :
-                    self.showpopupmenu = True
-        '''
-        #self.itemSelected = False
-        '''
-        if self.showpopupmenu:
-            popupmenu = QtGui.QMenu('PopupMenu', self)
-            self.delete = QtGui.QAction(self.tr('delete'), self)
-            self.connect(self.delete, QtCore.SIGNAL('triggered()'), self.deleteItems)
-            self.zoom = QtGui.QAction(self.tr('zoom'), self)
-            self.connect(self.zoom, QtCore.SIGNAL('triggered()'), self.zoomItem)
-            self.move = QtGui.QAction(self.tr('move'), self)
-            self.connect(self.move, QtCore.SIGNAL('triggered()'), self.moveItem)
-            popupmenu.addAction(self.delete)
-            popupmenu.addAction(self.zoom)
-            popupmenu.addAction(self.move)
-            popupmenu.exec_(event.globalPos())
-        self.showpopupmenu = False
-        '''
-
+        
     def updateItemTransformationMode(self, on):
         for v in self.sceneContainerPt.items():
             #v.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations,on)
@@ -1050,10 +700,6 @@ class GraphicalView(QtGui.QGraphicsView):
         for item in self.sceneContainerPt.items():
             if isinstance(item,KineticsDisplayItem):
                 item.refresh(scale)
-                #iteminfo = item.mobj.path+'/info'
-                #xpos,ypos = self.positioninfo(iteminfo)
-                # xpos = item.scenePos().x()
-                # ypos = item.scenePos().y()
                 xpos = item.pos().x()
                 ypos = item.pos().y()
                 if isinstance(item,ReacItem) or isinstance(item,EnzItem) or isinstance(item,MMEnzItem):
@@ -1072,22 +718,13 @@ class GraphicalView(QtGui.QGraphicsView):
 
         self.layoutPt.drawLine_arrow(itemignoreZooming=False)
         self.layoutPt.comptChildrenBoundingRect()
-        #compartment width is resize according apart from calculating boundingRect
-        # for k, v in self.layoutPt.qGraCompt.items():
-        #     rectcompt = v.childrenBoundingRect()
-        #     comptPen = v.pen()
-        #     comptWidth =  self.defaultComptsize*self.iconScale
-        #     comptPen.setWidth(comptWidth)
-        #     v.setPen(comptPen)
-        #     v.setRect(rectcompt.x()-comptWidth,rectcompt.y()-comptWidth,(rectcompt.width()+2*comptWidth),(rectcompt.height()+2*comptWidth))
-    
+        
     def moveSelections(self):
         self.setCursor(Qt.Qt.CrossCursor)
         self.move = True
         return
       
     def GrVfitinView(self):
-        #print " here in GrVfitinView"
         itemignoreZooming = False
         self.layoutPt.updateItemTransformationMode(itemignoreZooming)
         self.fitInView(self.sceneContainerPt.itemsBoundingRect().x()-10,self.sceneContainerPt.itemsBoundingRect().y()-10,self.sceneContainerPt.itemsBoundingRect().width()+20,self.sceneContainerPt.itemsBoundingRect().height()+20,Qt.Qt.IgnoreAspectRatio)
@@ -1095,31 +732,16 @@ class GraphicalView(QtGui.QGraphicsView):
 
     def deleteSelections(self,x0,y0,x1,y1):
         if( x1-x0 > 0  and y1-y0 >0):
-            #self.rubberbandlist = self.sceneContainerPt.items(self.mapToScene(QtCore.QRect(x0, y0, x1 - x0, y1 - y0)).boundingRect(), Qt.Qt.IntersectsItemShape)
+            # self.rubberbandlist = self.sceneContainerPt.items(self.mapToScene(QtCore.QRect(x0, y0, x1 - x0, y1 - y0)).boundingRect(), Qt.Qt.IntersectsItemShape)
+            # for unselectitem in self.rubberbandlist:
+            
             for unselectitem in self.rubberbandlist_qpolygon:
                 if unselectitem.isSelected() == True:
                     unselectitem.setSelected(0)
             self.rubberbandlist_qpolygon = self.sceneContainerPt.items(self.mapToScene(QtCore.QRect(x0, y0, x1 - x0, y1 - y0)).boundingRect(), Qt.Qt.IntersectsItemShape)
             self.deleteObj(self.rubberbandlist)
-            # deleteSolver(self.layoutPt.modelRoot)
-            # for item in (qgraphicsitem for qgraphicsitem in self.rubberbandlist):
-            #     #First Loop to remove all the enz b'cos if parent (which is a Pool) is removed,
-            #     #then it will created problem at qgraphicalitem not having parent.
-            #     #So first delete enz and then delete pool
-            #         if isinstance(item,MMEnzItem) or isinstance(item,EnzItem) or isinstance(item,CplxItem):
-            #             self.deleteItem(item)
-            # for item in (qgraphicsitem for qgraphicsitem in self.rubberbandlist):
-            #     if not (isinstance(item,MMEnzItem) or isinstance(item,EnzItem) or isinstance(item,CplxItem)):
-            #         if isinstance(item,PoolItem):
-            #             plot = moose.wildcardFind(self.layoutPt.modelRoot+'/data/graph#/#')
-            #             for p in plot:
-            #                 if len(p.neighbors['requestOut']):
-            #                     if item.mobj.path == moose.element(p.neighbors['requestOut'][0]).path:
-            #                         p.tick = -1
-            #                         moose.delete(p)
-            #                         self.layoutPt.plugin.view.getCentralWidget().plotWidgetContainer.plotAllData()
-            #         self.deleteItem(item)
         self.selections = []
+
     def deleteObj(self,item):
         self.rubberbandlist = item
         deleteSolver(self.layoutPt.modelRoot)
@@ -1127,12 +749,9 @@ class GraphicalView(QtGui.QGraphicsView):
         self.PFRSlist       = [ i for i in self.rubberbandlist if (isinstance(i,PoolItem) or isinstance(i,TableItem) or isinstance(i,ReacItem) or isinstance(i,FuncItem) )]
         self.grp            = [ i for i in self.rubberbandlist if isinstance(i,GRPItem)]
         for item in self.Enz_cplxlist:
-            #for item in (qgraphicsitem for qgraphicsitem in self.rubberbandlist):
             #First Loop to remove all the enz b'cos if parent (which is a Pool) is removed,
             #then it will created problem at qgraphicalitem not having parent.
             #So first delete enz and then delete pool
-            #if isinstance(item,MMEnzItem) or isinstance(item,EnzItem) or isinstance(item,CplxItem):
-            self.deleteItem(item)
             self.deleteItem(item)
         for item in self.PFRSlist:
             if isinstance(item,PoolItem) or isinstance(item,BufPool):
@@ -1146,7 +765,7 @@ class GraphicalView(QtGui.QGraphicsView):
             self.deleteItem(item)
         for item in self.grp:
             self.deleteItem(item)
-
+        
     def deleteObject2line(self,qpolygonline,src,des,endt):
         object2lineInfo = self.layoutPt.object2line[des]
         if len(object2lineInfo) == 1:
@@ -1154,7 +773,7 @@ class GraphicalView(QtGui.QGraphicsView):
                 if polygon == qpolygonline and objdes == src and endtype == endt:
                     del(self.layoutPt.object2line[des])
                 else:
-                    print (" check this condition when is len is single and else condition",qpolygonline, objdes,endtype)
+                    print( " check this condition when is len is single and else condition",qpolygonline, objdes,endtype)
         else:
             n = 0
             for polygon,objdes,endtype,numL in object2lineInfo:
@@ -1167,7 +786,6 @@ class GraphicalView(QtGui.QGraphicsView):
         
     def deleteConnection(self,item):
         #Delete moose connection, i.e one can click on connection arrow and delete the connection
-        #E.g substrate connected to reac
         deleteSolver(self.layoutPt.modelRoot)
         msgIdforDeleting = " "
         if isinstance(item,QtGui.QGraphicsPolygonItem):
@@ -1292,26 +910,13 @@ class GraphicalView(QtGui.QGraphicsView):
         #delete Items 
 
         self.layoutPt.plugin.mainWindow.objectEditSlot('/', False)
-        if isinstance(item,KineticsDisplayItem) or isinstance(item,GRPItem):
+        if isinstance(item,KineticsDisplayItem)  or isinstance(item,GRPItem):
             if moose.exists(item.mobj.path):
-                # if isinstance(item.mobj,Function):
-                #     print " inside the function"
-                #     for items in moose.element(item.mobj.path).children:
-                #         print items
                 if isinstance(item,PoolItem) or isinstance(item,BufPool):
                     # pool is item is removed, then check is made if its a parent to any
                     # enz if 'yes', then enz and its connection are removed before
                     # removing Pool
                     for items in moose.element(item.mobj.path).children:
-                        # if isinstance(moose.element(items), Function):
-                        #     gItem = self.layoutPt.mooseId_GObj[moose.element(items)]
-                        #     for l in self.layoutPt.object2line[gItem]:
-                        #         sceneItems = self.sceneContainerPt.items()
-                        #         if l[0] in sceneItems:
-                        #             #deleting the connection which is connected to Enz
-                        #             self.sceneContainerPt.removeItem(l[0])
-                        #     moose.delete(items)
-                        #     self.sceneContainerPt.removeItem(gItem)    
                         if isinstance(moose.element(items), EnzBase):
                             gItem = self.layoutPt.mooseId_GObj[moose.element(items)]
                             for l in self.layoutPt.object2line[gItem]:
@@ -1348,7 +953,6 @@ class GraphicalView(QtGui.QGraphicsView):
     def zoomSelections(self, x0, y0, x1, y1):
         p0 = self.mapToScene(x0, y0)
         p1 = self.mapToScene(x1, y1)
-        #print QtCore.QRectF(p0, p1)
         self.fitInView(QtCore.QRectF(p0, p1), Qt.Qt.KeepAspectRatio)
         self.deselectSelections()
         return
@@ -1408,7 +1012,7 @@ class GraphicalView(QtGui.QGraphicsView):
             founds, foundp = False,False
             
             if isinstance(moose.element(des),EnzBase):
-                print moose.element(des).neighbors["subOut"]
+                print (moose.element(des).neighbors["subOut"])
                 if len(moose.element(des).neighbors["subOut"]) > 0:
                     founds = True
                 
@@ -1435,6 +1039,7 @@ class GraphicalView(QtGui.QGraphicsView):
             expr = expr.replace(" ","")
             des.expr = expr
             moose.connect( src, 'nOut', des.x[numVariables], 'input' )
+            
         elif ( isinstance(moose.element(src),Function) and (moose.element(des).className=="Pool") or  
                isinstance(moose.element(src),ZombieFunction) and (moose.element(des).className=="ZombiePool")
             ):
@@ -1483,10 +1088,6 @@ class GraphicalView(QtGui.QGraphicsView):
             elif founds:
                 srcdesString = desClass+' is already connected as '+'\'Substrate\''+' to '+srcClass +' \n \nIf you wish to connect this object then first delete the exist connection'
                 QtGui.QMessageBox.information(None,'Connection Not possible','{srcdesString}'.format(srcdesString = srcdesString),QtGui.QMessageBox.Ok)
-        # elif( isinstance(moose.element(src),ReacBase) and (isinstance(moose.element(des),PoolBase) ) ):
-        #     moose.connect(src, 'prd', des, 'reac', 'OneToOne')
-        # elif( isinstance(moose.element(src),EnzBase) and (isinstance(moose.element(des),PoolBase) ) ):
-        #     moose.connect(src, 'prd', des, 'reac', 'OneToOne')
         elif( isinstance(moose.element(src),StimulusTable) and (isinstance(moose.element(des),PoolBase) ) ):
             moose.connect(src, 'output', des, 'setConcInit', 'OneToOne')
         else:

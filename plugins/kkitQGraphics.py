@@ -503,7 +503,7 @@ class GRPItem(QtGui.QGraphicsRectItem):
     #     painter.drawRect(self.focusrect)
 
     def itemChange(self,change,value):
-        print " itemchange at GRPItem ",change,value
+        #print " itemchange at GRPItem ",change,value
         if change == QtGui.QGraphicsItem.ItemPositionChange:
             self.grpEmitter.emit(QtCore.SIGNAL("qgtextPositionChange(PyQt_PyObject)"),self.mobj)
         #if change == QtGui.QGraphicsItem.
@@ -513,11 +513,6 @@ class GRPItem(QtGui.QGraphicsRectItem):
             self.grpEmitter.emit(QtCore.SIGNAL("qgtextItemSelectedChange(PyQt_PyObject)"),self.mobj)
         
         return QtGui.QGraphicsItem.itemChange(self,change,value)
-
-
-
-
-
 
 class ComptItem(QtGui.QGraphicsRectItem):
     name = COMPARTMENT
