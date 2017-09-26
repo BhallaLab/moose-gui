@@ -6,7 +6,7 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Sep 18 2017"
+__updated__     =   "Sep 26 2017"
 
 import math
 import sys
@@ -76,11 +76,16 @@ class KkitPlugin(MoosePlugin):
             if filters[str(filter_)] == 'SBML':
                 self.sceneObj = KkitEditorView(self).getCentralWidget().mooseId_GObj
                 self.coOrdinates = {}
+                self.plugin = KkitEditorView(self).getCentralWidget().plugin
+                self.defaultScenewidth = KkitEditorView(self).getCentralWidget().defaultScenewidth
+                self.defaultSceneheight = KkitEditorView(self).getCentralWidget().defaultSceneheight
                 for k,v in self.sceneObj.items():
                     if moose.exists(moose.element(k).path+'/info'):
                         annoInfo = Annotator(k.path+'/info')
-                        self.coOrdinates[k] = {'x':annoInfo.x, 'y':annoInfo.y}
-
+                        if moose.element(self.plugin.modelRoot+'/info').modeltype == 'kkit':
+                            self.coOrdinates[k] = {'x':annoInfo.x*self.defaultScenewidth, 'y':annoInfo.y*self.defaultSceneheight}
+                        else:
+                            self.coOrdinates[k] = {'x':annoInfo.x, 'y':annoInfo.y}
                 #writeerror = moose.writeSBML(self.modelRoot,str(filename),self.coOrdinates)
                 writeerror = -2
                 conisitencyMessages = ""
@@ -848,22 +853,26 @@ class  KineticsWidget(EditorWidgetBase):
                             if moose.exists(grpChilditem.mobj.path):
                                 iInfo = grpChilditem.mobj.path+'/info'
                                 anno = moose.Annotator(iInfo)
-                                x = grpChilditem.scenePos().x()/self.defaultScenewidth
-                                y = grpChilditem.scenePos().y()/self.defaultSceneheight
+                                if moose.Annotator(self.plugin.modelRoot+'/info').modeltype == 'kkit':
+                                    x = grpChilditem.scenePos().x()/self.defaultScenewidth
+                                    y = grpChilditem.scenePos().y()/self.defaultSceneheight
+                                else:
+                                    print "Check for other models "
+                                    x,y = 1,1
                                 anno.x = x
                                 anno.y = y
-                            if isinstance(moose.element(grpChilditem.mobj.path),PoolBase):
-                                t = moose.element(grpChilditem.mobj.path)
-                                moose.element(t).children
-                                for items in moose.element(t).children:
-                                    if isinstance(moose.element(items),Function):
-                                        test = moose.element(items.path+'/x')
-                                        for i in moose.element(test).neighbors['input']:
-                                            j = self.mooseId_GObj[moose.element(i)]
-                                            self.updateArrow(j)
-                            self.updateArrow(grpChilditem)
-                            grpcompt = self.qGraCompt[self.objPar[k]]
-                            rectcompt = calculateChildBoundingRect(grpcompt)       
+                            # if isinstance(moose.element(grpChilditem.mobj.path),PoolBase):
+                            #     t = moose.element(grpChilditem.mobj.path)
+                            #     moose.element(t).children
+                            #     for items in moose.element(t).children:
+                            #         if isinstance(moose.element(items),Function):
+                            #             test = moose.element(items.path+'/x')
+                            #             for i in moose.element(test).neighbors['input']:
+                            #                 j = self.mooseId_GObj[moose.element(i)]
+                            #                 self.updateArrow(j)
+                            # self.updateArrow(grpChilditem)
+                            # grpcompt = self.qGraCompt[self.objPar[k]]
+                            # rectcompt = calculateChildBoundingRect(grpcompt)       
         else:
             mobj = self.mooseId_GObj[element(mooseObject)]
             self.updateArrow(mobj)
@@ -872,16 +881,20 @@ class  KineticsWidget(EditorWidgetBase):
             l = elePath[0:pos]
             linfo = moose.Annotator(l+'/info')
             if moose.exists(l):
-                anno = moose.Annotator(linfo)
-                x = mobj.scenePos().x()/self.defaultScenewidth
-                y = mobj.scenePos().y()/self.defaultSceneheight
-            for gk,gv in self.qGraGrp.items():
-                rectgrp = calculateChildBoundingRect(gv)
-                grpBoundingRect = gv.boundingRect()
-                if not grpBoundingRect.contains(rectgrp):
-                    self.updateCompartmentSize(v)
+                #anno = moose.Annotator(linfo)
+                if moose.Annotator(self.plugin.modelRoot+'/info').modeltype == 'kkit':
+                    x = mobj.scenePos().x()/self.defaultScenewidth
+                    y = mobj.scenePos().y()/self.defaultSceneheight
                 else:
-                    gv.setRect(rectgrp.x()-10,rectgrp.y()-10,(rectgrp.width()+20),(rectgrp.height()+20))
+                    print "Check for other models "
+                    x,y = 1,1
+            # for gk,gv in self.qGraGrp.items():
+            #     rectgrp = calculateChildBoundingRect(gv)
+            #     grpBoundingRect = gv.boundingRect()
+            #     if not grpBoundingRect.contains(rectgrp):
+            #         self.updateCompartmentSize(v)
+            #     else:
+            #         gv.setRect(rectgrp.x()-10,rectgrp.y()-10,(rectgrp.width()+20),(rectgrp.height()+20))
             for k, v in self.qGraCompt.items():
                 #rectcompt = v.childrenBoundingRect()
                 rectcompt = calculateChildBoundingRect(v)
