@@ -6,7 +6,7 @@
 # Maintainer:HarshaRani
 # Created: Fri Feb  8 09:38:40 2013 (+0530)
 # Version:
-# Last-Updated: Wed Jul 26 23:16:35 2017 (+0530)
+# Last-Updated: Wed Oct 4 13:16:35 2017 (+0530)
 #           By: HarshaRani
 #     Update #: 213
 # URL:
@@ -44,7 +44,9 @@
 #
 
 # Code:
-
+'''
+Oct 4: clean up for python3
+'''
 import moose
 from moose import neuroml
 import mtypes
@@ -131,7 +133,7 @@ def loadFile(filename, target, solver="gsl", merge=True):
     with open(filename, 'rb') as infile:
         istext = mtypes.istextfile(infile)
     if not istext:
-        print 'Cannot handle any binary formats yet'
+        print ('Cannot handle any binary formats yet')
         return None
     # parent, child = posixpath.split(target)
     # p = moose.Neutral(parent)
@@ -169,13 +171,12 @@ def loadFile(filename, target, solver="gsl", merge=True):
                         bgcolor = moose.element(objInfo).color
                         moose.element(objInfo).color = moose.element(objInfo).textColor
                         moose.element(objInfo).textColor = bgcolor
-                        
                 moose.Annotator(moose.element(modelpath).path+'/info').modeltype = "kkit"
             else:
-                print " path doesn't exists"
+                print (" path doesn't exists")
             moose.le(modelpath)
         else:
-            print 'Only kkit and prototype files can be loaded.'
+            print ('Only kkit and prototype files can be loaded.')
     
     elif modeltype == 'cspace':
             model,modelpath = loadGenCsp(target,filename)

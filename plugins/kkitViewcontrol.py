@@ -5,9 +5,12 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Sep 20 2017"
+__updated__     =   "Oct 3 2017"
 
 '''
+Oct 3 : At mousePressEvent, a clean way of checking on what object mouse press Event happened is checked.
+        This is after group is added where Group Interior and Boundary is checked, with in groupInterior if  click in
+        on COMPARTMENT BOUNDARY is clicked then COMPARTMENT_BOUNDARY is return, else top most group object is returned.
 Sep 20: Group related function added
         -resolveGroupInteriorAndBoundary, findGraphic_groupcompt, graphicsIsInstance
         -@resolveItem,editorMousePressEvent,editorMouseMoveEvent,editorMouseReleaseEvent checks made for group
@@ -101,8 +104,13 @@ class GraphicalView(QtGui.QGraphicsView):
 
 
     def resolveItem(self, items, position):
-        solution = None
+        csolution = None
         gsolution = None
+        groupInteriorfound = False
+        groupList = []
+        comptInteriorfound = False
+        comptBoundary = []
+        
         for item in items:
             # if isinstance(item, QtGui.QGraphicsPixmapItem):
             #     return (item, CONNECTOR)
@@ -118,16 +126,28 @@ class GraphicalView(QtGui.QGraphicsView):
                     return (item, ITEM)
                 if item.name == GROUP:
                     gsolution = (item, self.resolveGroupInteriorAndBoundary(item, position))
-                    if gsolution == None:
-                        return(None,EMPTY)  
-                    else:
+                    if gsolution[1] == GROUP_BOUNDARY:
                         return gsolution
+                    elif gsolution[1] == GROUP_INTERIOR:
+                        groupInteriorfound = True
+                        groupList.append(gsolution)
+
                 if item.name == COMPARTMENT:
-                    solution = (item, self.resolveCompartmentInteriorAndBoundary(item, position))
-        if solution is None:
-            return (None, EMPTY)
-        return solution
-    
+                    csolution = (item, self.resolveCompartmentInteriorAndBoundary(item, position))
+                    if csolution[1] == COMPARTMENT_BOUNDARY:
+                        comptInteriorfound = True
+                        comptBoundary.append(csolution)
+
+        if groupInteriorfound:
+            if comptInteriorfound:
+                return comptBoundary[0]
+            else:
+                return groupList[0]
+        else:
+            if csolution is None:
+                return (None, EMPTY)
+            return csolution
+        
     def findGraphic_groupcompt(self,gelement):
         while not (self.graphicsIsInstance(gelement, ["GRPItem","ComptItem"])):
             gelement = gelement.parentItem()
@@ -139,27 +159,24 @@ class GraphicalView(QtGui.QGraphicsView):
     def editorMousePressEvent(self, event):
         self.clickPosition  = self.mapToScene(event.pos())
         (item, itemType) = self.resolveItem(self.items(event.pos()), self.clickPosition)
-
         if event.buttons() == QtCore.Qt.LeftButton:
             self.state["press"]["mode"] = VALID
             self.state["press"]["item"] = item
             self.state["press"]["type"] = itemType
             self.state["press"]["pos"]  = event.pos()
             if  isinstance(item, QtSvg.QGraphicsSvgItem):
-                ##This kept for reference, so that if object (P,R,E,Tab,Fun) is moved outside, compartment
+                ##This is kept for reference, so that if object (P,R,E,Tab,Fun) is moved outside the compartment,
                 #then it need to be pull back to original position
                 self.state["press"]["scenepos"]  = item.parent().scenePos() 
             
             if itemType == COMPARTMENT_INTERIOR or itemType == GROUP_BOUNDARY  or itemType == GROUP_INTERIOR:
                 self.removeConnector()
-                if itemType == GROUP_BOUNDARY:
-                    pass
-                    #item.setPen(QtGui.QPen(QtGui.QPen(QtCore.Qt.black, 1.8,Qt.Qt.DashLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin)))
-                    #item.drawRect(item.boundingRect())
+                
             elif itemType == ITEM:
                 if not self.move:
                     self.showConnector(self.state["press"]["item"])
         else:
+            #If right button clicked
             self.resetState()
             if itemType == GROUP_BOUNDARY:
                 popupmenu = QtGui.QMenu('PopupMenu', self)
@@ -180,13 +197,19 @@ class GraphicalView(QtGui.QGraphicsView):
             self.state["move"]["happened"] = False
             return
         if self.move:
+            initial = self.mapToScene(self.state["press"]["pos"])
+            # final = self.mapToScene(event.pos())
+            # displacement = final - initial
+            # for item in self.selectedItems:
+            #     if isinstance(item, KineticsDisplayItem) and not isinstance(item,ComptItem) and not isinstance(item,CplxItem):
+            #         item.moveBy(displacement.x(), displacement.y())
+            #         self.layoutPt.positionChange(item.mobj.path)
             self.state["press"]["pos"] = event.pos()
             return
         
         self.state["move"]["happened"] = True
         itemType = self.state["press"]["type"]
         item     = self.state["press"]["item"]
-        
         if itemType == CONNECTOR:
             actionType = str(item.data(0).toString())
             if actionType == "move":
@@ -196,12 +219,13 @@ class GraphicalView(QtGui.QGraphicsView):
                 displacement = final-initial
                 self.removeConnector()
                 item.parent().moveBy(displacement.x(), displacement.y())
-                self.layoutPt.updateArrow(item.parent())
+                #self.layoutPt.updateArrow(item.parent())
                 if isinstance(item.parent(),PoolItem):
                     for funcItem in item.parent().childItems():
                         if isinstance(funcItem,FuncItem):
                             self.layoutPt.updateArrow(funcItem)
                 self.state["press"]["pos"] = event.pos()
+                self.layoutPt.positionChange(item.parent().mobj)
             elif actionType == "clone":
                 pixmap = QtGui.QPixmap(24, 24)
                 pixmap.fill(QtCore.Qt.transparent)
@@ -275,7 +299,7 @@ class GraphicalView(QtGui.QGraphicsView):
                 l = self.modelRoot
                 if self.modelRoot.find('/',1) > 0:
                     l = self.modelRoot[0:self.modelRoot.find('/',1)]
-                linfo = moose.Annotator(l+'/model/info')
+                linfo = moose.Annotator(l+'/info')
                 for k, v in self.layoutPt.qGraCompt.items():
                     rectcompt = v.childrenBoundingRect()
                     if linfo.modeltype == "new_kkit":
@@ -304,6 +328,7 @@ class GraphicalView(QtGui.QGraphicsView):
             pressItem = self.state["press"]["item"]
 
             if actionType == "move":
+
                 QtGui.QApplication.setOverrideCursor(QtGui.QCursor(Qt.Qt.ArrowCursor))
                 if itemType == EMPTY:
                     initscenepos = self.state["press"]["scenepos"]
@@ -345,7 +370,12 @@ class GraphicalView(QtGui.QGraphicsView):
             elif actionType == "plot":
                 element = moose.element(item.parent().mobj.path)
                 if isinstance (element,moose.PoolBase):
-                    self.graph = moose.element(self.modelRoot+'/data/graph_0')
+                    if moose.exists(self.modelRoot+'/data/graph_0'):
+                        self.graph = moose.element(self.modelRoot+'/data/graph_0')
+                    else:
+                        moose.Neutral(self.modelRoot+'/data')
+                        moose.Neutral(self.modelRoot+'/data/graph_0')
+                        self.graph = moose.element(self.modelRoot+'/data/graph_0')
                     tablePath = utils.create_table_path(moose.element(self.modelRoot), self.graph, element, "Conc")
                     table     = utils.create_table(tablePath, element, "Conc","Table2")
                     self.layoutPt.plugin.view.getCentralWidget().plotWidgetContainer.plotAllData()
@@ -734,7 +764,7 @@ class GraphicalView(QtGui.QGraphicsView):
         if( x1-x0 > 0  and y1-y0 >0):
             # self.rubberbandlist = self.sceneContainerPt.items(self.mapToScene(QtCore.QRect(x0, y0, x1 - x0, y1 - y0)).boundingRect(), Qt.Qt.IntersectsItemShape)
             # for unselectitem in self.rubberbandlist:
-            
+            self.rubberbandlist_qpolygon = []
             for unselectitem in self.rubberbandlist_qpolygon:
                 if unselectitem.isSelected() == True:
                     unselectitem.setSelected(0)
@@ -1012,7 +1042,6 @@ class GraphicalView(QtGui.QGraphicsView):
             founds, foundp = False,False
             
             if isinstance(moose.element(des),EnzBase):
-                print (moose.element(des).neighbors["subOut"])
                 if len(moose.element(des).neighbors["subOut"]) > 0:
                     founds = True
                 
