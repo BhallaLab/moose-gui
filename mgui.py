@@ -1163,10 +1163,8 @@ class MWindow(QtGui.QMainWindow):
                     if reply == QtGui.QMessageBox.Ok:
                         QtGui.QApplication.restoreOverrideCursor()
                         return
-
                 else:
                     if ret['loaderror'] != "":
-
                         reply = QtGui.QMessageBox.question(self, "Model can't be loaded", ret['loaderror']+" \n \n Do you want another file",
                                                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
                         if reply == QtGui.QMessageBox.Yes:
@@ -1176,11 +1174,13 @@ class MWindow(QtGui.QMainWindow):
                                 ret = []
                                 pluginName = None
                                 ret,pluginName = self.checkPlugin(dialog)
-                                valid = self.dialog_check(ret)
+
+                                valid, ret = self.dialog_check(ret)
                         else:
                             QtGui.QApplication.restoreOverrideCursor()
                             return valid
                     else:
+
                         valid = True
             if valid == True:
                 modelAnno = moose.Annotator(ret['model'].path+'/info')
@@ -1233,6 +1233,7 @@ class MWindow(QtGui.QMainWindow):
             return ret,pluginName
 
     def dialog_check(self,ret):
+        valid = False
         pluginLookup = '%s/%s' % (ret['modeltype'], ret['subtype'])
         try:
             pluginName = subtype_plugin_map['%s/%s' % (ret['modeltype'], ret['subtype'])]
@@ -1245,7 +1246,7 @@ class MWindow(QtGui.QMainWindow):
                                            QtGui.QMessageBox.Ok)
                 if reply == QtGui.QMessageBox.Ok:
                     QtGui.QApplication.restoreOverrideCursor()
-                    return
+                    return valid, ret
             else:
                 if ret['loaderror'] != "":
                     reply = QtGui.QMessageBox.question(self, "Model can't be loaded", ret['loaderror']+" \n \n Do you want another file",
@@ -1253,16 +1254,15 @@ class MWindow(QtGui.QMainWindow):
                     if reply == QtGui.QMessageBox.Yes:
                         dialog = LoaderDialog(self,self.tr('Load model from file'))
                         if dialog.exec_():
-                            valid = False
-                            ret =[]
                             pluginName = None
                             ret,pluginName = self.checkPlugin(dialog)
-                            valid = self.dialog_check(ret)
+                            valid,ret = self.dialog_check(ret)
                     else:
                         QtGui.QApplication.restoreOverrideCursor()
-                        return False
+                        return valid,ret
                 else:
-                    return True
+                    valid = True
+        return valid,ret
 
     def newModelDialogSlot(self):
         #Harsha: Create a new dialog widget for model building
