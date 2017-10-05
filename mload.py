@@ -6,7 +6,7 @@
 # Maintainer:HarshaRani
 # Created: Fri Feb  8 09:38:40 2013 (+0530)
 # Version:
-# Last-Updated: Wed Oct 4 13:16:35 2017 (+0530)
+# Last-Updated: Wed Oct 5 15:16:35 2017 (+0530)
 #           By: HarshaRani
 #     Update #: 213
 # URL:
@@ -45,7 +45,10 @@
 
 # Code:
 '''
-Oct 4: clean up for python3
+Oct 5 : check is made for kkit model
+        -- Atleast one compartment should exists
+        -- Atleast 2 pool should exists
+Oct 4 : clean up for python3
 '''
 import moose
 from moose import neuroml
@@ -154,30 +157,42 @@ def loadFile(filename, target, solver="gsl", merge=True):
             model,modelpath = loadGenCsp(target,filename,solver)
             xcord,ycord = [],[]
             if moose.exists(moose.element(modelpath).path):
-                mObj = moose.wildcardFind(moose.element(modelpath).path+'/##[ISA=PoolBase]'+','+
-                                          moose.element(modelpath).path+'/##[ISA=ReacBase]'+','+
-                                          moose.element(modelpath).path+'/##[ISA=EnzBase]'+','+
-                                          moose.element(modelpath).path+'/##[ISA=StimulusTable]')
-                for p in mObj:
-                    if not isinstance(moose.element(p.parent),moose.CplxEnzBase):
-                        xcord.append(moose.element(p.path+'/info').x)
-                        ycord.append(moose.element(p.path+'/info').y)
-                recalculatecoordinatesforKkit(mObj,xcord,ycord)
+                process = True
+                compt = len(moose.wildcardFind(modelpath+'/##[ISA=CubeMesh]'))
+                if not compt:
+                    loaderror = "Model has no compartment, atleast one compartment should exist to display the widget"
+                    process = False
+                else:
+                    p = len(moose.wildcardFind(modelpath+'/##[ISA=PoolBase]'))
+                    if p < 2:
+                        loaderror = "Model has no pool, atleast two pool should exist to display the widget"
+                        process = False
+            if process:
+                if moose.exists(moose.element(modelpath).path):
+                    mObj = moose.wildcardFind(moose.element(modelpath).path+'/##[ISA=PoolBase]'+','+
+                                              moose.element(modelpath).path+'/##[ISA=ReacBase]'+','+
+                                              moose.element(modelpath).path+'/##[ISA=EnzBase]'+','+
+                                              moose.element(modelpath).path+'/##[ISA=StimulusTable]')
+                    for p in mObj:
+                        if not isinstance(moose.element(p.parent),moose.CplxEnzBase):
+                            xcord.append(moose.element(p.path+'/info').x)
+                            ycord.append(moose.element(p.path+'/info').y)
+                    recalculatecoordinatesforKkit(mObj,xcord,ycord)
 
-                for ememb in moose.wildcardFind(moose.element(modelpath).path+'/##[ISA=EnzBase]'):
-                    objInfo = ememb.path+'/info'
-                    #Enzyme's textcolor (from kkit) will be bgcolor (in moose)
-                    if moose.exists(objInfo):
-                        bgcolor = moose.element(objInfo).color
-                        moose.element(objInfo).color = moose.element(objInfo).textColor
-                        moose.element(objInfo).textColor = bgcolor
-                moose.Annotator(moose.element(modelpath).path+'/info').modeltype = "kkit"
-            else:
-                print (" path doesn't exists")
-            moose.le(modelpath)
+                    for ememb in moose.wildcardFind(moose.element(modelpath).path+'/##[ISA=EnzBase]'):
+                        objInfo = ememb.path+'/info'
+                        #Enzyme's textcolor (from kkit) will be bgcolor (in moose)
+                        if moose.exists(objInfo):
+                            bgcolor = moose.element(objInfo).color
+                            moose.element(objInfo).color = moose.element(objInfo).textColor
+                            moose.element(objInfo).textColor = bgcolor
+                    moose.Annotator(moose.element(modelpath).path+'/info').modeltype = "kkit"
+                else:
+                    print (" path doesn't exists")
+                moose.le(modelpath)
         else:
             print ('Only kkit and prototype files can be loaded.')
-    
+        
     elif modeltype == 'cspace':
             model,modelpath = loadGenCsp(target,filename)
             
