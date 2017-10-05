@@ -6,9 +6,9 @@
 # Maintainer:
 # Created: Tue Nov 13 15:58:31 2012 (+0530)
 # Version:
-# Last-Updated: Thu Jul 18 10:35:00 2013 (+0530)
-#           By: subha
-#     Update #: 2244
+# Last-Updated: Thu Oct 5 12:35:00 2013 (+0530)
+#           By: Harsha
+#     Update #: 
 # URL:
 # Keywords:
 # Compatibility:
@@ -44,7 +44,11 @@
 #
 
 # Code:
+'''
+Oct 5: could not recreate if object already exist in moose which was allowed earlier
+        now if object exist need to use element which is cleaned here
 
+'''
 import sys
 import config
 import pickle
@@ -331,9 +335,15 @@ class RunView(RunBase):
             self.dataRoot = modelRoot + '/data'
         else:
             self.dataRoot = "/data"
-        self.setModelRoot(moose.Neutral(self.plugin.modelRoot).path)
-        self.setDataRoot(moose.Neutral('/data').path)
-        self.setDataRoot(moose.Neutral(self.plugin.modelRoot).path)
+        if not moose.exists(self.plugin.modelRoot):
+            moose.Neutral(self.plugin.modelroot)
+        self.setModelRoot(moose.element(self.plugin.modelRoot).path)
+        if not moose.exists('/data'):
+            moose.Neutral('/data')
+        self.setDataRoot(moose.element('/data').path)
+        if not moose.exists(self.plugin.modelRoot):
+            moose.Neutral(self.plugin.modelRoot)
+        self.setDataRoot(moose.element(self.plugin.modelRoot).path)
         self.plugin.modelRootChanged.connect(self.setModelRoot)
         self.plugin.dataRootChanged.connect(self.setDataRoot)
         # self.getCentralWidget()
