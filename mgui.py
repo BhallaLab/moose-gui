@@ -6,9 +6,9 @@
 # Maintainer: HarshaRani
 # Created: Mon Nov 12 09:38:09 2012 (+0530)
 # Version:
-# Last-Updated: Wed Jul 26 15:54:33 2017 (+0530)
+# Last-Updated: Thu Oct 5 14:54:33 2017 (+0530)
 #           By: Harsha
-#     Update #: 1338
+#     Update #:
 # URL:
 # Keywords:
 # Compatibility:
@@ -43,6 +43,10 @@
 #
 #
 
+''''
+Oct 5: clean up with round trip of dialog_exe
+
+'''
 # Code:
 import imp
 import inspect
@@ -1159,30 +1163,23 @@ class MWindow(QtGui.QMainWindow):
                     if reply == QtGui.QMessageBox.Ok:
                         QtGui.QApplication.restoreOverrideCursor()
                         return
+
                 else:
-                    compt = moose.wildcardFind(ret['model'].path+'/##[ISA=ChemCompt]')
                     if ret['loaderror'] != "":
-                        reply = QtGui.QMessageBox.question(self, " ", ret['loaderror']+" \n \n Do you want another file",
+
+                        reply = QtGui.QMessageBox.question(self, "Model can't be loaded", ret['loaderror']+" \n \n Do you want another file",
                                                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
                         if reply == QtGui.QMessageBox.Yes:
                             dialog = LoaderDialog(self,self.tr('Load model from file'))
                             if dialog.exec_():
+                                valid = False
+                                ret = []
+                                pluginName = None
                                 ret,pluginName = self.checkPlugin(dialog)
-                                ret,valid = self.dialog_check(ret)
+                                valid = self.dialog_check(ret)
                         else:
-                            QtGui.QApplication.restoreOverrideCursor()        
-                            return
-                    elif not len(compt):
-                        reply = QtGui.QMessageBox.question(self, "Model is empty","Model has no compartment, atleast one compartment should exist to display the widget\n Do you want another file",
-                                                   QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                        if reply == QtGui.QMessageBox.Yes:
-                            dialog = LoaderDialog(self,self.tr('Load model from file'))
-                            if dialog.exec_():
-                                ret,pluginName = self.checkPlugin(dialog)
-                                ret,valid = self.dialog_check(ret)
-                        else:
-                            QtGui.QApplication.restoreOverrideCursor()        
-                            return
+                            QtGui.QApplication.restoreOverrideCursor()
+                            return valid
                     else:
                         valid = True
             if valid == True:
@@ -1226,14 +1223,13 @@ class MWindow(QtGui.QMainWindow):
             self.objectEditSlot('/',False)
             #if subtype is None, in case of cspace then pluginLookup = /cspace/None
             #     which will not call kkit plugin so cleaning to /cspace
-            pluginLookup = '%s/%s' % (ret['modeltype'], ret['subtype'])
+            #pluginLookup = '%s/%s' % (ret['modeltype'], ret['subtype'])
             try:
                 pluginName = subtype_plugin_map['%s/%s' % (ret['modeltype'], ret['subtype'])]
             except KeyError:
                 pluginName = 'default'
             if ret['foundlib']:
                 print ('Loaded model %s' %(ret['model']))
-            
             return ret,pluginName
 
     def dialog_check(self,ret):
@@ -1242,20 +1238,32 @@ class MWindow(QtGui.QMainWindow):
             pluginName = subtype_plugin_map['%s/%s' % (ret['modeltype'], ret['subtype'])]
         except KeyError:
             pluginName = 'default'
+
         if pluginName == 'kkit':
-            compt = moose.wildcardFind(ret['model'].path+'/##[ISA=ChemCompt]')
-            if not len(compt):
-                reply = QtGui.QMessageBox.question(self, "Model is empty","Model has no compartment, atleast one compartment should exist to display the widget\n Do you want another file",
-                                           QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                if reply == QtGui.QMessageBox.Yes:
-                    dialog = LoaderDialog(self,self.tr('Load model from file'))
-                    if dialog.exec_():
-                        ret,pluginName = self.checkPlugin(dialog)
-                else:
-                    QtGui.QApplication.restoreOverrideCursor()        
+            if (ret['subtype'] == 'sbml' and ret['foundlib'] == False):
+                reply = QtGui.QMessageBox.question(self, "python-libsbml is not found.","\n Read SBML is not possible.\n This can be installed using \n \n pip python-libsbml  or \n apt-get install python-libsbml",
+                                           QtGui.QMessageBox.Ok)
+                if reply == QtGui.QMessageBox.Ok:
+                    QtGui.QApplication.restoreOverrideCursor()
                     return
             else:
-                return ret,True
+                if ret['loaderror'] != "":
+                    reply = QtGui.QMessageBox.question(self, "Model can't be loaded", ret['loaderror']+" \n \n Do you want another file",
+                                               QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+                    if reply == QtGui.QMessageBox.Yes:
+                        dialog = LoaderDialog(self,self.tr('Load model from file'))
+                        if dialog.exec_():
+                            valid = False
+                            ret =[]
+                            pluginName = None
+                            ret,pluginName = self.checkPlugin(dialog)
+                            valid = self.dialog_check(ret)
+                    else:
+                        QtGui.QApplication.restoreOverrideCursor()
+                        return False
+                else:
+                    return True
+
     def newModelDialogSlot(self):
         #Harsha: Create a new dialog widget for model building
         self.popup.close()
