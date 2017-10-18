@@ -1,4 +1,16 @@
-from moose import Annotator
+__author__      =   "HarshaRani"
+__credits__     =   ["Upi Lab"]
+__license__     =   "GPL3"
+__version__     =   "1.0.0"
+__maintainer__  =   "HarshaRani"
+__email__       =   "hrani@ncbs.res.in"
+__status__      =   "Development"
+__updated__     =   "Oct 18 2017"
+
+'''
+Oct 18  some of the function moved to this file from kkitOrdinateUtils
+'''
+from moose import Annotator,element
 from kkitQGraphics import PoolItem, ReacItem,EnzItem,CplxItem,GRPItem,ComptItem
 from PyQt4 import QtCore,QtGui,QtSvg
 from PyQt4.QtGui import QColor
@@ -168,3 +180,21 @@ def calculateChildBoundingRect(compt):
         calculateRectcompt = compt.rect()
         
     return calculateRectcompt
+
+def mooseIsInstance(melement, classNames):
+    return element(melement).__class__.__name__ in classNames
+
+def findCompartment(melement):
+    while not mooseIsInstance(melement, ["CubeMesh", "CyclMesh"]):
+        melement = melement.parent
+    return melement
+
+def findGroup(melement):
+    while not mooseIsInstance(melement, ["Neutral"]):
+        melement = melement.parent
+    return melement
+
+def findGroup_compt(melement):
+    while not (mooseIsInstance(melement, ["Neutral","CubeMesh", "CyclMesh"])):
+        melement = melement.parent
+    return melement

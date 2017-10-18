@@ -5,9 +5,10 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Sep 18 2017"
+__updated__     =   "Oct 18 2017"
 
 '''
+Oct 18: moved some function to kkitUtil
 getxyCord, etc function are added
 '''
 import collections
@@ -17,7 +18,7 @@ from moose import wildcardFind,element,PoolBase,CplxEnzBase,Annotator,exists
 from networkx.drawing.nx_agraph import graphviz_layout
 import numpy as np
 import networkx as nx
-from kkitUtil import getRandColor,colorCheck
+from kkitUtil import getRandColor,colorCheck,findCompartment, findGroup, findGroup_compt, mooseIsInstance
 from PyQt4.QtGui import QColor
 
 def getxyCord(xcord,ycord,list1):
@@ -36,7 +37,7 @@ def xyPosition(objInfo,xory):
         return(float(element(objInfo).getField(xory)))
     except ValueError:
         return (float(0))
-
+'''
 def mooseIsInstance(melement, classNames):
     return element(melement).__class__.__name__ in classNames
 
@@ -55,7 +56,7 @@ def findGroup_compt(melement):
     while not (mooseIsInstance(melement, ["Neutral","CubeMesh", "CyclMesh"])):
         melement = melement.parent
     return melement
-
+'''
 def populateMeshEntry(meshEntry,parent,types,obj):
     #print " parent ",parent, "types ",types, " obj ",obj
     try:

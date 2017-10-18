@@ -5,9 +5,14 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Oct 3 2017"
+__updated__     =   "Oct 17 2017"
 
 '''
+Oct 17: If object is moved from one group or compartment to another group or with in same Compartment, 
+       then both at moose level (group or compartment path is updated ) and qt level the setParentItem is set
+       -If object is moved to Empty place or not allowed place in the GUI its moved back to origin position  
+       -also some clean up when object is just clicked in QsvgItem and v/s clicked and some action done
+       -with Rubber selection if object are moved then group size is updated
 Oct 3 : At mousePressEvent, a clean way of checking on what object mouse press Event happened is checked.
         This is after group is added where Group Interior and Boundary is checked, with in groupInterior if  click in
         on COMPARTMENT BOUNDARY is clicked then COMPARTMENT_BOUNDARY is return, else top most group object is returned.
@@ -110,15 +115,18 @@ class GraphicalView(QtGui.QGraphicsView):
         groupList = []
         comptInteriorfound = False
         comptBoundary = []
-        
+
+        # If clicked , moved and dropped then drop object should not take polygonItem it shd take Goup or compartment 
+        #(this is checked is self.state["move"]), else qpolygonItem then deleting the connection b/w 2 objects
+        #move is True the
         for item in items:
-            # if isinstance(item, QtGui.QGraphicsPixmapItem):
-            #     return (item, CONNECTOR)
             if isinstance(item, QtSvg.QGraphicsSvgItem):
                 return (item, CONNECTOR)
-            
-            if isinstance(item, QtGui.QGraphicsPolygonItem):
-                return (item, CONNECTION)
+
+        if not self.state["move"]["happened"]:
+            for item in items:
+                if isinstance(item, QtGui.QGraphicsPolygonItem):
+                    return (item, CONNECTION)
 
         for item in items:
             if hasattr(item, "name"):
@@ -197,13 +205,14 @@ class GraphicalView(QtGui.QGraphicsView):
             self.state["move"]["happened"] = False
             return
         if self.move:
+            #This part of the code is when rubberband selection is done and move option is selected
             initial = self.mapToScene(self.state["press"]["pos"])
-            # final = self.mapToScene(event.pos())
-            # displacement = final - initial
-            # for item in self.selectedItems:
-            #     if isinstance(item, KineticsDisplayItem) and not isinstance(item,ComptItem) and not isinstance(item,CplxItem):
-            #         item.moveBy(displacement.x(), displacement.y())
-            #         self.layoutPt.positionChange(item.mobj.path)
+            final = self.mapToScene(event.pos())
+            displacement = final - initial
+            for item in self.selectedItems:
+                if isinstance(item, KineticsDisplayItem) and not isinstance(item,ComptItem) and not isinstance(item,CplxItem):
+                    item.moveBy(displacement.x(), displacement.y())
+                    self.layoutPt.positionChange(item.mobj.path)
             self.state["press"]["pos"] = event.pos()
             return
         
@@ -300,6 +309,9 @@ class GraphicalView(QtGui.QGraphicsView):
                 if self.modelRoot.find('/',1) > 0:
                     l = self.modelRoot[0:self.modelRoot.find('/',1)]
                 linfo = moose.Annotator(l+'/info')
+                for k,v in self.layoutPt.qGraGrp.items():
+                    rectgrp = calculateChildBoundingRect(v)
+                    v.setRect(rectgrp.x()-10,rectgrp.y()-10,(rectgrp.width()+20),(rectgrp.height()+20))
                 for k, v in self.layoutPt.qGraCompt.items():
                     rectcompt = v.childrenBoundingRect()
                     if linfo.modeltype == "new_kkit":
@@ -313,6 +325,7 @@ class GraphicalView(QtGui.QGraphicsView):
                         v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
 
             else:
+                #When group is moved then compartment need to be update which is done here
                 if isinstance(self.state["release"]["item"], KineticsDisplayItem):
                     if not moose.element(self.state["press"]["item"].mobj) == moose.element(self.state["release"]["item"].mobj):
                         self.populate_srcdes( self.state["press"]["item"].mobj
@@ -328,18 +341,61 @@ class GraphicalView(QtGui.QGraphicsView):
             pressItem = self.state["press"]["item"]
 
             if actionType == "move":
-
                 QtGui.QApplication.setOverrideCursor(QtGui.QCursor(Qt.Qt.ArrowCursor))
+                #If any case, move is not valide need to move back the object to original position is store and calculation
+                initscenepos = self.state["press"]["scenepos"]
+                finialscenepos = pressItem.parent().scenePos()
+                xx = finialscenepos.x()-initscenepos.x()
+                yy = finialscenepos.y()-initscenepos.y()
+
                 if itemType == EMPTY:
-                    initscenepos = self.state["press"]["scenepos"]
-                    finialscenepos = pressItem.parent().scenePos()
-                    xx = finialscenepos.x()-initscenepos.x()
-                    yy = finialscenepos.y()-initscenepos.y()
                     pressItem.parent().moveBy(-xx,-yy)
                     self.layoutPt.updateArrow(pressItem.parent())
                     QtGui.QMessageBox.warning(None,'Could not move the object', "The object can't be moved to empty space")
                 else:
-                    pressItem = self.state["press"]["item"]
+                    if isinstance(self.state["press"]["item"], Qt.QGraphicsSvgItem):
+                        pressedItem = self.state["press"]["item"]
+                        releaseItem = self.state["release"]["item"]
+                        sgrp  = findGroup(pressItem.parent().mobj)
+                        scmpt = findCompartment(pressItem.parent().mobj)
+                        dgrp  = findGroup(releaseItem.mobj)
+                        dcmpt = findCompartment(releaseItem.mobj)
+                        if isinstance(dgrp,Neutral):
+                            # This is obj moved from group to
+                            #   - another group
+                            #   - into compartment
+                            if sgrp.path != dgrp.path:
+                                if scmpt.volume == dcmpt.volume:
+                                    #With in same compartment but different group
+                                    moose.move(pressItem.parent().mobj,dgrp)
+                                    lKey = self.layoutPt.qGraGrp[dgrp]
+                                    pressItem.parent().setParentItem(lKey)
+                                    self.layoutPt.positionChange(sgrp) 
+                                    self.layoutPt.positionChange(dgrp) 
+                                else:
+                                    #If object is tried to move to diff compartment,
+                                    # then object will be pulled back to origin position which it was moved from
+                                    pressItem.parent().moveBy(-xx,-yy)
+                                    self.layoutPt.updateArrow(pressItem.parent())
+                                    QtGui.QMessageBox.warning(None,'Could not move the object', "The object can't be moved to empty space")
+                        elif isinstance(dcmpt,CubeMesh):
+                            # This is obj moved from group into compartment
+                            if scmpt.path != dcmpt.path:
+                                if scmpt.volume == dcmpt.volume:
+                                    moose.move(pressItem.parent().mobj,dcmpt)
+                                    lKey = self.layoutPt.qGraCompt[dcmpt]
+                                    pressItem.parent().setParentItem(lKey)
+                                    self.layoutPt.positionChange(sgrp) 
+                                    self.layoutPt.positionChange(dgrp) 
+                                else:
+                                    #If object is tried to move to diff compartment,
+                                    # then object will be pulled back to origin position which it was moved from
+                                    pressItem.parent().moveBy(-xx,-yy)
+                                    self.layoutPt.updateArrow(pressItem.parent())
+                                    QtGui.QMessageBox.warning(None,'Could not move the object', "The object can't be moved to empty space")
+                        else:
+                            print " Check what moved when! does it reaches this condition"
+
                     self.layoutPt.positionChange(item.mobj) 
                     self.updateScale(self.iconScale)
 
@@ -389,12 +445,16 @@ class GraphicalView(QtGui.QGraphicsView):
                     posWrtComp = self.mapToScene(event.pos())
                     itemAtView = self.sceneContainerPt.itemAt(self.mapToScene(event.pos()))
                     self.removeConnector()
-                    if isinstance(itemAtView,ComptItem):
+                    if isinstance(itemAtView,ComptItem) or isinstance(itemAtView, GRPItem):
                         #Solver should be deleted
                             ## if there is change in 'Topology' of the model
                             ## or if copy has to made then oject should be in unZombify mode
                         deleteSolver(self.modelRoot)
-                        lKey = [key for key, value in self.layoutPt.qGraCompt.iteritems() if value == itemAtView][0]
+                        #As name is suggesting, if item is Compartment, then search in qGraCompt and if group then qGraGrp
+                        if isinstance(itemAtView,ComptItem):
+                            lKey = [key for key, value in self.layoutPt.qGraCompt.iteritems() if value == itemAtView][0]
+                        if isinstance (itemAtView, GRPItem):
+                            lKey = [key for key, value in self.layoutPt.qGraGrp.iteritems() if value == itemAtView][0]
                         iR = 0
                         iP = 0
                         t = moose.element(cloneObj.parent().mobj)
@@ -476,8 +536,9 @@ class GraphicalView(QtGui.QGraphicsView):
                 for item in selectedItems:
                     if isinstance(item, KineticsDisplayItem) and not isinstance(item,ComptItem):
                         item.setSelected(True)
-                self.customrubberBand.hide()
-                self.customrubberBand = None
+                if self.customrubberBand != None:
+                    self.customrubberBand.hide()
+                    self.customrubberBand = None
                 popupmenu = QtGui.QMenu('PopupMenu', self)
 
                 popupmenu.addAction("Delete", lambda: self.deleteSelections(x0,y0,x1,y1))

@@ -6,8 +6,10 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Sep 26 2017"
+__updated__     =   "Oct 18 2017"
+'''
 
+'''
 import math
 import sys
 from PyQt4 import QtGui, QtCore, Qt
@@ -846,7 +848,7 @@ class  KineticsWidget(EditorWidgetBase):
                                             self.updateArrow(j)
                             self.updateArrow(rectChilditem)
         elif element(mooseObject).className == 'Neutral':
-           for k,v in self.qGraGrp.items():
+            for k,v in self.qGraGrp.items():
                 if k.path == element(mooseObject).path:
                     for grpChilditem in v.childItems():
                         if isinstance(grpChilditem, KineticsDisplayItem):
@@ -857,22 +859,28 @@ class  KineticsWidget(EditorWidgetBase):
                                     x = grpChilditem.scenePos().x()/self.defaultScenewidth
                                     y = grpChilditem.scenePos().y()/self.defaultSceneheight
                                 else:
-                                    print "Check for other models "
-                                    x,y = 1,1
+                                    #print "Check for other models at grp level ",grpChilditem.scenePos()
+                                    x = grpChilditem.scenePos().x()
+                                    y = grpChilditem.scenePos().y()
+                                #print " x and y at 863 ",grpChilditem.scenePos()
                                 anno.x = x
                                 anno.y = y
-                            # if isinstance(moose.element(grpChilditem.mobj.path),PoolBase):
-                            #     t = moose.element(grpChilditem.mobj.path)
-                            #     moose.element(t).children
-                            #     for items in moose.element(t).children:
-                            #         if isinstance(moose.element(items),Function):
-                            #             test = moose.element(items.path+'/x')
-                            #             for i in moose.element(test).neighbors['input']:
-                            #                 j = self.mooseId_GObj[moose.element(i)]
-                            #                 self.updateArrow(j)
-                            # self.updateArrow(grpChilditem)
+                                #print " anno ",anno, anno.x, anno.y
+                            if isinstance(moose.element(grpChilditem.mobj.path),PoolBase):
+                                t = moose.element(grpChilditem.mobj.path)
+                                moose.element(t).children
+                                for items in moose.element(t).children:
+                                    if isinstance(moose.element(items),Function):
+                                        test = moose.element(items.path+'/x')
+                                        for i in moose.element(test).neighbors['input']:
+                                            j = self.mooseId_GObj[moose.element(i)]
+                                            self.updateArrow(j)
+                            self.updateArrow(grpChilditem)
                             # grpcompt = self.qGraCompt[self.objPar[k]]
-                            # rectcompt = calculateChildBoundingRect(grpcompt)       
+                            # rectcompt = calculateChildBoundingRect(grpcompt)
+                    rectgrp = calculateChildBoundingRect(v)
+                    v.setRect(rectgrp.x()-10,rectgrp.y()-10,(rectgrp.width()+20),(rectgrp.height()+20))
+            
         else:
             mobj = self.mooseId_GObj[element(mooseObject)]
             self.updateArrow(mobj)
@@ -886,8 +894,10 @@ class  KineticsWidget(EditorWidgetBase):
                     x = mobj.scenePos().x()/self.defaultScenewidth
                     y = mobj.scenePos().y()/self.defaultSceneheight
                 else:
-                    print "Check for other models "
-                    x,y = 1,1
+                    #print "Check for other models ",mobj.scenePos()
+                    x = mobj.scenePos().x()
+                    y = mobj.scenePos().y()
+                    #print " x and y at 863 ",mobj.scenePos()
             # for gk,gv in self.qGraGrp.items():
             #     rectgrp = calculateChildBoundingRect(gv)
             #     grpBoundingRect = gv.boundingRect()
