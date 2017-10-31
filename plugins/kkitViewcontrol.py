@@ -220,7 +220,7 @@ class GraphicalView(QtGui.QGraphicsView):
         itemType = self.state["press"]["type"]
         item     = self.state["press"]["item"]
         if itemType == CONNECTOR:
-            actionType = str(item.data(0).toString())
+            actionType = str(item.data(0))
             if actionType == "move":
                 QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
                 initial = self.mapToScene(self.state["press"]["pos"])
@@ -337,7 +337,7 @@ class GraphicalView(QtGui.QGraphicsView):
                 self.removeConnector()
             self.move = False
         elif clickedItemType  == CONNECTOR:
-            actionType = str(self.state["press"]["item"].data(0).toString())
+            actionType = str(self.state["press"]["item"].data(0))
             pressItem = self.state["press"]["item"]
 
             if actionType == "move":

@@ -145,7 +145,7 @@ class BioModelsClientWidget(QtGui.QDialog):
         progressDialog.setVisible(True)
         progressDialog.setWindowTitle("BioModels Database")
         index = self.queryModelCombo.currentIndex()
-        query = self.queryModelCombo.itemData(index).toString()
+        query = self.queryModelCombo.itemData(index)
         argument = self.queryLineEdit.text().trimmed()
         function = eval('self.client.service.' + str(query))
         if index > 2:

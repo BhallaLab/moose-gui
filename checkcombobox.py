@@ -130,7 +130,7 @@ class CheckComboBox(QtGui.QComboBox):
     def checkedItems(self):
         index = self.model().index(0,0)
         checked = self.model().match(index, Qt.CheckStateRole, Qt.Checked, -1, Qt.MatchExactly)
-        return [index.data().toString() for index in checked]
+        return [index.data() for index in checked]
 
     def setCheckedItems(self, textItemList):
         for text in textItemList:

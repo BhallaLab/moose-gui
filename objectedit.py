@@ -140,7 +140,7 @@ class ObjectEditModel(QtCore.QAbstractTableModel):
                 return True
 
         else:
-            value = str(value.toString()).strip() # convert Qt datastructure to Python string
+            value = str(value).strip() # convert Qt datastructure to Python string
             if len(value) == 0:
                 return False
             if field == "Notes":
