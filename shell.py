@@ -31,6 +31,10 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QTextEdit, QTextCursor
 from PyQt4.QtCore import Qt
 
+try:
+    from PyQt4.QtCore import QString
+except Exception as e:
+    QtCore.QString = str
 
 class History:
   """ Backup and restore history between sessions 

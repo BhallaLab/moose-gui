@@ -1,56 +1,9 @@
 # mtree.py --- 
-# 
-# Filename: mtree.py
-# Description: 
-# Author: Subhasis Ray
-# Maintainer: 
-# Created: Tue May 14 11:51:35 2013 (+0530)
-# Version: 
-# Last-Updated: Fri Jun 14 16:13:08 2013 (+0530)
-#           By: subha
-#     Update #: 154
-# URL: 
-# Keywords: 
-# Compatibility: 
-# 
-# 
-
-# Commentary: 
-# 
-# Implementation of moose tree widget. This can be used by multiple
-# components in the moose gui.
-# 
-# 
-
-# Change log:
-# 
-# 
-# 
-# 
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 3, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program; see the file COPYING.  If not, write to
-# the Free Software Foundation, Inc., 51 Franklin Street, Fifth
-# Floor, Boston, MA 02110-1301, USA.
-# 
-# 
-
-# Code:
-
+ 
 import sys
 from PyQt4 import QtGui, QtCore
 from PyQt4.Qt import Qt
 import moose
-
 
 class MooseTreeModel(QtCore.QAbstractItemModel):
     """Tree model for the MOOSE element tree.
@@ -84,7 +37,10 @@ class MooseTreeModel(QtCore.QAbstractItemModel):
         parentItem = childItem.parent()
         if parentItem == self.rootItem:
             return QtCore.QModelIndex()
-        return self.createIndex(parentItem.parent.children.index(parentItem), parentItem.getDataIndex(), parentItem)
+        return self.createIndex(
+                parentItem.parent.children.index(parentItem)
+                , parentItem.getDataIndex(), parentItem
+                )
 
     def rowCount(self, parent):
         if not parent.isValid():
@@ -118,19 +74,19 @@ class MooseTreeModel(QtCore.QAbstractItemModel):
         
     
 class MooseTreeItem(QtGui.QTreeWidgetItem):
+
     def __init__(self, *args):
-	QtGui.QTreeWidgetItem.__init__(self, *args)
-	self.mobj = None
+        QtGui.QTreeWidgetItem.__init__(self, *args)
+        self.mobj = None
 
     def setObject(self, element):
         self.mobj = moose.element(element)
-	self.setText(0, QtCore.QString(self.mobj.path.rpartition('/')[-1]))
-	self.setText(1, QtCore.QString(self.mobj.className))
-	#self.setToolTip(0, QtCore.QString('class:' + self.mooseObj_.className))
+        self.setText(0, QtCore.QString(self.mobj.path.rpartition('/')[-1]))
+        self.setText(1, QtCore.QString(self.mobj.className))
+        #self.setToolTip(0, QtCore.QString('class:' + self.mooseObj_.className))
 
     def updateSlot(self):
-	self.setText(0, QtCore.QString(self.mobj.name))
-
+        self.setText(0, QtCore.QString(self.mobj.name))
 
 class MooseTreeWidget(QtGui.QTreeWidget):
     """Widget for displaying MOOSE model tree.
@@ -159,10 +115,10 @@ class MooseTreeWidget(QtGui.QTreeWidget):
         elementInserted(melement) emitted when a new element is inserted.
 
         """
-	QtGui.QTreeWidget.__init__(self, *args)
+        QtGui.QTreeWidget.__init__(self, *args)
         self.header().hide()
-	self.rootElement = moose.element('/')
-	self.odict = {}
+        self.rootElement = moose.element('/')
+        self.odict = {}
         self.recreateTree()        
 
     def setupTree(self, obj, parent, odict):
@@ -183,19 +139,19 @@ class MooseTreeWidget(QtGui.QTreeWidget):
         for ii in MooseTreeWidget.ignored:
             if obj.path.startswith(ii):
                 return None
-	item = MooseTreeItem(parent)
-	item.setObject(obj)
-	odict[obj] = item
+            item = MooseTreeItem(parent)
+            item.setObject(obj)
+            odict[obj] = item
+
         # TODO: check and verify that this still works with synapses -
         # there have been change in API. - Subha, Fri Sep 19 19:04:35 IST 2014
-
-	for child in obj.children:    
+        for child in obj.children:    
             ch = child
             if child.name in obj.getFieldNames('fieldElementFinfo'):
                 ch = obj.getField(child.name)
             for elm in ch:
                 self.setupTree(moose.element(elm), item, odict)      
-	return item
+        return item
 
     def recreateTree(self, root=None):        
         """Clears the current tree and recreates the tree. If root is not
@@ -268,10 +224,5 @@ def main():
     mainwin.show()
     sys.exit(app.exec_())
 
-
 if __name__ == "__main__":
     main()
-    
-
-# 
-# mtree.py ends here
