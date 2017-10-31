@@ -18,7 +18,7 @@ from moose import wildcardFind,element,PoolBase,CplxEnzBase,Annotator,exists
 from networkx.drawing.nx_agraph import graphviz_layout
 import numpy as np
 import networkx as nx
-from kkitUtil import getRandColor,colorCheck,findCompartment, findGroup, findGroup_compt, mooseIsInstance
+from .kkitUtil import getRandColor,colorCheck,findCompartment, findGroup, findGroup_compt, mooseIsInstance
 from PyQt4.QtGui import QColor
 
 def getxyCord(xcord,ycord,list1):
@@ -68,7 +68,7 @@ def populateMeshEntry(meshEntry,parent,types,obj):
         mlist = meshEntry[element(parent.path)][types]
         mlist.append(element(obj))
 def updateMeshObj(modelRoot):
-    print " updateMeshObj "
+    print(" updateMeshObj ")
     meshEntry = {}
     if meshEntry:
         meshEntry.clear()
@@ -334,7 +334,7 @@ def setupItem(modelPath,cntDict):
                 uniqItem,countuniqItem = countitems(items,'prd')
                 prdNo = uniqItem
                 if (len(subNo) == 0 or len(prdNo) == 0):
-                    print ("Substrate Product is empty ",path, " ",items)
+                    print(("Substrate Product is empty ",path, " ",items))
                     
                 for prd in uniqItem:
                     prdlist.append((element(prd),'p',countuniqItem[prd]))
@@ -412,12 +412,12 @@ def xyPosition(objInfo,xory):
 def autoCoordinates(meshEntry,srcdesConnection):
    
     G = nx.Graph()
-    for cmpt,memb in meshEntry.items():
+    for cmpt,memb in list(meshEntry.items()):
         if memb in ["enzyme"]:
             for enzObj in find_index(memb,'enzyme'):
                 #G.add_node(enzObj.path)
                 G.add_node(enzObj.path,label='',shape='ellipse',color='',style='filled',fontname='Helvetica',fontsize=12,fontcolor='blue')
-    for cmpt,memb in meshEntry.items():
+    for cmpt,memb in list(meshEntry.items()):
         #if memb.has_key
         if memb in ["pool","cplx","reaction"]:
             for poolObj in find_index(memb,'pool'):
@@ -431,18 +431,18 @@ def autoCoordinates(meshEntry,srcdesConnection):
                 #G.add_node(reaObj.path)
                 G.add_node(reaObj.path,label='',shape='circle',color='')
         
-    for inn,out in srcdesConnection.items():
+    for inn,out in list(srcdesConnection.items()):
         if (inn.className =='ZombieReac'): arrowcolor = 'green'
         elif(inn.className =='ZombieEnz'): arrowcolor = 'red'
         else: arrowcolor = 'blue'
         if isinstance(out,tuple):
             if len(out[0])== 0:
-                print (inn.className + ':' +inn.name + "  doesn't have input message")
+                print((inn.className + ':' +inn.name + "  doesn't have input message"))
             else:
                 for items in (items for items in out[0] ):
                     G.add_edge(element(items[0]).path,inn.path)
             if len(out[1]) == 0:
-                print (inn.className + ':' + inn.name + "doesn't have output mssg")
+                print((inn.className + ':' + inn.name + "doesn't have output mssg"))
             else:
                 for items in (items for items in out[1] ):
                     G.add_edge(inn.path,element(items[0]).path)
@@ -454,7 +454,7 @@ def autoCoordinates(meshEntry,srcdesConnection):
                     G.add_edge(element(items[0]).path,inn.path)
     position = graphviz_layout(G)
     xcord, ycord = [],[]
-    for item in position.items():
+    for item in list(position.items()):
         xy = item[1]
         xroundoff = round(xy[0],0)
         yroundoff = round(xy[1],0)
@@ -465,7 +465,7 @@ def autoCoordinates(meshEntry,srcdesConnection):
     xmax = max(xcord)
     ymin = min(ycord)
     ymax = max(ycord)
-    for item in position.items():
+    for item in list(position.items()):
         xy = item[1]
         anno = Annotator(item[0]+'/info')
         Ax = (xy[0]-xmin)/(xmax-xmin)

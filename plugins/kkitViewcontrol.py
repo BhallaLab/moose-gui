@@ -21,12 +21,12 @@ Sep 20: Group related function added
         -@resolveItem,editorMousePressEvent,editorMouseMoveEvent,editorMouseReleaseEvent checks made for group
 '''
 import sys
-from modelBuild import *
-from constants import *
+from .modelBuild import *
+from .constants import *
 from PyQt4.QtGui import QPixmap, QImage, QPen, QGraphicsPixmapItem, QGraphicsLineItem
 from PyQt4.QtCore import pyqtSignal
-from kkitUtil import  *
-from setsolver import *
+from .kkitUtil import  *
+from .setsolver import *
 from PyQt4 import QtSvg
 from moose import utils
 
@@ -309,10 +309,10 @@ class GraphicalView(QtGui.QGraphicsView):
                 if self.modelRoot.find('/',1) > 0:
                     l = self.modelRoot[0:self.modelRoot.find('/',1)]
                 linfo = moose.Annotator(l+'/info')
-                for k,v in self.layoutPt.qGraGrp.items():
+                for k,v in list(self.layoutPt.qGraGrp.items()):
                     rectgrp = calculateChildBoundingRect(v)
                     v.setRect(rectgrp.x()-10,rectgrp.y()-10,(rectgrp.width()+20),(rectgrp.height()+20))
-                for k, v in self.layoutPt.qGraCompt.items():
+                for k, v in list(self.layoutPt.qGraCompt.items()):
                     rectcompt = v.childrenBoundingRect()
                     if linfo.modeltype == "new_kkit":
                         #if newly built model then compartment is size is fixed for some size.
@@ -394,7 +394,7 @@ class GraphicalView(QtGui.QGraphicsView):
                                     self.layoutPt.updateArrow(pressItem.parent())
                                     QtGui.QMessageBox.warning(None,'Could not move the object', "The object can't be moved to empty space")
                         else:
-                            print " Check what moved when! does it reaches this condition"
+                            print(" Check what moved when! does it reaches this condition")
 
                     self.layoutPt.positionChange(item.mobj) 
                     self.updateScale(self.iconScale)
@@ -452,9 +452,9 @@ class GraphicalView(QtGui.QGraphicsView):
                         deleteSolver(self.modelRoot)
                         #As name is suggesting, if item is Compartment, then search in qGraCompt and if group then qGraGrp
                         if isinstance(itemAtView,ComptItem):
-                            lKey = [key for key, value in self.layoutPt.qGraCompt.iteritems() if value == itemAtView][0]
+                            lKey = [key for key, value in list(self.layoutPt.qGraCompt.items()) if value == itemAtView][0]
                         if isinstance (itemAtView, GRPItem):
-                            lKey = [key for key, value in self.layoutPt.qGraGrp.iteritems() if value == itemAtView][0]
+                            lKey = [key for key, value in list(self.layoutPt.qGraGrp.items()) if value == itemAtView][0]
                         iR = 0
                         iP = 0
                         t = moose.element(cloneObj.parent().mobj)
@@ -548,7 +548,7 @@ class GraphicalView(QtGui.QGraphicsView):
         self.resetState()
     
     def deleteGroup(self,item,layoutPt):
-        key = [k for k,v in self.layoutPt.qGraGrp.items() if v == item]
+        key = [k for k,v in list(self.layoutPt.qGraGrp.items()) if v == item]
         if key[0] in self.layoutPt.qGraGrp:
             self.layoutPt.qGraGrp.pop(key[0])
         self.groupItemlist1 = item.childItems()
@@ -585,7 +585,7 @@ class GraphicalView(QtGui.QGraphicsView):
 
     def removeConnector(self):
         try:
-            for l,k in self.connectorlist.items():
+            for l,k in list(self.connectorlist.items()):
                 if k is not None:
                     self.sceneContainerPt.removeItem(k)
                     self.connectorlist[l] = None
@@ -598,7 +598,7 @@ class GraphicalView(QtGui.QGraphicsView):
         self.connectionSource = item
         rectangle = item.boundingRect()
 
-        for l in self.connectorlist.keys():
+        for l in list(self.connectorlist.keys()):
             self.xDisp = 0
             self.yDisp = 0
             self.connectionSign = None
@@ -753,7 +753,7 @@ class GraphicalView(QtGui.QGraphicsView):
         QtGui.QGraphicsView.mouseReleaseEvent(self, event)
         
     def updateItemTransformationMode(self, on):
-        for v in self.sceneContainerPt.items():
+        for v in list(self.sceneContainerPt.items()):
             #v.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations,on)
             if( not isinstance(v,ComptItem)):
                 #if ( isinstance(v, PoolItem) or isinstance(v, ReacItem) or isinstance(v, EnzItem) or isinstance(v, CplxItem) ):
@@ -788,7 +788,7 @@ class GraphicalView(QtGui.QGraphicsView):
             self.fitInView(self.sceneContainerPt.itemsBoundingRect().x()-10,self.sceneContainerPt.itemsBoundingRect().y()-10,self.sceneContainerPt.itemsBoundingRect().width()+20,self.sceneContainerPt.itemsBoundingRect().height()+20,Qt.Qt.IgnoreAspectRatio)
 
     def updateScale( self, scale ):
-        for item in self.sceneContainerPt.items():
+        for item in list(self.sceneContainerPt.items()):
             if isinstance(item,KineticsDisplayItem):
                 item.refresh(scale)
                 xpos = item.pos().x()
@@ -864,7 +864,7 @@ class GraphicalView(QtGui.QGraphicsView):
                 if polygon == qpolygonline and objdes == src and endtype == endt:
                     del(self.layoutPt.object2line[des])
                 else:
-                    print( " check this condition when is len is single and else condition",qpolygonline, objdes,endtype)
+                    print(( " check this condition when is len is single and else condition",qpolygonline, objdes,endtype))
         else:
             n = 0
             for polygon,objdes,endtype,numL in object2lineInfo:
@@ -883,18 +883,18 @@ class GraphicalView(QtGui.QGraphicsView):
             src = self.layoutPt.lineItem_dict[item]
             lineItem_value = self.layoutPt.lineItem_dict[item]
             i = iter(lineItem_value)
-            source  = i.next()
-            destination  = i.next()
-            endt = i.next()
-            numl = i.next()
+            source  = next(i)
+            destination  = next(i)
+            endt = next(i)
+            numl = next(i)
             self.deleteObject2line(item,source,destination,endt)
             self.deleteObject2line(item,destination,source,endt)
             try:
                 del self.layoutPt.lineItem_dict[item]
             except KeyError:
                 pass
-            srcZero = [k for k, v in self.layoutPt.mooseId_GObj.iteritems() if v == src[0]]
-            srcOne = [k for k, v in self.layoutPt.mooseId_GObj.iteritems() if v == src[1]]
+            srcZero = [k for k, v in list(self.layoutPt.mooseId_GObj.items()) if v == src[0]]
+            srcOne = [k for k, v in list(self.layoutPt.mooseId_GObj.items()) if v == src[1]]
         
             if isinstance (moose.element(srcZero[0]),moose.MMenz):
                 gItem =self.layoutPt.mooseId_GObj[moose.element(srcZero[0])]
@@ -1017,7 +1017,7 @@ class GraphicalView(QtGui.QGraphicsView):
                                 # when enz is removed the connection is removed, 
                                 # but when pool tried to remove then qgraphicscene says 
                                 # "item scene is different from this scene"
-                                sceneItems = self.sceneContainerPt.items()
+                                sceneItems = list(self.sceneContainerPt.items())
                                 if l[0] in sceneItems:
                                     #deleting the connection which is connected to Enz
                                     self.sceneContainerPt.removeItem(l[0])
@@ -1031,13 +1031,13 @@ class GraphicalView(QtGui.QGraphicsView):
                             self.deleteItem(self.layoutPt.mooseId_GObj[funcp])
 
                 for l in self.layoutPt.object2line[item]:
-                    sceneItems = self.sceneContainerPt.items()
+                    sceneItems = list(self.sceneContainerPt.items())
                     if l[0] in sceneItems:
                         self.sceneContainerPt.removeItem(l[0])
                 self.sceneContainerPt.removeItem(item)
                 moose.delete(item.mobj)
-                for key, value in self.layoutPt.object2line.items():
-                    self.layoutPt.object2line[key] = filter( lambda tup: tup[1] != item ,value)
+                for key, value in list(self.layoutPt.object2line.items()):
+                    self.layoutPt.object2line[key] = [tup for tup in value if tup[1] != item]
                 self.layoutPt.getMooseObj()
                 setupItem(self.modelRoot,self.layoutPt.srcdesConnection) 
 

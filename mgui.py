@@ -1,85 +1,42 @@
 # mgui.py ---
-#
-# Filename: mgui.py
-# Description:
-# Author: "Subhasis", "HarshaRani","Aviral Goel"
-# Maintainer: HarshaRani
-# Created: Mon Nov 12 09:38:09 2012 (+0530)
-# Version:
-# Last-Updated: Thu Oct 5 14:54:33 2017 (+0530)
-#           By: Harsha
-#     Update #:
-# URL:
-# Keywords:
-# Compatibility:
-#
-#
 
-# Commentary:
-#
-# The gui driver
-#
-#
+__author__ = 'Subhasis Ray , HarshaRani, Aviral Goel, NCBS'
 
-# Change log:
-#
-#
-#
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 3, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; see the file COPYING.  If not, write to
-# the Free Software Foundation, Inc., 51 Franklin Street, Fifth
-# Floor, Boston, MA 02110-1301, USA.
-#
-#
-
-''''
-Oct 5: clean up with round trip of dialog_exe
-
-'''
-# Code:
 import imp
 import inspect
 import code
 import traceback
 import sys
-sys.path.append('../python')
-#sys.path.append('utils')
+
 import os
 from collections import defaultdict
 import posixpath # We use this to create MOOSE paths
 from PyQt4 import QtGui, QtCore, Qt
+
 from . import config
 from . import mplugin
-import moose
 from . import mexception
-from moose import utils
+
 from .mload import loadFile
 from .loaderdialog import LoaderDialog
 from .shell import get_shell_class
 from .objectedit import ObjectEditDockWidget
 from .newmodeldialog import DialogWidget
+
+import moose
+from moose import utils
 import re
+
 from .biomodelsclient import BioModelsClientWidget
 from PyQt4 import Qt, QtCore, QtGui
 from PyQt4.QtGui import *
 from .MdiArea import MdiArea
-import os
 from setsolver import *
 from defines import *
 from collections import OrderedDict
 
-__author__ = 'Subhasis Ray , HarshaRani, Aviral Goel, NCBS'
+import os
+
 
 # This maps model subtypes to corresponding plugin names. Should be
 # moved to a separate property file perhaps

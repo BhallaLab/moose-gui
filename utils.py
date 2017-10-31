@@ -82,9 +82,9 @@ def copyTree(src, dst, progressDialog=None):
     dst = dst.strip()
     errors = []
     if not os.access(src, os.R_OK + os.X_OK):
-        print('Failed to access directory', src)
+        print(('Failed to access directory', src))
         return
-    print('Copying %s to : %s'  % (src, dst))
+    print(('Copying %s to : %s'  % (src, dst)))
     if not os.access(src, os.R_OK + os.X_OK):
         try:
             os.makedirs(dst)
@@ -127,7 +127,7 @@ def copyTree(src, dst, progressDialog=None):
                 if progressDialog.wasCanceled():
                     return errors
             else:
-                print('Copied %d bytes of %d.' % (size, totalsize))
+                print(('Copied %d bytes of %d.' % (size, totalsize)))
     if progressDialog:
         progressDialog.close()
     else:

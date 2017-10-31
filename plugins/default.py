@@ -75,8 +75,8 @@ from PlotWidgetContainer import PlotWidgetContainer
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QDoubleValidator
-from kkitUtil import getColor
-from Runner import Runner
+from .kkitUtil import getColor
+from .Runner import Runner
 # from Runner import Runner
 # from __future__ import print_function
 from PyQt4 import QtGui, QtCore
@@ -94,7 +94,7 @@ from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as Navigatio
 #from EventBlocker import EventBlocker
 # from PlotNavigationToolbar import PlotNavigationToolbar
 from global_constants import preferences
-from setsolver import *
+from .setsolver import *
 ELECTRICAL_MODEL = 0
 CHEMICAL_MODEL   = 1
 
@@ -757,7 +757,7 @@ class SchedulingWidget(QtGui.QWidget):
                 QtGui.QMessageBox.warning(None,"Could not Run the model","Warning: No objects found on path.\n ")
                 return 16
             elif status == 0:
-                print "Successfully built stoichiometry matrix.\n "
+                print("Successfully built stoichiometry matrix.\n ")
                 # moose.reinit()
                 return 0
     # def setElectricalParameters(self):
@@ -806,7 +806,7 @@ class SchedulingWidget(QtGui.QWidget):
         try:
             time = float(str(self.simtimeEdit.text()))
             return time
-        except ValueError, e:
+        except ValueError as e:
             QtGui.QMessageBox.warning(self, 'Invalid value', 'Specified runtime was meaningless.')
         return 0
 
@@ -981,7 +981,7 @@ class PlotWidget(QWidget):
         return menu
 
     def deleteGraph(self):
-        print("Deleting " + self.graph.path)
+        print(("Deleting " + self.graph.path))
         moose.delete(self.graph.path)
 
     def delete(self, event):
@@ -1039,7 +1039,7 @@ class PlotWidget(QWidget):
 
 
     def removePlot(self, table):
-        print("removePlot =>", table)
+        print(("removePlot =>", table))
         moose.delete(table)
         self.plotAllData()
 
@@ -1188,7 +1188,7 @@ class PlotWidget(QWidget):
         return self.canvas.plot(eventtable.vector, y, '|')
 
     def updatePlots(self):
-        for path, lines in self.pathToLine.items():
+        for path, lines in list(self.pathToLine.items()):
             element = moose.element(path)
             if isinstance(element, moose.Table2):
                 tab = moose.Table2(path)
@@ -1201,7 +1201,7 @@ class PlotWidget(QWidget):
         self.canvas.draw()
 
     def extendXAxes(self, xlim):
-        for axes in self.canvas.axes.values():
+        for axes in list(self.canvas.axes.values()):
             # axes.autoscale(False, axis='x', tight=True)
             axes.set_xlim(right=xlim)
             axes.autoscale_view(tight=True, scalex=True, scaley=True)
@@ -1212,7 +1212,7 @@ class PlotWidget(QWidget):
 
         ideally we should set xlim from simtime.
         """
-        for axes in self.canvas.axes.values():
+        for axes in list(self.canvas.axes.values()):
             axes.autoscale(True, tight=True)
             axes.relim()
             axes.autoscale_view(tight=True,scalex=True,scaley=True)
@@ -1233,7 +1233,7 @@ class PlotWidget(QWidget):
         name = moose.element(nameVec[0]).name
         filename = str(directory)+'/'+'%s.csv' %(name)
         np.savetxt(filename, np.vstack((x, y)).transpose())
-        print 'Saved data from %s and %s in %s' % (xSrc.path, ySrc.path, filename)
+        print(('Saved data from %s and %s in %s' % (xSrc.path, ySrc.path, filename)))
 
     def saveAllCsv(self):
         """Save data for all currently plotted lines"""
@@ -1250,7 +1250,7 @@ class PlotWidget(QWidget):
         layout.addWidget(targetPanel)
         if fileDialog2.exec_():
             directory = fileDialog2.directory().path()
-            for line in self.lineToDataSource.keys():
+            for line in list(self.lineToDataSource.keys()):
 		        self.saveCsv(line,directory)
 
 
@@ -1478,7 +1478,7 @@ class PlotSelectionWidget(QtGui.QScrollArea):
         for ii, entry in enumerate(elementlist):
             el = moose.element(entry)
             plottableFields = []
-            for field, dtype in  moose.getFieldDict(el.className, 'valueFinfo').items():
+            for field, dtype in  list(moose.getFieldDict(el.className, 'valueFinfo').items()):
                 if dtype == 'double':
                     plottableFields.append(field)
             if len(plottableFields) == 0:
@@ -1503,7 +1503,7 @@ class PlotSelectionWidget(QtGui.QScrollArea):
     def getSelectedFields(self):
         """Returns a list containing (element, field) for all selected fields"""
         ret = []
-        for el, widgets in self._elementWidgetsDict.items():
+        for el, widgets in list(self._elementWidgetsDict.items()):
             combo = widgets[1]
             for ii in range(combo.count()):
                 field = str(combo.itemText(ii)).strip()

@@ -143,7 +143,7 @@ def isNeuroML(filename):
     """
     doc = md.parse(filename)
     for child in doc.childNodes:
-        print(child.nodeName, child.nodeType == child.ELEMENT_NODE)
+        print((child.nodeName, child.nodeType == child.ELEMENT_NODE))
         if child.nodeType == child.ELEMENT_NODE and \
                 (child.nodeName == 'networkml' or \
                      child.nodeName == 'morphml' or \

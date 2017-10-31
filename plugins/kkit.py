@@ -13,16 +13,16 @@ __updated__     =   "Oct 18 2017"
 import math
 import sys
 from PyQt4 import QtGui, QtCore, Qt
-from default import *
+from .default import *
 from moose import *
 from moose import SBML
 from moose.genesis.writeKkit import mooseWriteKkit
 from mplugin import *
-from kkitUtil import *
-from kkitQGraphics import *
-from kkitViewcontrol import *
-from kkitCalcArrow import *
-from kkitOrdinateUtil import *
+from .kkitUtil import *
+from .kkitQGraphics import *
+from .kkitViewcontrol import *
+from .kkitCalcArrow import *
+from .kkitOrdinateUtil import *
 import posixpath
 from mtoolbutton import MToolButton
 from PyQt4.QtGui import QWidget
@@ -30,7 +30,7 @@ from PyQt4.QtGui import QGridLayout
 from PyQt4.QtGui import QColor
 import RunWidget
 from os.path import expanduser
-from setsolver import *
+from .setsolver import *
 
 
 class KkitPlugin(MoosePlugin):
@@ -81,7 +81,7 @@ class KkitPlugin(MoosePlugin):
                 self.plugin = KkitEditorView(self).getCentralWidget().plugin
                 self.defaultScenewidth = KkitEditorView(self).getCentralWidget().defaultScenewidth
                 self.defaultSceneheight = KkitEditorView(self).getCentralWidget().defaultSceneheight
-                for k,v in self.sceneObj.items():
+                for k,v in list(self.sceneObj.items()):
                     if moose.exists(moose.element(k).path+'/info'):
                         annoInfo = Annotator(k.path+'/info')
                         if moose.element(self.plugin.modelRoot+'/info').modeltype == 'kkit':
@@ -107,7 +107,7 @@ class KkitPlugin(MoosePlugin):
                 mdtype = moose.Annotator(self.modelRoot+'/info')
                 self.coOrdinates = {}
                 ss = KkitEditorView(self).getCentralWidget().mooseId_GObj
-                for k,v in ss.items():
+                for k,v in list(ss.items()):
                     if moose.exists(moose.element(k).path+'/info'):
                         annoInfo = Annotator(k.path+'/info')
                         #co-ordinates will be in decimals converting to int which should be b/w 0 to 10
@@ -472,7 +472,7 @@ class  KineticsWidget(EditorWidgetBase):
         #In this case if the name is updated from the keyboard both in mooseobj and gui gets updation
         changedItem = ''
 
-        for item in self.sceneContainer.items():
+        for item in list(self.sceneContainer.items()):
             if isinstance(item,PoolItem):
                 if mooseObject.getId() == element(item.mobj).getId():
                     item.updateSlot()
@@ -590,7 +590,7 @@ class  KineticsWidget(EditorWidgetBase):
             self.mooseId_GObj.clear()
         else:
             self.mooseId_GObj = {}
-        for k,v in self.objPar.items():
+        for k,v in list(self.objPar.items()):
             if isinstance(moose.element(k),moose.ChemCompt):
                 self.createCompt(k)
                 self.qGraCompt[k]
@@ -602,7 +602,7 @@ class  KineticsWidget(EditorWidgetBase):
                     elif isinstance(moose.element(v), moose.Neutral):
                         group_parent = self.qGraGrp[v]
                     self.createGroup(k,group_parent)
-        for cmpt_grp,memb in self.meshEntry.items():
+        for cmpt_grp,memb in list(self.meshEntry.items()):
             if len(memb):
                 if isinstance(moose.element(cmpt_grp),moose.ChemCompt):
                     qtGrpparent = self.qGraCompt[cmpt_grp]
@@ -658,7 +658,7 @@ class  KineticsWidget(EditorWidgetBase):
         self.new_GRP.setRect(20,20,20,20)
 
     def groupChildrenBoundingRect(self):
-        for k, v in self.qGraGrp.items():
+        for k, v in list(self.qGraGrp.items()):
             grpcolor = moose.Annotator(moose.element(k.path+'/info')).color
             #Todo: One may need to calculate explicitly the boundary for Group also if there is a cross-group connection, then
             # childrenBoundrect() will take the QPolygonItem position
@@ -667,7 +667,7 @@ class  KineticsWidget(EditorWidgetBase):
             v.setPen(QtGui.QPen(Qt.QColor(grpcolor), self.comptPen, Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
     
     def comptChildrenBoundingRect(self):
-        for k, v in self.qGraCompt.items():
+        for k, v in list(self.qGraCompt.items()):
             # compartment's rectangle size is calculated depending on children
             rectcompt = calculateChildBoundingRect(v)
             v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
@@ -738,7 +738,7 @@ class  KineticsWidget(EditorWidgetBase):
         return(x,y)
         
     def drawLine_arrow(self, itemignoreZooming=False):
-        for inn,out in self.srcdesConnection.items():
+        for inn,out in list(self.srcdesConnection.items()):
             #print "inn ",inn, " out ",out
             # self.srcdesConnection is dictionary which contains key,value \
             #    key is Enzyme or Reaction  and value [[list of substrate],[list of product]] (tuple)
@@ -748,13 +748,13 @@ class  KineticsWidget(EditorWidgetBase):
             if isinstance(out,tuple):
                 src = self.mooseId_GObj[inn]
                 if len(out[0])== 0:
-                    print (inn.className + ' : ' +inn.name+ " doesn't output message")
+                    print((inn.className + ' : ' +inn.name+ " doesn't output message"))
                 else:
                     for items in (items for items in out[0] ):
                         des = self.mooseId_GObj[element(items[0])]
                         self.lineCord(src,des,items,itemignoreZooming)
                 if len(out[1]) == 0:
-                    print (inn.className + ' : ' +inn.name+ " doesn't output message")
+                    print((inn.className + ' : ' +inn.name+ " doesn't output message"))
                 else:
                     for items in (items for items in out[1] ):
                         des = self.mooseId_GObj[element(items[0])]
@@ -762,9 +762,9 @@ class  KineticsWidget(EditorWidgetBase):
             elif isinstance(out,list):
                 if len(out) == 0:
                     if inn.className == "StimulusTable":
-                        print (inn.name +" doesn't have output")
+                        print((inn.name +" doesn't have output"))
                     elif inn.className == "ZombieFunction" or inn.className == "Function":
-                        print (inn.name + " doesn't have sumtotal ")
+                        print((inn.name + " doesn't have sumtotal "))
                 else:
                     src = self.mooseId_GObj[inn]
                     for items in (items for items in out ):
@@ -795,7 +795,7 @@ class  KineticsWidget(EditorWidgetBase):
         des = srcdes_list[1]
         endtype = srcdes_list[2]
         line = srcdes_list[3]
-        source = element(next((k for k,v in self.mooseId_GObj.items() if v == src), None))
+        source = element(next((k for k,v in list(self.mooseId_GObj.items()) if v == src), None))
         for l,v,et,o in self.object2line[src]:
             if v == des and o ==line:
                 l.setPolygon(arrow)
@@ -814,7 +814,7 @@ class  KineticsWidget(EditorWidgetBase):
             if ( (endtype == 's') or (endtype == 'p')):
                 pen.setColor(QtCore.Qt.red)
             elif(endtype != 'cplx'):
-                p1 = (next((k for k,v in self.mooseId_GObj.items() if v == src), None))
+                p1 = (next((k for k,v in list(self.mooseId_GObj.items()) if v == src), None))
                 pinfo = p1.parent.path+'/info'
                 color,bgcolor = getColor(pinfo)
                 #color = QColor(color[0],color[1],color[2])
@@ -832,7 +832,7 @@ class  KineticsWidget(EditorWidgetBase):
     def positionChange(self,mooseObject):
         #If the item position changes, the corresponding arrow's are calculated
         if isinstance(element(mooseObject),ChemCompt):
-            for k, v in self.qGraCompt.items():
+            for k, v in list(self.qGraCompt.items()):
                 mesh = moose.element(mooseObject).path
                 if k.path == mesh:
                     for rectChilditem in v.childItems():
@@ -848,7 +848,7 @@ class  KineticsWidget(EditorWidgetBase):
                                             self.updateArrow(j)
                             self.updateArrow(rectChilditem)
         elif element(mooseObject).className == 'Neutral':
-            for k,v in self.qGraGrp.items():
+            for k,v in list(self.qGraGrp.items()):
                 if k.path == element(mooseObject).path:
                     for grpChilditem in v.childItems():
                         if isinstance(grpChilditem, KineticsDisplayItem):
@@ -905,7 +905,7 @@ class  KineticsWidget(EditorWidgetBase):
             #         self.updateCompartmentSize(v)
             #     else:
             #         gv.setRect(rectgrp.x()-10,rectgrp.y()-10,(rectgrp.width()+20),(rectgrp.height()+20))
-            for k, v in self.qGraCompt.items():
+            for k, v in list(self.qGraCompt.items()):
                 #rectcompt = v.childrenBoundingRect()
                 rectcompt = calculateChildBoundingRect(v)
                 comptBoundingRect = v.boundingRect()
@@ -1068,12 +1068,12 @@ class kineticRunWidget(KineticsWidget):
         return self._toolBars
 
     def updateValue(self):
-        for item in self.sceneContainer.items():
+        for item in list(self.sceneContainer.items()):
             if isinstance(item,ReacItem) or isinstance(item,MMEnzItem) or isinstance(item,EnzItem) or isinstance(item,PoolItemCircle) or isinstance(item,CplxItem):
                 item.updateValue(item.mobj)
 
     def changeBgSize(self):
-        for item in self.sceneContainer.items():
+        for item in list(self.sceneContainer.items()):
             if isinstance(item,PoolItemCircle):
                 initialConc = moose.element(item.mobj).concInit
                 presentConc = moose.element(item.mobj).conc
@@ -1091,7 +1091,7 @@ class kineticRunWidget(KineticsWidget):
                 item.updateRect(math.sqrt(abs(ratio)))
 
     def resetColor(self):
-        for item in self.sceneContainer.items():
+        for item in list(self.sceneContainer.items()):
             if isinstance(item,PoolItemCircle):
                 item.returnEllispeSize()
 if __name__ == "__main__":
@@ -1107,7 +1107,7 @@ if __name__ == "__main__":
     try:
         filepath = '../../Demos/Genesis_files/'+modelPath+'.g'
         filepath = '/home/harsha/genesis_files/gfile/'+modelPath+'.g'
-        print( "%s" %(filepath))
+        print(( "%s" %(filepath)))
         f = open(filepath, "r")
         loadModel(filepath,'/'+modelPath)
 
@@ -1121,8 +1121,8 @@ if __name__ == "__main__":
         dt.updateModelView()
         dt.show()
 
-    except  IOError, what:
+    except  IOError as what:
       (errno, strerror) = what
-      print ("Error number",errno,"(%s)" %(strerror))
+      print(("Error number",errno,"(%s)" %(strerror)))
       sys.exit(0)
     sys.exit(app.exec_())

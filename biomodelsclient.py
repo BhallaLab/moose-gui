@@ -1,52 +1,8 @@
 # biomodelsclient.py --- 
-# 
-# Filename: biomodelsclient.py
-# Description: 
-# Author: Subhasis Ray
-# Maintainer: 
-# Created: Tue Mar  2 07:57:39 2010 (+0530)
-# Version: 
-# Last-Updated: Wed Dec  11 15:47:32 2010 (+0530)
-#           By: 
-#     Update #: 
-# URL: 
-# Keywords: 
-# Compatibility: 
-# 
-# 
-
-# Commentary: 
-# 
-# This is a client for Biomodels database SOAP service.
-# It imitates the SOAP client written in JAVA
-# availabele at biomodels website.
-
-# Change log:
-# 
-# 
-# 
-# 
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 3, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program; see the file COPYING.  If not, write to
-# the Free Software Foundation, Inc., 51 Franklin Street, Fifth
-# Floor, Boston, MA 02110-1301, USA.
-# 
-# 
-
-# Code:
 
 from .suds.client import Client
 from .suds.transport.http import HttpTransport as SudsHttpTransport
+
 import os
 from . import config
 import pickle
@@ -67,20 +23,20 @@ for k,v in list({'http':'http_proxy','https':'https_proxy'}.items()):
 class HttpTransport(SudsHttpTransport):
     """HttpTransport which properly obeys the ``*_proxy`` environment variables."""
     def u2handlers(self):
-	return []
+    return []
 '''
 class BioModelsClient(Client):
     def __init__(self, WSDL_URI=BIOMODELS_WSDL_URI):
-	"""Initialize the client with the available queries listed in
-	the WSDL file. All the queries can be executed using the following syntax:
-	
-	client.service.queryToBeExecuted()
-	"""
-	try:
-	    Client.__init__(self, WSDL_URI,proxy=proxyOpts)
-	    #Client.__init__(self, WSDL_URI,transport=HttpTransport())
-	except Exception as e:
-	    print(e)
+        """Initialize the client with the available queries listed in
+    the WSDL file. All the queries can be executed using the following syntax:
+    
+    client.service.queryToBeExecuted()
+    """
+    try:
+        Client.__init__(self, WSDL_URI,proxy=proxyOpts)
+        #Client.__init__(self, WSDL_URI,transport=HttpTransport())
+    except Exception as e:
+        print(e)
 
 from PyQt4.Qt import Qt
 from PyQt4 import QtCore, QtGui
@@ -102,9 +58,9 @@ class BioModelsClientWidget(QtGui.QDialog):
                             ('Model Ids by Publication', 'getModelsIdByPublication'),
                             ('Model Ids by Taxonomy', 'getModelsIdByTaxonomy'),]
     def __init__(self, parent=None):
-	QtGui.QWidget.__init__(self, parent)
+        QtGui.QWidget.__init__(self, parent)
         self.setWindowTitle('Connect to BioModels')
-	self.client = BioModelsClient()
+        self.client = BioModelsClient()
         self.queryPanel = QtGui.QWidget(self)
         self.queryModelLabel = QtGui.QLabel('Get ', self.queryPanel)
         self.queryModelCombo = QtGui.QComboBox(self.queryPanel)
@@ -139,8 +95,8 @@ class BioModelsClientWidget(QtGui.QDialog):
         self.setupActions()
         self.client.set_options(proxy=proxyOpts)
         
-	# TODO:
-	# proxy = [ can be set using set_option(proxy={'http':'proxyhost:port', ...}) function
+    # TODO:
+    # proxy = [ can be set using set_option(proxy={'http':'proxyhost:port', ...}) function
 
     def setupActions(self):
         self.connect(self.queryLineEdit, QtCore.SIGNAL('returnPressed()'), self.runQuery)
@@ -254,7 +210,7 @@ class BioModelsClientWidget(QtGui.QDialog):
                     pickleResult[argument] = name;
 
                 except KeyError as e:
-                    print('A KeyError - "%s"' % str(e) ,' not found in ',filename)
+                    print(('A KeyError - "%s"' % str(e) ,' not found in ',filename))
                     QtGui.QMessageBox.critical(None, "BioModels Database"," The Id "+ str(e) +" not found in "+ filename,QtGui.QMessageBox.Ok | QtGui.QMessageBox.Default,QtGui.QMessageBox.NoButton)
                     display = False
             if display:

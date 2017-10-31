@@ -1,55 +1,12 @@
 # mload.py ---
-#
-# Filename: mload.py
-# Description:
-# Author: Subhasis
-# Maintainer:HarshaRani
-# Created: Fri Feb  8 09:38:40 2013 (+0530)
-# Version:
-# Last-Updated: Wed Oct 5 15:16:35 2017 (+0530)
-#           By: HarshaRani
-#     Update #: 213
-# URL:
-# Keywords:
-# Compatibility:
-#
-#
 
-# Commentary:
-#
-# Utility to load models and detect filetype.
-#
-#
-
-# Change log:
-#
-#
-#
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 3, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; see the file COPYING.  If not, write to
-# the Free Software Foundation, Inc., 51 Franklin Street, Fifth
-# Floor, Boston, MA 02110-1301, USA.
-#
-#
-
-# Code:
 '''
 Oct 5 : check is made for kkit model
         -- Atleast one compartment should exists
         -- Atleast 2 pool should exists
 Oct 4 : clean up for python3
 '''
+
 import moose
 from moose import neuroml
 from . import mtypes

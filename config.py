@@ -1,52 +1,4 @@
 # config.py ---
-#
-# Filename: config.py
-# Description:
-# Author: Subhasis Ray
-# Maintainer:
-# Created: Sat Feb 13 16:07:56 2010 (+0530)
-# Version:
-# Last-Updated: Wed Nov 12 19:10:08 2014 (+0530)
-#           By: Subhasis Ray
-#     Update #: 369
-# URL:
-# Keywords:
-# Compatibility:
-#
-#
-
-# Commentary:
-#
-# Provides keys for accessing per-user settings.
-# Provides initialization of several per-user variables for MooseGUI.
-# As part of initialization, creates `~/.moose` and `~/moose`
-# directories.
-#
-#
-
-# Change log:
-#
-# 2012-09-22 13:49:36 (+0530) Subha: cleaned up the initialization
-#
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 3, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; see the file COPYING.  If not, write to
-# the Free Software Foundation, Inc., 51 Franklin Street, Fifth
-# Floor, Boston, MA 02110-1301, USA.
-#
-#
-
-# Code:
 
 import os
 import sys
@@ -145,7 +97,7 @@ class MooseSetting(dict):
             cls._instance.qsettings.setValue(KEY_DOCS_DIR, MOOSE_DOCS_DIR)
             cls._instance.qsettings.setValue(KEY_MOOSE_LOCAL_DIR, MOOSE_LOCAL_DIR)
             cls._instance.qsettings.setValue(KEY_LOCAL_BUILD, LOCAL_BUILD)
-            os.environ['NUMPTHREADS'] = str(cls._instance.qsettings.value(KEY_NUMPTHREADS).toString())
+            os.environ['NUMPTHREADS'] = str(cls._instance.qsettings.value(KEY_NUMPTHREADS))
         return cls._instance
 
     def __init__(self, *args, **kwargs):
@@ -161,16 +113,16 @@ class MooseSetting(dict):
             raise TypeError('Expect only strings as keys')
 
     def __getitem__(self, key):
-        return str(self.qsettings.value(key).toString())
+        return str(self.qsettings.value(key))
 
     def keys(self):
         return [str(key) for key in self.qsettings.allKeys()]
 
     def values(self):
-        return [str(self.qsettings.value(key).toString()) for key in self.qsettings.allKeys()]
+        return [str(self.qsettings.value(key)) for key in self.qsettings.allKeys()]
 
     def itervalues(self):
-        return (str(self.qsettings.value(key).toString()) for key in self.qsettings.allKeys())
+        return (str(self.qsettings.value(key)) for key in self.qsettings.allKeys())
 
 def init_dirs():
     """Check if there is a `.moose` directory in user's home

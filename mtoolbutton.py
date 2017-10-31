@@ -84,7 +84,7 @@ class MyWidget(QtGui.QTextBrowser):
         
 
     def dragEnterEvent(self, event):
-        print('2222', event.mimeData().text())
+        print(('2222', event.mimeData().text()))
         if event.mimeData().hasFormat('text/plain'):
             event.acceptProposedAction()
             print('3333 accepted ')
@@ -96,7 +96,7 @@ class MyWidget(QtGui.QTextBrowser):
         event.acceptProposedAction()
 
     def dropEvent(self, event):
-        print('5555', event.mimeData().text())
+        print(('5555', event.mimeData().text()))
         self.dropCount += 1
         self.setPlainText('`%s` dropped: %d times' % (event.mimeData().text(), self.dropCount))
         event.acceptProposedAction()
@@ -113,7 +113,7 @@ def test_main():
     button.setText('test')
     toolbar.addWidget(button)
     browser = MyWidget(mainwin)
-    print(browser.acceptDrops())
+    print((browser.acceptDrops()))
     mainwin.setCentralWidget(browser)
     mainwin.show()
     sys.exit(app.exec_())

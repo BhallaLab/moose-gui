@@ -1,5 +1,5 @@
 __author__      =   "HarshaRani"
-__credits__     =   ["Upi Lab"]
+__credits__     =   ["NCBS Bangalore"]
 __license__     =   "GPL3"
 __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
@@ -10,8 +10,9 @@ __updated__     =   "Oct 18 2017"
 '''
 Oct 18  some of the function moved to this file from kkitOrdinateUtils
 '''
+
 from moose import Annotator,element
-from kkitQGraphics import PoolItem, ReacItem,EnzItem,CplxItem,GRPItem,ComptItem
+from .kkitQGraphics import PoolItem, ReacItem,EnzItem,CplxItem,GRPItem,ComptItem
 from PyQt4 import QtCore,QtGui,QtSvg
 from PyQt4.QtGui import QColor
 import numpy as np
@@ -27,11 +28,11 @@ colormap_file.close()
 
 ignoreColor= ["mistyrose","antiquewhite","aliceblue","azure","bisque","black","blanchedalmond","blue","cornsilk","darkolivegreen","darkslategray","dimgray","floralwhite","gainsboro","ghostwhite","honeydew","ivory","lavender","lavenderblush","lemonchiffon","lightcyan","lightgoldenrodyellow","lightgray","lightyellow","linen","mediumblue","mintcream","navy","oldlace","papayawhip","saddlebrown","seashell","snow","wheat","white","whitesmoke","aquamarine","lightsalmon","moccasin","limegreen","snow","sienna","beige","dimgrey","lightsage"]
 matplotcolor = {}
-for name,hexno in matplotlib.colors.cnames.iteritems():
+for name,hexno in list(matplotlib.colors.cnames.items()):
     matplotcolor[name]=hexno
 
 def getRandColor():
-    k = random.choice(matplotcolor.keys())
+    k = random.choice(list(matplotcolor.keys()))
     if k in ignoreColor:
         return getRandColor()
     else:
@@ -91,15 +92,15 @@ def colorCheck(fc_bgcolor,fcbg):
     return(fc_bgcolor)
 
 def validColorcheck(color):
-	''' 
+    ''' 
         Both in Qt4.7 and 4.8 if not a valid color it makes it as back but in 4.7 there will be a warning mssg which is taken here
         checking if textcolor or backgroundcolor is valid color, if 'No' making white color as default
         where I have not taken care for checking what will be backgroundcolor for textcolor or textcolor for backgroundcolor 
     '''
-        if QColor(color).isValid():
-            return (QColor(color))
-        else:
-            return(QColor("white"))
+    if QColor(color).isValid():
+        return (QColor(color))
+    else:
+        return(QColor("white"))
 
 
 def moveMin(reference, collider, layoutPt,margin):
@@ -131,11 +132,9 @@ def handleCollisions(compartments, moveCallback, layoutPt,margin = 5.0):
     if len(compartments) is 0 : return
     compartments = sorted(compartments, key = lambda c: c.sceneBoundingRect().center().x())
     reference = compartments.pop(0);
-    print (reference.name)
+    print((reference.name))
     referenceRect = reference.sceneBoundingRect()
-    colliders = filter( lambda compartment : referenceRect.intersects(compartment.sceneBoundingRect())
-                      , compartments
-                      )
+    colliders = [compartment for compartment in compartments if referenceRect.intersects(compartment.sceneBoundingRect())]
     for collider in colliders:
         moveCallback(reference, collider, layoutPt,margin)
     return handleCollisions(compartments, moveCallback, layoutPt,margin)
