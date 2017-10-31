@@ -17,7 +17,7 @@ import mplugin
 import moose
 import pprint
 # import NeuroKitEditorWidget
-from . import default
+import default
 
 from PyQt4 import QtGui
 from PyQt4 import QtCore
@@ -32,14 +32,14 @@ from PyQt4.QtGui import QTableWidgetItem
 from PyQt4.QtGui import QCheckBox
 from PyQt4.QtGui import QComboBox
 
-from .default import *
+from default import *
 from mplugin import *
 import moose
 import neuroextractor
 import moogli
 import numpy as np
 from global_constants import preferences
-from .NeuroKitVisualizer import MorphologyEditor
+from NeuroKitVisualizer import MorphologyEditor
 
 class NeuroKitEditor(mplugin.EditorBase):
 

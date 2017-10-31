@@ -65,7 +65,7 @@ def get_shell_class():
 
     # Test QScintilla
     try:
-        from .scishell import SciShell
+        from scishell import SciShell
         return SciShell
     
     except ImportError:

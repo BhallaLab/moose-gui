@@ -8,11 +8,11 @@ __status__      =   "Development"
 __updated__     =   "Jul 27 2017"
 
 import moose
-from .kkitQGraphics import * 
-from .kkitOrdinateUtil import *
-from .kkitUtil import *
+from kkitQGraphics import * 
+from kkitOrdinateUtil import *
+from kkitUtil import *
 import PyQt4
-from .setsolver import *
+from setsolver import *
 
 def updateCompartmentSize(qGraCompt):
     #childBoundingRect = qGraCompt.childrenBoundingRect()

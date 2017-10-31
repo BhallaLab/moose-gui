@@ -12,7 +12,7 @@ from PyQt4.QtGui import QPainter
 from PyQt4.QtGui import QFont
 from PyQt4.QtCore import QPoint
 import moose
-from . import default
+import default
 import moogli
 
 class MorphologyEditor(moogli.MorphologyViewer):

@@ -37,7 +37,7 @@ from suds.transport import TransportError, Request
 from suds.transport.https import HttpAuthenticated
 from suds.umx.basic import Basic as UmxBasic
 from suds.wsdl import Definitions
-from . import sudsobject
+import suds.sudsobject
 
 from http.cookiejar import CookieJar
 from copy import deepcopy

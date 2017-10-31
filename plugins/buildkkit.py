@@ -9,15 +9,15 @@ import networkx as nx
 import numpy as np
 import config
 import pickle 
-from .default import *
+from default import *
 from moose import *
 sys.path.append('plugins')
 from mplugin import *
-from .kkitUtil import *
-from .kkitQGraphics import PoolItem, ReacItem,EnzItem,CplxItem,ComptItem
-from .kkitViewcontrol import *
-from .kkitCalcArrow import *
-from .kkitOrdinateUtil import *
+from kkitUtil import *
+from kkitQGraphics import PoolItem, ReacItem,EnzItem,CplxItem,ComptItem
+from kkitViewcontrol import *
+from kkitCalcArrow import *
+from kkitOrdinateUtil import *
 import posixpath
 from mtoolbutton import MToolButton
 

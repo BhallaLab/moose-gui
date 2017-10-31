@@ -16,9 +16,9 @@ import traceback
 
 sys.path.append('../python')
 import moose
-from . import defaults
-from . import config
-from .plugins.kkitUtil import getColor
+import defaults
+import config
+from plugins.kkitUtil import getColor
 #these fields will be ignored
 extra_fields = ['this',
                 'me',

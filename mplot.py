@@ -209,7 +209,7 @@ class CanvasWidget(FigureCanvas):
 
 import sys
 import os
-from . import config
+import config
 import unittest
 
 from PyQt4.QtTest import QTest

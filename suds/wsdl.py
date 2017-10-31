@@ -31,7 +31,7 @@ from suds.sudsobject import Object, Facade, Metadata
 from suds.reader import DocumentReader
 
 import re
-from . import soaparray
+import suds.soaparray
 from urllib.parse import urljoin
 
 from logging import getLogger

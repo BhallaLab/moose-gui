@@ -75,8 +75,8 @@ from PlotWidgetContainer import PlotWidgetContainer
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QDoubleValidator
-from .kkitUtil import getColor
-from .Runner import Runner
+from kkitUtil import getColor
+from Runner import Runner
 # from Runner import Runner
 # from __future__ import print_function
 from PyQt4 import QtGui, QtCore
@@ -94,7 +94,7 @@ from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as Navigatio
 #from EventBlocker import EventBlocker
 # from PlotNavigationToolbar import PlotNavigationToolbar
 from global_constants import preferences
-from .setsolver import *
+from setsolver import *
 ELECTRICAL_MODEL = 0
 CHEMICAL_MODEL   = 1
 

@@ -12,7 +12,7 @@ Oct 18  some of the function moved to this file from kkitOrdinateUtils
 '''
 
 from moose import Annotator,element
-from .kkitQGraphics import PoolItem, ReacItem,EnzItem,CplxItem,GRPItem,ComptItem
+from kkitQGraphics import PoolItem, ReacItem,EnzItem,CplxItem,GRPItem,ComptItem
 from PyQt4 import QtCore,QtGui,QtSvg
 from PyQt4.QtGui import QColor
 import numpy as np

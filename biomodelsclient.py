@@ -1,10 +1,10 @@
 # biomodelsclient.py --- 
 
-from .suds.client import Client
-from .suds.transport.http import HttpTransport as SudsHttpTransport
+from suds.client import Client
+from suds.transport.http import HttpTransport as SudsHttpTransport
 
 import os
-from . import config
+import config
 import pickle
 import moose
 

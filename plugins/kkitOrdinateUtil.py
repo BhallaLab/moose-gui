@@ -18,7 +18,7 @@ from moose import wildcardFind,element,PoolBase,CplxEnzBase,Annotator,exists
 from networkx.drawing.nx_agraph import graphviz_layout
 import numpy as np
 import networkx as nx
-from .kkitUtil import getRandColor,colorCheck,findCompartment, findGroup, findGroup_compt, mooseIsInstance
+from kkitUtil import getRandColor,colorCheck,findCompartment, findGroup, findGroup_compt, mooseIsInstance
 from PyQt4.QtGui import QColor
 
 def getxyCord(xcord,ycord,list1):

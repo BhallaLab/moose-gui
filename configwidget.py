@@ -48,10 +48,10 @@
 
 import shutil
 import os
-from . import config
+import config
 from PyQt4 import QtGui, QtCore
-from . import config
-from .utils import *
+import config
+from utils import *
         
 class ConfigWidget(QtGui.QDialog):
     """Widget to configure MOOSE."""

@@ -1,7 +1,7 @@
 import os
 from PyQt4 import QtGui, QtCore,Qt
-from . import config
-from .mplugin import MoosePluginBase, EditorBase, EditorWidgetBase, PlotBase, RunBase
+import config
+from mplugin import MoosePluginBase, EditorBase, EditorWidgetBase, PlotBase, RunBase
 import re
 
 class DialogWidget(QtGui.QDialog):

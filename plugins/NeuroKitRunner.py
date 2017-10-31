@@ -9,7 +9,7 @@ from mplugin import RunBase
 from mplot import CanvasWidget
 import RunWidget
 from PlotWidgetContainer import PlotWidgetContainer
-from .NeuroKitVisualizer import MorphologySimulator
+from NeuroKitVisualizer import MorphologySimulator
 from PyQt4 import QtGui, Qt
 from PyQt4.QtGui import QLabel
 from PyQt4.QtGui import QWidget
@@ -19,7 +19,7 @@ from PyQt4.QtGui import QGridLayout
 from PyQt4.QtGui import QTextEdit
 import pprint
 # from PyQt4.QtGui import QToolBa
-from .default import *
+from default import *
 import moose
 import neuroextractor
 import moogli

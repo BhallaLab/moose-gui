@@ -17,7 +17,7 @@ __status__      =   "Development"
 
 import sys
 import os
-from . import SettingsDialog
+import SettingsDialog
 from PyQt4 import QtGui, Qt
 from PyQt4.QtGui import QWidget
 from PyQt4.QtGui import QScrollArea

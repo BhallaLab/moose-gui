@@ -31,7 +31,7 @@ from PyQt4.QtGui import QSplitter
 
 import moose
 import default
-from . import sidebar
+import sidebar
 # from default import PlotWidget
 
 ELECTRICAL = 0

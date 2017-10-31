@@ -13,16 +13,16 @@ __updated__     =   "Oct 18 2017"
 import math
 import sys
 from PyQt4 import QtGui, QtCore, Qt
-from .default import *
+from default import *
 from moose import *
 from moose import SBML
 from moose.genesis.writeKkit import mooseWriteKkit
 from mplugin import *
-from .kkitUtil import *
-from .kkitQGraphics import *
-from .kkitViewcontrol import *
-from .kkitCalcArrow import *
-from .kkitOrdinateUtil import *
+from kkitUtil import *
+from kkitQGraphics import *
+from kkitViewcontrol import *
+from kkitCalcArrow import *
+from kkitOrdinateUtil import *
 import posixpath
 from mtoolbutton import MToolButton
 from PyQt4.QtGui import QWidget
@@ -30,7 +30,7 @@ from PyQt4.QtGui import QGridLayout
 from PyQt4.QtGui import QColor
 import RunWidget
 from os.path import expanduser
-from .setsolver import *
+from setsolver import *
 
 
 class KkitPlugin(MoosePlugin):

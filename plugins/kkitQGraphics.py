@@ -17,7 +17,7 @@ import config
 from PyQt4 import QtGui, QtCore, Qt
 from moose import *
 from PyQt4.QtGui import QPixmap, QImage, QGraphicsPixmapItem
-from .constants import *
+from constants import *
 from os import path
 
 class KineticsDisplayItem(QtGui.QGraphicsWidget):

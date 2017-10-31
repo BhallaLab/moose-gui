@@ -13,24 +13,24 @@ from collections import defaultdict
 import posixpath # We use this to create MOOSE paths
 from PyQt4 import QtGui, QtCore, Qt
 
-from . import config
-from . import mplugin
-from . import mexception
+import config
+import mplugin
+import mexception
 
-from .mload import loadFile
-from .loaderdialog import LoaderDialog
-from .shell import get_shell_class
-from .objectedit import ObjectEditDockWidget
-from .newmodeldialog import DialogWidget
+from mload import loadFile
+from loaderdialog import LoaderDialog
+from shell import get_shell_class
+from objectedit import ObjectEditDockWidget
+from newmodeldialog import DialogWidget
 
 import moose
 from moose import utils
 import re
 
-from .biomodelsclient import BioModelsClientWidget
+from biomodelsclient import BioModelsClientWidget
 from PyQt4 import Qt, QtCore, QtGui
 from PyQt4.QtGui import *
-from .MdiArea import MdiArea
+from MdiArea import MdiArea
 from setsolver import *
 from defines import *
 from collections import OrderedDict

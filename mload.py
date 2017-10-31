@@ -9,15 +9,15 @@ Oct 4 : clean up for python3
 
 import moose
 from moose import neuroml
-from . import mtypes
-from .mexception import FileLoadError
+import mtypes
+from mexception import FileLoadError
 import posixpath
 from os.path import basename
 from os.path import splitext
 from PyQt4 import QtGui, QtCore, Qt
-from .plugins.setsolver import *
+from plugins.setsolver import *
 from moose.SBML import *
-from .plugins.kkitOrdinateUtil import *
+from plugins.kkitOrdinateUtil import *
 
 def loadGenCsp(target,filename,solver="gsl"):
     target = target.replace(" ", "")

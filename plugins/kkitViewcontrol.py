@@ -21,12 +21,12 @@ Sep 20: Group related function added
         -@resolveItem,editorMousePressEvent,editorMouseMoveEvent,editorMouseReleaseEvent checks made for group
 '''
 import sys
-from .modelBuild import *
-from .constants import *
+from modelBuild import *
+from constants import *
 from PyQt4.QtGui import QPixmap, QImage, QPen, QGraphicsPixmapItem, QGraphicsLineItem
 from PyQt4.QtCore import pyqtSignal
-from .kkitUtil import  *
-from .setsolver import *
+from kkitUtil import  *
+from setsolver import *
 from PyQt4 import QtSvg
 from moose import utils
 
