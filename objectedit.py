@@ -14,11 +14,12 @@ import sys
 from collections import deque
 import traceback
 
-sys.path.append('../python')
 import moose
 import defaults
 import config
 from plugins.kkitUtil import getColor
+
+
 #these fields will be ignored
 extra_fields = ['this',
                 'me',
@@ -260,9 +261,9 @@ class ObjectEditModel(QtCore.QAbstractTableModel):
         field = self.fields[index.row()]
         if index.column() == 0 and role == QtCore.Qt.DisplayRole:
             try:
-                ret = QtCore.QVariant(QtCore.QString(field)+' ('+defaults.FIELD_UNITS[field]+')')
-            except KeyError:
-                ret = QtCore.QVariant(QtCore.QString(field))
+                ret = QtCore.QString(field)+' ('+defaults.FIELD_UNITS[field]+')'
+            except KeyError as e:
+                ret = QtCore.QString(field)
         elif index.column() == 1:
             if role==QtCore.Qt.CheckStateRole:
                 if ((str(field) == "plot Conc") or (str(field) == "plot n") ):
@@ -281,29 +282,28 @@ class ObjectEditModel(QtCore.QAbstractTableModel):
                                 if self.mooseObject.Kf != 0:
                                     Kd = self.mooseObject.Kb/self.mooseObject.Kf
 
-                            #Kd = QtCore.QVariant(QtCore.QString(str(ret)))
-                        ret = QtCore.QVariant(QtCore.QString(str(Kd)))
+                        ret = QtCore.QString(str(Kd))
                     if ( (str(field) != "Notes") and (str(field) != "className") and (str(field) != "Kd")):
                         ret = self.mooseObject.getField(str(field))
-                        ret = QtCore.QVariant(QtCore.QString(str(ret)))
+                        ret = QtCore.QString(str(ret))
                     elif(str(field) == "className"):
                         ret = self.mooseObject.getField(str(field))
                         if 'Zombie' in ret:
                             ret = ret.split('Zombie')[1]
-                        ret = QtCore.QVariant(QtCore.QString(str(ret)))
+                        ret = QtCore.QString(str(ret))
                     elif(str(field) == "Notes"):
                         astr = self.mooseObject.path+'/info'
                         mastr = moose.Annotator(astr)
                         ret = (mastr).getField(str('notes'))
-                        ret = QtCore.QVariant(QtCore.QString(str(ret)))
+                        ret = QtCore.QString(str(ret))
                 except ValueError:
                     ret = None
         return ret
 
     def headerData(self, col, orientation, role):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
-            return QtCore.QVariant(self.headerdata[col])
-        return QtCore.QVariant()
+            return self.headerdata[col]
+        return None
 
 class ObjectEditView(QtGui.QTableView):
     """View class for object editor.

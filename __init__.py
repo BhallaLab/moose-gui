@@ -5,3 +5,4 @@ try:
     from PyQt4.QtCore import QString 
 except ImportError as e:
     QString = str
+

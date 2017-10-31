@@ -345,6 +345,8 @@ class  KineticsWidget(EditorWidgetBase):
         self.qGraCompt          = {}
         self.xyCord             = {}
         self.editor             = None
+        self.xmin, self.ymin    = 0, 0
+        self.xmax, self.ymax    = 0, 0
         
     def reset(self):
         self.createdItem = {}
@@ -1122,7 +1124,7 @@ if __name__ == "__main__":
         dt.show()
 
     except  IOError as what:
-      (errno, strerror) = what
-      print(("Error number",errno,"(%s)" %(strerror)))
-      sys.exit(0)
+        (errno, strerror) = what
+        print(("Error number",errno,"(%s)" %(strerror)))
+        sys.exit(0)
     sys.exit(app.exec_())
