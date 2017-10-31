@@ -1,6 +1,6 @@
 
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+
 
 """Dialog for settings. Currently only plot settings are supported
 """
@@ -40,7 +40,7 @@ class SettingsWidget(QTabWidget):
         layout = QGridLayout()
         page.setLayout(layout)
         index = 0
-        for key, values in self.plotFieldMap.iteritems() :
+        for key, values in self.plotFieldMap.items() :
             label = QLabel(key, page)
             combo = QComboBox(page)
             for value in values:

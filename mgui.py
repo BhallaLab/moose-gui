@@ -59,21 +59,21 @@ import os
 from collections import defaultdict
 import posixpath # We use this to create MOOSE paths
 from PyQt4 import QtGui, QtCore, Qt
-import config
-import mplugin
+from . import config
+from . import mplugin
 import moose
-import mexception
+from . import mexception
 from moose import utils
-from mload import loadFile
-from loaderdialog import LoaderDialog
-from shell import get_shell_class
-from objectedit import ObjectEditDockWidget
-from newmodeldialog import DialogWidget
+from .mload import loadFile
+from .loaderdialog import LoaderDialog
+from .shell import get_shell_class
+from .objectedit import ObjectEditDockWidget
+from .newmodeldialog import DialogWidget
 import re
-from biomodelsclient import BioModelsClientWidget
+from .biomodelsclient import BioModelsClientWidget
 from PyQt4 import Qt, QtCore, QtGui
 from PyQt4.QtGui import *
-from MdiArea import MdiArea
+from .MdiArea import MdiArea
 import os
 from setsolver import *
 from defines import *
@@ -390,7 +390,7 @@ class MWindow(QtGui.QMainWindow):
             self.objectEditDockWidget = dockWidget
             self.addDockWidget(Qt.Qt.RightDockWidgetArea, dockWidget)
             dockWidget.setVisible(False)
-        return self.dockWidgets.keys()
+        return list(self.dockWidgets.keys())
 
     def getShellWidget(self):
         """Create an instance of shell widget. This can be either a
@@ -1229,7 +1229,7 @@ class MWindow(QtGui.QMainWindow):
             except KeyError:
                 pluginName = 'default'
             if ret['foundlib']:
-                print ('Loaded model %s' %(ret['model']))
+                print(('Loaded model %s' %(ret['model'])))
             return ret,pluginName
 
     def dialog_check(self,ret):

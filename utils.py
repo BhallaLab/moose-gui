@@ -82,13 +82,13 @@ def copyTree(src, dst, progressDialog=None):
     dst = dst.strip()
     errors = []
     if not os.access(src, os.R_OK + os.X_OK):
-        print 'Failed to access directory', src
+        print('Failed to access directory', src)
         return
-    print 'Copying %s to : %s'  % (src, dst)
+    print('Copying %s to : %s'  % (src, dst))
     if not os.access(src, os.R_OK + os.X_OK):
         try:
             os.makedirs(dst)
-        except OSError, e:
+        except OSError as e:
             # print e
             errors.append(e)
     totalsize = 0
@@ -97,7 +97,7 @@ def copyTree(src, dst, progressDialog=None):
             srcname = os.path.join(dirpath, fname)
             try:
                 totalsize += os.path.getsize(srcname)
-            except OSError, e:
+            except OSError as e:
                 # print e
                 errors.append(e)
     if progressDialog:
@@ -108,7 +108,7 @@ def copyTree(src, dst, progressDialog=None):
         # print 'Destination dir', dstdir, dirpath[len(src)+1:]
         try:
             os.makedirs(dstdir)
-        except OSError, e:
+        except OSError as e:
             # print e
             errors.append(e)
         # print 'Copying files from %s to %s' % (dirpath, dstdir)
@@ -118,7 +118,7 @@ def copyTree(src, dst, progressDialog=None):
             # print 'Copying:', srcname, 'to', dstname        
             try:
                 shutil.copy2(srcname, dstname)
-            except IOError, e:
+            except IOError as e:
                 # print e
                 errors.append(e)
             size += os.path.getsize(srcname)
@@ -127,11 +127,11 @@ def copyTree(src, dst, progressDialog=None):
                 if progressDialog.wasCanceled():
                     return errors
             else:
-                print 'Copied %d bytes of %d.' % (size, totalsize)
+                print('Copied %d bytes of %d.' % (size, totalsize))
     if progressDialog:
         progressDialog.close()
     else:
-        print 'Finished.'
+        print('Finished.')
     return errors
 
 

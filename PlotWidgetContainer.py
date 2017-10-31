@@ -1,6 +1,6 @@
 
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+
 
 """
 """
@@ -31,7 +31,7 @@ from PyQt4.QtGui import QSplitter
 
 import moose
 import default
-import sidebar
+from . import sidebar
 # from default import PlotWidget
 
 ELECTRICAL = 0
@@ -118,7 +118,7 @@ class PlotWidgetContainer(QWidget):
         widget = default.PlotWidget(self.model, graph, self.rowIndex, self)
 
         if self.modelType == ELECTRICAL:
-            for axes in widget.canvas.axes.values():
+            for axes in list(widget.canvas.axes.values()):
             # axes.autoscale(False, axis='x', tight=True)
                 axes.set_ylim(bottom = -0.07, top= 0.03)
 

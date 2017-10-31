@@ -52,15 +52,15 @@ Oct 4 : clean up for python3
 '''
 import moose
 from moose import neuroml
-import mtypes
-from mexception import FileLoadError
+from . import mtypes
+from .mexception import FileLoadError
 import posixpath
 from os.path import basename
 from os.path import splitext
 from PyQt4 import QtGui, QtCore, Qt
-from plugins.setsolver import *
+from .plugins.setsolver import *
 from moose.SBML import *
-from plugins.kkitOrdinateUtil import *
+from .plugins.kkitOrdinateUtil import *
 
 def loadGenCsp(target,filename,solver="gsl"):
     target = target.replace(" ", "")
@@ -204,8 +204,8 @@ def loadFile(filename, target, solver="gsl", merge=True):
         if subtype == 'neuroml':
             popdict, projdict = neuroml.loadNeuroML_L123(filename)
             # Circus to get the container of populations from loaded neuroml
-            for popinfo in popdict.values():
-                for cell in popinfo[1].values():
+            for popinfo in list(popdict.values()):
+                for cell in list(popinfo[1].values()):
                     solver = moose.HSolve(cell.path + "/hsolve")
                     solver.target = cell.path
                     # model = cell.parent

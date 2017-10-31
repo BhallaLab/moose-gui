@@ -77,9 +77,9 @@ import traceback
 
 sys.path.append('../python')
 import moose
-import defaults
-import config
-from plugins.kkitUtil import getColor
+from . import defaults
+from . import config
+from .plugins.kkitUtil import getColor
 #these fields will be ignored
 extra_fields = ['this',
                 'me',
@@ -425,7 +425,7 @@ class ObjectEditView(QtGui.QTableView):
             self.setColor(getColor(self.model().mooseObject.path+'/info')[1])
         except:
             pass
-        print ('Created view with %s' %(mobject))
+        print(('Created view with %s' %(mobject)))
 
     def setColor(self, color):
         self.colorButton.setStyleSheet(

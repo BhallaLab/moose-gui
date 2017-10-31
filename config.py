@@ -127,7 +127,7 @@ class MooseSetting(dict):
             cls._instance = super(MooseSetting, cls).__new__(cls, *args, **kwargs)
             firsttime, errs = init_dirs()
             for e in errs:
-                print e
+                print(e)
             QtCore.QCoreApplication.setOrganizationName('NCBS')
             QtCore.QCoreApplication.setOrganizationDomain('ncbs.res.in')
             QtCore.QCoreApplication.setApplicationName('MOOSE')

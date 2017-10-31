@@ -65,7 +65,7 @@ def get_shell_class():
 
     # Test QScintilla
     try:
-        from scishell import SciShell
+        from .scishell import SciShell
         return SciShell
     
     except ImportError:
@@ -268,7 +268,7 @@ class PyCutExt(QTextEdit):
         """
         Simulate stdin, stdout, and stderr.
         """
-        map(self.write, text)
+        [ self.write(x) for x in text ]
 
 
     def fakeUser(self, lines):
@@ -295,8 +295,8 @@ class PyCutExt(QTextEdit):
         self.H.append(QtCore.QString(self.line)) # Added by yr
         try:
             self.lines.append(str(self.line))
-        except Exception,e:
-            print e
+        except Exception as e:
+            print(e)
 
         source = '\n'.join(self.lines)
         self.more = self.interpreter.runsource(source)

@@ -193,7 +193,7 @@ class CanvasWidget(FigureCanvas):
         return fn(*args, **kwargs)
 
     def resize_event(self, event):
-        print("Resize event called ", event)
+        print(("Resize event called ", event))
 
     def toggleGrid(self):
         self.gridMode = not self.gridMode
@@ -209,7 +209,7 @@ class CanvasWidget(FigureCanvas):
 
 import sys
 import os
-import config
+from . import config
 import unittest
 
 from PyQt4.QtTest import QTest

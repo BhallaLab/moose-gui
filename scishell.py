@@ -234,7 +234,7 @@ class SciShell(QsciScintilla):
         """
         Reimplemented slot to handle the paste action.
         """
-        lines = unicode(QApplication.clipboard().text())
+        lines = str(QApplication.clipboard().text())
         self.__executeLines(lines)
         
         
@@ -242,7 +242,7 @@ class SciShell(QsciScintilla):
         """
         Private method to handle the middle mouse button press.
         """
-        lines = unicode(QApplication.clipboard().text(QClipboard.Selection))
+        lines = str(QApplication.clipboard().text(QClipboard.Selection))
         self.__executeLines(lines)
 
         
@@ -338,7 +338,7 @@ class SciShell(QsciScintilla):
         if(ctrl):
             QsciScintilla.keyPressEvent(self, ev)
 
-        elif(self.keymap.has_key(key)):
+        elif(key in self.keymap):
             self.keymap[key]()
 
         # See it is text to insert.
@@ -362,7 +362,7 @@ class SciShell(QsciScintilla):
             self.SendScintilla(QsciScintilla.SCI_TAB)
         elif self.__isCursorOnLastLine():
             line, index = self.getCursorPosition()
-            buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
+            buf = str(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
             if self.more and not buf[:index-len(sys.ps2)].strip():
                 self.SendScintilla(QsciScintilla.SCI_TAB)
              
@@ -427,7 +427,7 @@ class SciShell(QsciScintilla):
                 self.incrementalSearchActive = False
                 line, col = self.__getEndPos()
                 self.setCursorPosition(line,col)
-                buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
+                buf = str(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
                 self.insert('\n')
                 self.__executeCommand(buf)
 
@@ -500,7 +500,7 @@ class SciShell(QsciScintilla):
             self.SendScintilla(QsciScintilla.SCI_LINEUP)
         else:
             line, col = self.__getEndPos()
-            buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
+            buf = str(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
             if buf and self.incrementalSearchActive:
                 if self.incrementalSearchString:
                     idx = self.__rsearchHistory(self.incrementalSearchString, 
@@ -530,7 +530,7 @@ class SciShell(QsciScintilla):
             self.SendScintilla(QsciScintilla.SCI_LINEDOWN)
         else:
             line, col = self.__getEndPos()
-            buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
+            buf = str(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
             if buf and self.incrementalSearchActive:
                 if self.incrementalSearchString:
                     idx = self.__searchHistory(self.incrementalSearchString, self.histidx)
@@ -627,14 +627,14 @@ class SciShell(QsciScintilla):
         # get line
         line, col = self.__getEndPos()
         self.setCursorPosition(line,col)
-        buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
+        buf = str(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
 
         text = buf.split()[-1][:-1]
         try:
             locals = self.interpreter.locals
             obj = eval(text, globals(), self.interpreter.locals)
             l = dir(obj)
-            l = filter(lambda x : not x.startswith('__'), l)
+            l = [x for x in l if not x.startswith('__')]
             self.__showCompletions(l, text) 
         except : pass
         
@@ -672,11 +672,11 @@ class SciShell(QsciScintilla):
          # Remove already written characters
         line, col = self.__getEndPos()
         self.setCursorPosition(line,col)
-        buf = unicode(self.text(line))
+        buf = str(self.text(line))
         ind = len(buf) - buf.rfind(".") - 1
 
         if id == 1:
-            txt = unicode(txt[ind:])
+            txt = str(txt[ind:])
             #if self.completionText != "":
              #   txt = txt.replace(self.completionText, "")
             self.__insertText(txt)

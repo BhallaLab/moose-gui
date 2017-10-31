@@ -57,17 +57,17 @@ class MooseWarning(Warning):
     def __init__(self, *args, **kwargs):
         Warning.__init__(self, *args, **kwargs)
 
-class MooseError(StandardError):
+class MooseError(Exception):
     def __init__(self, *args, **kwargs):
-        StandardError.__init__(self, *args, **kwargs)
+        Exception.__init__(self, *args, **kwargs)
     
 class FileLoadError(MooseError):
     def __init__(self, *args, **kwargs):
-        StandardError.__init__(self, *args, **kwargs)
+        Exception.__init__(self, *args, **kwargs)
     
 class ElementNameError(MooseError):
     def __init__(self, *args, **kwargs):
-        StandardError.__init__(self, *args, **kwargs)
+        Exception.__init__(self, *args, **kwargs)
 
 # 
 # mexception.py ends here

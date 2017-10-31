@@ -45,21 +45,21 @@
 
 # Code:
 
-from suds.client import Client
-from suds.transport.http import HttpTransport as SudsHttpTransport
+from .suds.client import Client
+from .suds.transport.http import HttpTransport as SudsHttpTransport
 import os
-import config
+from . import config
 import pickle
 import moose
 
 BIOMODELS_WSDL_URI = 'http://www.ebi.ac.uk/biomodels-main/services/BioModelsWebServices?wsdl'
 proxyOpts = dict()
 
-for k,v in {'http':'http_proxy','https':'https_proxy'}.items():
-    if os.environ.has_key(v):
+for k,v in list({'http':'http_proxy','https':'https_proxy'}.items()):
+    if v in os.environ:
         httpProxy = os.environ[v].replace('http://', '')
         proxyOpts[k] = httpProxy[0:httpProxy.rfind('/',0,len(httpProxy))]
-    elif os.environ.has_key(v.upper()):
+    elif v.upper() in os.environ:
         HttpProxy = os.environ[v.upper()].replace('http://', '')
         proxyOpts[k] = HttpProxy[0:HttpProxy.rfind('/',0,len(HttpProxy))]
 
@@ -79,8 +79,8 @@ class BioModelsClient(Client):
 	try:
 	    Client.__init__(self, WSDL_URI,proxy=proxyOpts)
 	    #Client.__init__(self, WSDL_URI,transport=HttpTransport())
-	except Exception, e:
-	    print e
+	except Exception as e:
+	    print(e)
 
 from PyQt4.Qt import Qt
 from PyQt4 import QtCore, QtGui
@@ -156,7 +156,7 @@ class BioModelsClientWidget(QtGui.QDialog):
         """ If user select multi row, only data from currentRow is downloaded and loaded into moose """
         selectedRow = self.resultsPanel.currentRow()
         modelId = self.resultsPanel.item(selectedRow, 0).text()
-        modelSBML = unicode(self.client.service.getModelSBMLById(modelId)).encode("utf-8")
+        modelSBML = str(self.client.service.getModelSBMLById(modelId)).encode("utf-8")
         self.filePath = os.path.join(config.settings[config.KEY_LOCAL_DEMOS_DIR], str(modelId)+'.xml')
         f = open(str(self.filePath), 'w')
         f.write(modelSBML)
@@ -181,7 +181,7 @@ class BioModelsClientWidget(QtGui.QDialog):
         return str(self.filePath)
 
     def runQuery(self):
-        print 'Running query .....'
+        print('Running query .....')
         #self.resultsPanel.cellClicked.connect(self.enableDownload)
         progressDialog = QtGui.QProgressDialog()
         progressDialog.setLabelText('Retrieving data from BioModels Database')
@@ -237,7 +237,7 @@ class BioModelsClientWidget(QtGui.QDialog):
                         progressDialog.setValue(r)            
                         if progressDialog.wasCanceled():
                             return 0
-                        name = unicode(self.client.service.getModelNameById(item)).encode("utf-8")
+                        name = str(self.client.service.getModelNameById(item)).encode("utf-8")
                         r = r+1
                     pickleResult.update({item:name})
                     updatepickleFile = True
@@ -253,12 +253,12 @@ class BioModelsClientWidget(QtGui.QDialog):
                     pickleResult = {}
                     pickleResult[argument] = name;
 
-                except KeyError, e:
-                    print 'A KeyError - "%s"' % str(e) ,' not found in ',filename
+                except KeyError as e:
+                    print('A KeyError - "%s"' % str(e) ,' not found in ',filename)
                     QtGui.QMessageBox.critical(None, "BioModels Database"," The Id "+ str(e) +" not found in "+ filename,QtGui.QMessageBox.Ok | QtGui.QMessageBox.Default,QtGui.QMessageBox.NoButton)
                     display = False
             if display:
-                for value,name in pickleResult.items():
+                for value,name in list(pickleResult.items()):
                     self.resultsPanel.insertRow(row)
                     item = QtGui.QTableWidgetItem(self.tr(value))
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
@@ -273,7 +273,7 @@ class BioModelsClientWidget(QtGui.QDialog):
         if progressDialog:
             progressDialog.close()
         #self.importButton.setEnabled(True)
-        print 'Finished running query'
+        print('Finished running query')
 
     def enableimportButton(self):
         self.importButton.setEnabled(True)

@@ -1,6 +1,6 @@
 
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+
 
 """Sidebar for plugins. The sidebar comprises of actions.
 Currently mode, connect and settings are defined.
@@ -17,7 +17,7 @@ __status__      =   "Development"
 
 import sys
 import os
-import SettingsDialog
+from . import SettingsDialog
 from PyQt4 import QtGui, Qt
 from PyQt4.QtGui import QWidget
 from PyQt4.QtGui import QScrollArea
