@@ -1000,7 +1000,9 @@ class kineticEditorWidget(KineticsWidget):
         self.insertMenu = QtGui.QMenu('&Insert')
         self._menus.append(self.insertMenu)
         self.insertMapper = QtCore.QSignalMapper(self)
-        classlist = ['CubeMesh','CylMesh','Pool','BufPool','Function','Reac','Enz','MMenz','StimulusTable']
+        classlist = ['CubeMesh','CylMesh','Pool','BufPool','Function'
+                ,'Reac','Enz','MMenz','StimulusTable']
+        self.qGraGrp = { }
         self.toolTipinfo = { "CubeMesh":"",
                              "CylMesh" : "",
                              "Pool":"A Pool is a collection of molecules of a given species in a given cellular compartment.\n It can undergo reactions that convert it into other pool(s). \nParameters: initConc (Initial concentration), diffConst (diffusion constant). Variable: conc (Concentration)",
