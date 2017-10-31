@@ -1481,7 +1481,7 @@ class PlotSelectionWidget(QtGui.QScrollArea):
             combo = self._elementWidgetsDict[el][1]
             idx = combo.findText(field)
             if idx >= 0:
-                combo.setItemData(idx, QtCore.QVariant(Qt.Checked), Qt.CheckStateRole)
+                combo.setItemData(idx, Qt.Checked), Qt.CheckStateRole
                 combo.setCurrentIndex(idx)
 #
 # default.py ends here

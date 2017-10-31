@@ -63,7 +63,7 @@ class CheckComboBoxModel(QtGui.QStandardItemModel):
 
     def data(self, index, role):
         if index.isValid() and role == Qt.CheckStateRole:
-            return QtCore.QVariant(self.checked_dict[index])
+            return self.checked_dict[index]
         else:
             return QtGui.QStandardItemModel.data(self, index, role)
         
@@ -125,7 +125,7 @@ class CheckComboBox(QtGui.QComboBox):
         return self.itemData(index, Qt.CheckStateRole).toInt()[0]
 
     def setItemCheckState(self, index, state):
-        self.setItemData(index, QtCore.QVariant(state), QtCore.Qt.CheckStateRole)
+        self.setItemData(index, state), QtCore.Qt.CheckStateRole
 
     def checkedItems(self):
         index = self.model().index(0,0)

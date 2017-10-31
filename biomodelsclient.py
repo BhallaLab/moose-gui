@@ -75,7 +75,7 @@ class BioModelsClientWidget(QtGui.QDialog):
         self.queryPanel.setLayout(layout)
         
         for entry in BioModelsClientWidget.COMBO_ITEM_QUERY_MAP:
-            self.queryModelCombo.addItem(self.tr(entry[0]), QtCore.QVariant(entry[1]))
+            self.queryModelCombo.addItem(self.tr(entry[0]), entry[1])
         self.resultsPanel = QtGui.QTableWidget(self)
         layout = QtGui.QVBoxLayout(self)
         layout.addWidget(self.queryPanel)
@@ -218,7 +218,7 @@ class BioModelsClientWidget(QtGui.QDialog):
                     self.resultsPanel.insertRow(row)
                     item = QtGui.QTableWidgetItem(self.tr(value))
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
-                    #item.setData(Qt.DisplayRole, QtCore.QVariant(value))
+                    #item.setData(Qt.DisplayRole, value)
                     self.resultsPanel.setItem(row, column, item)
                     #name = self.client.service.getModelNameById(value)
                     item = QtGui.QTableWidgetItem(name)

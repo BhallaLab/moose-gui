@@ -60,11 +60,11 @@ class MooseTreeModel(QtCore.QAbstractItemModel):
         if not index.isValid():
             return None
         item = index.internalPointer()
-        return QtCore.QVariant(item[index.column()].name)
+        return item[index.column()].name
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:  
-            return QtCore.QVariant('Model Tree')
+            return 'Model Tree'
         return None
 
     def flags(self, index):

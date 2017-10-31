@@ -606,7 +606,7 @@ class GraphicalView(QtGui.QGraphicsView):
             if isinstance(item.mobj,PoolBase) or isinstance(item.mobj,ReacBase):
                 if l == "clone":
                     self.connectionSign = QtSvg.QGraphicsSvgItem('icons/clone.svg')
-                    self.connectionSign.setData(0, QtCore.QVariant("clone"))
+                    self.connectionSign.setData(0, "clone")
                     self.connectionSign.setParent(self.connectionSource)
                     self.connectionSign.setScale(
                         (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
@@ -621,7 +621,7 @@ class GraphicalView(QtGui.QGraphicsView):
             if isinstance(item.mobj,PoolBase):
                 if l == "plot":
                     self.connectionSign = QtSvg.QGraphicsSvgItem('icons/plot.svg')
-                    self.connectionSign.setData(0, QtCore.QVariant("plot"))
+                    self.connectionSign.setData(0, "plot")
                     self.connectionSign.setParent(self.connectionSource)
                     self.connectionSign.setScale(
                         (1.0 * rectangle.height()) / self.connectionSign.boundingRect().height()
@@ -638,7 +638,7 @@ class GraphicalView(QtGui.QGraphicsView):
                     pass
                 else:
                     self.connectionSign = QtSvg.QGraphicsSvgItem('icons/move.svg')
-                    self.connectionSign.setData(0, QtCore.QVariant("move"))
+                    self.connectionSign.setData(0, "move")
                     self.connectionSign.setParent(self.connectionSource)
                     self.connectionSign.setToolTip("Drag to move.")
                     if ( item.mobj.className == "ZombieFunction" or item.mobj.className == "Function"):
@@ -660,7 +660,7 @@ class GraphicalView(QtGui.QGraphicsView):
                 else:
                     self.connectionSign = QtSvg.QGraphicsSvgItem('icons/delete.svg')
                     self.connectionSign.setParent(self.connectionSource)
-                    self.connectionSign.setData(0, QtCore.QVariant("delete"))
+                    self.connectionSign.setData(0, "delete")
                     if ( item.mobj.className == "ZombieFunction" or item.mobj.className == "Function"):
                         self.connectionSign.setScale(
                         (0.75 * rectangle.height()) / self.connectionSign.boundingRect().height()
