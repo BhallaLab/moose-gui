@@ -5,20 +5,23 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Feb 3 2018"
+__updated__     =   "Jun 8 2018"
 
 '''
-Oct 17: If object is moved from one group or compartment to another group or with in same Compartment, 
+
+Jun8    : If object is moved from one group or compartment to another group or with in same Compartment, 
        then both at moose level (group or compartment path is updated ) and qt level the setParentItem is set
        -If object is moved to Empty place or not allowed place in the GUI its moved back to origin position  
        -also some clean up when object is just clicked in QsvgItem and v/s clicked and some action done
        -with Rubber selection if object are moved then group size is updated
+2018
 Oct 3 : At mousePressEvent, a clean way of checking on what object mouse press Event happened is checked.
         This is after group is added where Group Interior and Boundary is checked, with in groupInterior if  click in
         on COMPARTMENT BOUNDARY is clicked then COMPARTMENT_BOUNDARY is return, else top most group object is returned.
 Sep 20: Group related function added
         -resolveGroupInteriorAndBoundary, findGraphic_groupcompt, graphicsIsInstance
         -@resolveItem,editorMousePressEvent,editorMouseMoveEvent,editorMouseReleaseEvent checks made for group
+2017
 '''
 import sys
 from modelBuild import *
@@ -341,6 +344,38 @@ class GraphicalView(QtGui.QGraphicsView):
             pressItem = self.state["press"]["item"]
 
             if actionType == "move":
+                tobemoved = True
+                movedGraphObj = self.state["press"]["item"].parent()
+                if itemType != EMPTY:
+                    item = self.findGraphic_groupcompt(item)
+                    if movedGraphObj.parentItem() != item:
+                        if moose.exists(item.mobj.path+'/'+movedGraphObj.mobj.name):
+                            desObj = item.mobj.className
+                            if desObj == "CubeMesh" or desObj == "CyclMesh":
+                                desObj = "compartment"
+                            elif desObj == "Neutral":
+                                desObj = "group"
+                            tobemoved = False
+                            self.layoutPt.setupDisplay(movedGraphObj.mobj.path+'/info',movedGraphObj,"pool")
+                            self.layoutPt.updateArrow(movedGraphObj)
+                            QtGui.QMessageBox.warning(None,'Could not move the object', "The object name  \'%s\' exist in \'%s\' %s" %(movedGraphObj.mobj.name,item.mobj.name,desObj))
+                        else:
+                            movedGraphObj.setParentItem(item)
+                            moose.move(movedGraphObj.mobj, item.mobj)
+                if tobemoved:
+                    if isinstance(movedGraphObj,KineticsDisplayItem):
+                        itemPath = movedGraphObj.mobj.path
+                        if moose.exists(itemPath):
+                            iInfo = itemPath+'/info'
+                            anno = moose.Annotator(iInfo)
+                            x = movedGraphObj.scenePos().x()/self.layoutPt.defaultScenewidth
+                            y = movedGraphObj.scenePos().y()/self.layoutPt.defaultSceneheight
+                            anno.x = x
+                            anno.y = y
+                QtGui.QApplication.setOverrideCursor(QtGui.QCursor(Qt.Qt.ArrowCursor))
+                self.layoutPt.positionChange(item.mobj) 
+                self.updateScale(self.iconScale)
+                '''
                 QtGui.QApplication.setOverrideCursor(QtGui.QCursor(Qt.Qt.ArrowCursor))
                 #If any case, move is not valide need to move back the object to original position is store and calculation
                 initscenepos = self.state["press"]["scenepos"]
@@ -398,7 +433,7 @@ class GraphicalView(QtGui.QGraphicsView):
 
                     self.layoutPt.positionChange(item.mobj) 
                     self.updateScale(self.iconScale)
-
+                '''
             if actionType == "delete":
                 self.removeConnector()
                 pixmap = QtGui.QPixmap(24, 24)
