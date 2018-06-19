@@ -6,10 +6,13 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Oct 18 2017"
-'''
+__updated__     =   "Jun 19 2018"
 
-'''
+#Change log:
+# 2018 Jun 18: update the color of the group from objecteditor
+
+#code
+
 import math
 import sys
 from PyQt4 import QtGui, QtCore, Qt
@@ -483,14 +486,20 @@ class  KineticsWidget(EditorWidgetBase):
                     self.positionChange(mooseObject)
                     self.view.removeConnector()
                     self.view.showConnector(item)
-    def updateColorSlot(self,mooseObject, color):
-        #Color slot for changing background color for PoolItem from objecteditor
+    def updateColorSlot(self,mooseObject, colour):
+        #Color slot for changing background color for Pool,Enz and group from objecteditor
         anninfo = moose.Annotator(mooseObject.path+'/info')
         textcolor,bgcolor = getColor(anninfo)
-        anninfo.color = str(color.name())
-        item = self.mooseId_GObj[mooseObject]
-        if (isinstance(item,PoolItem) or isinstance(item,EnzItem) or isinstance(item,MMEnzItem) ):
-            item.updateColor(color)
+        anninfo.color = str(colour.name())
+        
+        if mooseObject.className == "Neutral":
+            item = self.qGraGrp[mooseObject]
+            item.setPen(QtGui.QPen(QtGui.QColor(colour),item.pen().width(),item.pen().style(),item.pen().capStyle(),item.pen().joinStyle()))# self.comptPen, Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
+
+        elif (isinstance(mooseObject,PoolBase) or isinstance(mooseObject,EnzBase) ):
+            item = self.mooseId_GObj[mooseObject]
+            item.updateColor(colour)
+
     '''
     def mooseObjOntoscene(self):
         #  All the compartments are put first on to the scene \
