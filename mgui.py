@@ -1198,6 +1198,9 @@ class MWindow(QtGui.QMainWindow):
             if moose.exists(compt[0].path+'/gsolve'):
                 gsolve = moose.Gsolve( compt[0].path+'/gsolve' )
                 gsolve.tick = -1
+            if moose.exists(compt[0].path+'/dsolve'):
+                dsolve = moose.Dsolve(compt[0].path+'/dsolve')
+                dsolve.tick = -1
             if moose.exists(compt[0].path+'/stoich'):
                 stoich = moose.Stoich( compt[0].path+'/stoich' )
                 stoich.tick = -1
