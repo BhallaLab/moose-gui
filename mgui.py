@@ -6,7 +6,7 @@
 # Maintainer: HarshaRani
 # Created: Mon Nov 12 09:38:09 2012 (+0530)
 # Version:
-# Last-Updated: Thu Oct 5 14:54:33 2017 (+0530)
+# Last-Updated: Fri Aug 31 14:54:33 2017 (+0530)
 #           By: Harsha
 #     Update #:
 # URL:
@@ -44,6 +44,10 @@
 #
 
 ''''
+Aug 31: Pass file from the command to load into gui
+      : added dsolver in disableModel function is used to unset the solver for the model
+        into moose-gui which are not to be run.
+
 Oct 5: clean up with round trip of dialog_exe
 
 '''
@@ -75,7 +79,8 @@ from PyQt4 import Qt, QtCore, QtGui
 from PyQt4.QtGui import *
 from MdiArea import MdiArea
 import os
-from setsolver import *
+from moose.chemUtil.add_Delete_ChemicalSolver import *
+#from setsolver import *
 from defines import *
 from collections import OrderedDict
 
@@ -531,7 +536,8 @@ class MWindow(QtGui.QMainWindow):
         
                 if compts:
                     #setCompartmentSolver(self._loadedModels[i][0],"gsl")
-                    addSolver(self._loadedModels[i][0],"gsl")
+                    mooseAddChemSolver(self._loadedModels[i][0],"gsl")
+                    #addSolver(self._loadedModels[i][0],"gsl")
                 else:
                     c.tickDt[7] = self._loadedModels[i][3]
                     c.tickDt[8] = self._loadedModels[i][4]

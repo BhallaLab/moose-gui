@@ -33,8 +33,8 @@ from PyQt4.QtGui import QGridLayout
 from PyQt4.QtGui import QColor
 import RunWidget
 from os.path import expanduser
-from setsolver import *
-
+#from setsolver import *
+from moose.chemUtil.add_Delete_ChemicalSolver import *
 
 class KkitPlugin(MoosePlugin):
     """Default plugin for MOOSE GUI"""
@@ -234,11 +234,11 @@ class AnotherKkitRunView(RunView):
 
     def setSolver(self, modelRoot,solver = None):
         if solver == None:
-            reinit = addSolver(modelRoot,self.getSchedulingDockWidget().widget().solver)
+            reinit = mooseAddChemSolver(modelRoot,self.getSchedulingDockWidget().widget().solver)
             if reinit:
                 self.getSchedulingDockWidget().widget().resetSimulation()
         else:
-            reinit = addSolver(modelRoot,solver)
+            reinit = mooseAddChemSolver(modelRoot,solver)
             if reinit:
                 self.getSchedulingDockWidget().widget().resetSimulation()
 
