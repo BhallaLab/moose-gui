@@ -181,7 +181,88 @@ class MWindow(QtGui.QMainWindow):
         self.setPlugin('default', '/')
         self.plugin.getEditorView().getCentralWidget().parent().close()
         self.popup = None
-        self.createPopup()
+        cmdfilepath = ""
+        try:
+            sys.argv[1]
+        except:
+            pass
+        else:
+            cmdfilepath = os.path.abspath(sys.argv[1])
+        try:
+            sys.argv[2]
+        except:
+            solver = 'gsl'
+        else:
+            solver = os.path.abspath(sys.argv[2])
+
+        if cmdfilepath:
+            filepath,fileName = os.path.split(cmdfilepath)
+            modelRoot,extension = os.path.splitext(fileName)
+            if extension == '.py':
+                self.show()
+                self.createPopup()
+                freeCursor()
+                reply = QtGui.QMessageBox.information(self,"Model file can not open","At present python file cann\'t be laoded into GUI",QtGui.QMessageBox.Ok)
+                if reply == QtGui.QMessageBox.Ok:
+                    QtGui.QApplication.restoreOverrideCursor()
+                    return
+            if not os.path.exists(cmdfilepath):
+                self.show()
+                self.createPopup()
+                reply = QtGui.QMessageBox.information(self,"Model file can not open","Check filename or filepath ",QtGui.QMessageBox.Ok)
+                if reply == QtGui.QMessageBox.Ok:
+                    QtGui.QApplication.restoreOverrideCursor()
+                    return
+            else:
+                filePath = filepath+'/'+fileName
+                ret = loadFile(str(filePath), '%s' % (modelRoot), solver, merge=False)
+                self.objectEditSlot('/',False)
+                pluginLookup = '%s/%s' % (ret['modeltype'], ret['subtype'])
+                try:
+                    pluginName = subtype_plugin_map['%s/%s' % (ret['modeltype'], ret['subtype'])]
+                except KeyError:
+                    pluginName = 'default'
+                self.loadedModelsAction(ret['model'].path,pluginName)
+                if len(self._loadedModels)>5:
+                    self._loadedModels.pop(0)
+
+                if not moose.exists(ret['model'].path+'/info'):
+                        moose.Annotator(ret['model'].path+'/info')
+
+                modelAnno = moose.Annotator(ret['model'].path+'/info')
+                if ret['subtype']:
+                    modelAnno.modeltype = ret['subtype']
+                else:
+                    modelAnno.modeltype = ret['modeltype']
+                #modelAnno.dirpath = str(dialog.directory().absolutePath())
+                if moose.exists(ret['model'].path + "/data"):
+                    self.data   = moose.element(ret['model'].path + "/data")
+                    self.data   = moose.Neutral(ret['model'].path + "/data")
+
+                modelAnno.dirpath = str(filepath)
+                self.setPlugin(pluginName, ret['model'].path)
+                self.show()
+                # if pluginName == 'kkit':
+                #     QtCore.QCoreApplication.sendEvent(self.plugin.getEditorView().getCentralWidget().view, QtGui.QKeyEvent(QtCore.QEvent.KeyPress, Qt.Qt.Key_A, Qt.Qt.NoModifier))
+                    
+                #     noOfCompt = len(moose.wildcardFind(ret['model'].path+'/##[ISA=ChemCompt]'))
+                #     grp = 0
+                #     for c in moose.wildcardFind(ret['model'].path+'/##[ISA=ChemCompt]'):
+                #         noOfGrp   = moose.wildcardFind(moose.element(c).path+'/#[TYPE=Neutral]')
+                #         grp = grp+len(noOfGrp)
+
+                #     noOfPool  = len(moose.wildcardFind(ret['model'].path+'/##[ISA=PoolBase]'))
+                #     noOfFunc  = len(moose.wildcardFind(ret['model'].path+'/##[ISA=Function]'))
+                #     noOfReac  = len(moose.wildcardFind(ret['model'].path+'/##[ISA=ReacBase]'))
+                #     noOfEnz   = len(moose.wildcardFind(ret['model'].path+'/##[ISA=EnzBase]'))
+                #     noOfStimtab  = len(moose.wildcardFind(ret['model'].path+'/##[ISA=StimulusTable]'))
+                    
+                #     reply = QtGui.QMessageBox.information(self,"Model Info","Model has : \n %s Compartment \t \n %s Group \t \n %s Pool  \t \n %s Function \t \n %s reaction \t \n %s Enzyme \t \n %s StimulusTable" %(noOfCompt, grp, noOfPool, noOfFunc, noOfReac, noOfEnz, noOfStimtab))
+                #     if reply == QtGui.QMessageBox.Ok:
+                #         QtGui.QApplication.restoreOverrideCursor()
+                #         return
+        else: 
+            self.createPopup()
 
     def createPopup(self):
         self.popup = dialog = QDialog(self)
