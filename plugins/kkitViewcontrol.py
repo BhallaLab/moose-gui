@@ -192,12 +192,13 @@ class GraphicalView(QtGui.QGraphicsView):
             if itemType == GROUP_BOUNDARY:
                 popupmenu = QtGui.QMenu('PopupMenu', self)
                 popupmenu.addAction("DeleteGroup", lambda : self.deleteGroup(item,self.layoutPt))
-                popupmenu.addAction("CloneGroup" ,lambda : handleCollisions(comptList, moveMin, self.layoutPt ))
+                #popupmenu.addAction("CloneGroup" ,lambda : handleCollisions(comptList, moveMin, self.layoutPt ))
                 popupmenu.exec_(self.mapToGlobal(event.pos()))
             
             elif itemType == COMPARTMENT_BOUNDARY:
                 if len(list(self.layoutPt.qGraCompt.values())) > 1:
                     popupmenu = QtGui.QMenu('PopupMenu', self)
+                    #popupmenu.addAction("DeleteCmpt", lambda : self.deleteCmpt(item,self.layoutPt))
                     popupmenu.addAction("LinearLayout", lambda : handleCollisions(list(self.layoutPt.qGraCompt.values()), moveX, self.layoutPt))
                     popupmenu.addAction("VerticalLayout" ,lambda : handleCollisions(list(self.layoutPt.qGraCompt.values()), moveMin, self.layoutPt ))
                     popupmenu.exec_(self.mapToGlobal(event.pos()))
@@ -452,7 +453,7 @@ class GraphicalView(QtGui.QGraphicsView):
                                                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
                 if reply == QtGui.QMessageBox.Yes:
                     #delete solver first as topology is changing
-                    deleteSolver(self.modelRoot)
+                    mooseDeleteChemSolver(self.layoutPt.modelRoot)
                     self.deleteObj([item.parent()])
                     QtGui.QApplication.restoreOverrideCursor()
                 else:
@@ -496,7 +497,7 @@ class GraphicalView(QtGui.QGraphicsView):
                         #Solver should be deleted
                             ## if there is change in 'Topology' of the model
                             ## or if copy has to made then oject should be in unZombify mode
-                        deleteSolver(self.modelRoot)
+                        mooseDeleteChemSolver(self.layoutPt.modelRoot)
                         #As name is suggesting, if item is Compartment, then search in qGraCompt and if group then qGraGrp
                         if isinstance(itemAtView,ComptItem):
                             lKey = [key for key, value in self.layoutPt.qGraCompt.iteritems() if value == itemAtView][0]
@@ -595,13 +596,17 @@ class GraphicalView(QtGui.QGraphicsView):
         self.resetState()
     
     def deleteGroup(self,item,layoutPt):
-        key = [k for k,v in self.layoutPt.qGraGrp.items() if v == item]
-        if key[0] in self.layoutPt.qGraGrp:
-            self.layoutPt.qGraGrp.pop(key[0])
-        self.groupItemlist1 = item.childItems()
-        self.groupItemlist = [ i for i in self.groupItemlist1 if not isinstance(i,QtGui.QGraphicsPolygonItem)]
-        self.deleteObj(self.groupItemlist)
-        self.deleteItem(item)
+        reply = QtGui.QMessageBox.question(self, "Deleting Object",'Do want to delete group \'{groupname}\' and its children and connections'.format(groupname=item.mobj.name),
+                                                   QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            mooseDeleteChemSolver(self.layoutPt.modelRoot)
+            key = [k for k,v in self.layoutPt.qGraGrp.items() if v == item]
+            if key[0] in self.layoutPt.qGraGrp:
+                self.layoutPt.qGraGrp.pop(key[0])
+            self.groupItemlist1 = item.childItems()
+            self.groupItemlist = [ i for i in self.groupItemlist1 if not isinstance(i,QtGui.QGraphicsPolygonItem)]
+            self.deleteObj(self.groupItemlist)
+            self.deleteItem(item)
 
     def drawExpectedConnection(self, event):
         self.connectionSource = self.state["press"]["item"]
@@ -882,7 +887,7 @@ class GraphicalView(QtGui.QGraphicsView):
 
     def deleteObj(self,item):
         self.rubberbandlist = item
-        deleteSolver(self.layoutPt.modelRoot)
+        mooseDeleteChemSolver(self.layoutPt.modelRoot)
         self.Enz_cplxlist   = [ i for i in self.rubberbandlist if (isinstance(i,MMEnzItem) or isinstance(i,EnzItem) or isinstance(i,CplxItem) )]
         self.PFRSlist       = [ i for i in self.rubberbandlist if (isinstance(i,PoolItem) or isinstance(i,TableItem) or isinstance(i,ReacItem) or isinstance(i,FuncItem) )]
         self.grp            = [ i for i in self.rubberbandlist if isinstance(i,GRPItem)]
@@ -927,7 +932,7 @@ class GraphicalView(QtGui.QGraphicsView):
         reply = QtGui.QMessageBox.question(self, "Deleting Object","Do want to delete object and its connections",
                                                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
-            deleteSolver(self.layoutPt.modelRoot)
+            mooseDeleteChemSolver(self.layoutPt.modelRoot)
             msgIdforDeleting = " "
             if isinstance(item,QtGui.QGraphicsPolygonItem):
                 src = self.layoutPt.lineItem_dict[item]

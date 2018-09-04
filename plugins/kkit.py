@@ -84,6 +84,8 @@ class KkitPlugin(MoosePlugin):
                 self.plugin = KkitEditorView(self).getCentralWidget().plugin
                 self.defaultScenewidth = KkitEditorView(self).getCentralWidget().defaultScenewidth
                 self.defaultSceneheight = KkitEditorView(self).getCentralWidget().defaultSceneheight
+                self.coOrdinates  = KkitEditorView(self).getCentralWidget().getsceneCord()
+                '''
                 for k,v in self.sceneObj.items():
                     if moose.exists(moose.element(k).path+'/info'):
                         annoInfo = Annotator(k.path+'/info')
@@ -91,6 +93,7 @@ class KkitPlugin(MoosePlugin):
                             self.coOrdinates[k] = {'x':annoInfo.x*self.defaultScenewidth, 'y':annoInfo.y*self.defaultSceneheight}
                         else:
                             self.coOrdinates[k] = {'x':annoInfo.x, 'y':annoInfo.y}
+                '''
                 #writeerror = moose.writeSBML(self.modelRoot,str(filename),self.coOrdinates)
                 writeerror = -2
                 conisitencyMessages = ""
@@ -367,6 +370,17 @@ class  KineticsWidget(EditorWidgetBase):
         # else:
         #elf.sceneContainer.setSceneRect(self.sceneContainer.itemsBoundingRect())
         self.sceneContainer.setBackgroundBrush(QColor(230,220,219,120))
+    
+    def getsceneCord(self):
+        self.cord = {}
+        for item in self.sceneContainer.items():
+            if isinstance(item,KineticsDisplayItem):
+                #item.refresh(scale)
+                #self.update()
+                xpos = item.scenePos().x()
+                ypos = item.scenePos().y()
+                self.cord[item.mobj] = {'x':xpos,'y':ypos}
+        return self.cord
 
     def updateModelView(self):
         self.getMooseObj()
@@ -747,6 +761,8 @@ class  KineticsWidget(EditorWidgetBase):
         else:
             x = float(element(iteminfo).getField('x'))
             y = float(element(iteminfo).getField('y'))
+            self.defaultScenewidth = 1
+            self.defaultSceneheight = 1
         return(x,y)
         
     def drawLine_arrow(self, itemignoreZooming=False):
@@ -871,13 +887,11 @@ class  KineticsWidget(EditorWidgetBase):
                                     x = grpChilditem.scenePos().x()/self.defaultScenewidth
                                     y = grpChilditem.scenePos().y()/self.defaultSceneheight
                                 else:
-                                    #print "Check for other models at grp level ",grpChilditem.scenePos()
                                     x = grpChilditem.scenePos().x()
                                     y = grpChilditem.scenePos().y()
-                                #print " x and y at 863 ",grpChilditem.scenePos()
                                 anno.x = x
                                 anno.y = y
-                                #print " anno ",anno, anno.x, anno.y
+                                
                             if isinstance(moose.element(grpChilditem.mobj.path),PoolBase):
                                 t = moose.element(grpChilditem.mobj.path)
                                 moose.element(t).children
@@ -906,7 +920,6 @@ class  KineticsWidget(EditorWidgetBase):
                     x = mobj.scenePos().x()/self.defaultScenewidth
                     y = mobj.scenePos().y()/self.defaultSceneheight
                 else:
-                    #print "Check for other models ",mobj.scenePos()
                     x = mobj.scenePos().x()
                     y = mobj.scenePos().y()
                     #print " x and y at 863 ",mobj.scenePos()
@@ -928,15 +941,15 @@ class  KineticsWidget(EditorWidgetBase):
                     v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
                     pass
         
-    def updateGrpSize(self,compartment):
-        compartmentBoundary = compartment.rect()
+    def updateGrpSize(self,grp):
+        compartmentBoundary = grp.rect()
         
-        childrenBoundary = calculateChildBoundingRect(compartment)
+        childrenBoundary = calculateChildBoundingRect(grp)
         x = childrenBoundary.x()
         y = childrenBoundary.y()
         height = childrenBoundary.height()
         width = childrenBoundary.width()
-        compartment.setRect( x-10
+        grp.setRect( x-10
                  , y-10
                  , width + 20
                  , height + 20
