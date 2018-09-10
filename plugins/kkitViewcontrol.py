@@ -603,6 +603,7 @@ class GraphicalView(QtGui.QGraphicsView):
         if isinstance(prevPar,GRPItem):
             if item != prevPar:
                 self.layoutPt.updateGrpSize(prevPar)
+                self.layoutPt.updateGrpSize(item)
         self.setnewPostion(movedGraphObj,itempos,eventpos)
         self.layoutPt.updateArrow(movedGraphObj)
 
