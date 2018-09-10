@@ -31,7 +31,7 @@ from constants import *
 from PyQt4.QtGui import QPixmap, QImage, QPen, QGraphicsPixmapItem, QGraphicsLineItem
 from PyQt4.QtCore import pyqtSignal
 from kkitUtil import  *
-from setsolver import *
+#from setsolver import *
 from PyQt4 import QtSvg
 from moose import utils
 
@@ -921,21 +921,27 @@ class GraphicalView(QtGui.QGraphicsView):
                 if unselectitem.isSelected() == True:
                     unselectitem.setSelected(0)
             self.rubberbandlist_qpolygon = self.sceneContainerPt.items(self.mapToScene(QtCore.QRect(x0, y0, x1 - x0, y1 - y0)).boundingRect(), Qt.Qt.IntersectsItemShape)
-            self.deleteObj(self.rubberbandlist)
+            for item in self.rubberbandlist_qpolygon:
+                ''' in RubberbandSelection if entire group object contains then group is removed,if partly selected then group is retained'''
+                if isinstance(item,GRPItem):
+                    if not (self.mapToScene(QtCore.QRect(x0, y0, x1 - x0, y1 - y0)).boundingRect()).contains(item.sceneBoundingRect()):
+                        self.rubberbandlist_qpolygon.remove(item)
+                        
+            self.deleteObj(self.rubberbandlist_qpolygon)
         self.selections = []
 
     def deleteObj(self,item):
         self.rubberbandlist = item
         mooseDeleteChemSolver(self.layoutPt.modelRoot)
-        self.Enz_cplxlist   = [ i for i in self.rubberbandlist if (isinstance(i,MMEnzItem) or isinstance(i,EnzItem) or isinstance(i,CplxItem) )]
-        self.PFRSlist       = [ i for i in self.rubberbandlist if (isinstance(i,PoolItem) or isinstance(i,TableItem) or isinstance(i,ReacItem) or isinstance(i,FuncItem) )]
-        self.grp            = [ i for i in self.rubberbandlist if isinstance(i,GRPItem)]
-        for item in self.Enz_cplxlist:
+        self.list_EnzReccplx   = [ i for i in self.rubberbandlist if (isinstance(i,MMEnzItem) or isinstance(i,EnzItem) or isinstance(i,CplxItem) or isinstance(i,ReacItem) )] 
+        self.list_PFS          = [ i for i in self.rubberbandlist if (isinstance(i,PoolItem) or isinstance(i,TableItem) or isinstance(i,FuncItem) )]
+        self.grp               = [ i for i in self.rubberbandlist if isinstance(i,GRPItem)]
+        for item in self.list_EnzReccplx:
             #First Loop to remove all the enz b'cos if parent (which is a Pool) is removed,
             #then it will created problem at qgraphicalitem not having parent.
-            #So first delete enz and then delete pool
+            #So first delete enz, then Reac and then delete pool
             self.deleteItem(item)
-        for item in self.PFRSlist:
+        for item in self.list_PFS:
             if isinstance(item,PoolItem) or isinstance(item,BufPool):
                 plot = moose.wildcardFind(self.layoutPt.modelRoot+'/data/graph#/#')
                 for p in plot:
@@ -946,6 +952,12 @@ class GraphicalView(QtGui.QGraphicsView):
                             self.layoutPt.plugin.view.getCentralWidget().plotWidgetContainer.plotAllData()
             self.deleteItem(item)
         for item in self.grp:
+            key = [k for k,v in self.layoutPt.qGraGrp.items() if v == item]
+            if key[0] in self.layoutPt.qGraGrp:
+                self.layoutPt.qGraGrp.pop(key[0])
+            self.groupItemlist1 = item.childItems()
+            self.groupItemlist = [ i for i in self.groupItemlist1 if not isinstance(i,QtGui.QGraphicsPolygonItem)]
+            self.deleteObj(self.groupItemlist)
             self.deleteItem(item)
         
     def deleteObject2line(self,qpolygonline,src,des,endt):
