@@ -5,9 +5,12 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Oct 18 2017"
+__updated__     =   "Sep 11 2018"
 
 '''
+2018
+Sep 11: group size is calculated based on sceneBoundingRect for compartment size
+2017
 Oct 18  some of the function moved to this file from kkitOrdinateUtils
 '''
 from moose import Annotator,element
@@ -149,7 +152,6 @@ def calculateChildBoundingRect(compt):
     ypos = []
     xpos = []
     for l in compt.childItems():
-
         ''' All the children including pool,reac,enz,polygon(arrow),table '''
         if not isinstance(l,QtSvg.QGraphicsSvgItem):
             if (not isinstance(l,QtGui.QGraphicsPolygonItem)):
@@ -158,11 +160,18 @@ def calculateChildBoundingRect(compt):
                     xpos.append(l.pos().x())
                     ypos.append(l.pos().y()+l.boundingRect().bottomRight().y())
                     ypos.append(l.pos().y())
+
                 else:
+                    xpos.append(l.sceneBoundingRect().x())
+                    xpos.append(l.sceneBoundingRect().bottomRight().x())
+                    ypos.append(l.sceneBoundingRect().y())
+                    ypos.append(l.sceneBoundingRect().bottomRight().y())
+                    '''
                     xpos.append(l.rect().x())
                     xpos.append(l.boundingRect().bottomRight().x())
                     ypos.append(l.rect().y())
                     ypos.append(l.boundingRect().bottomRight().y())
+                    '''
         if (isinstance(l,PoolItem) or isinstance(l,EnzItem)):
             ''' For Enz cplx height and for pool function height needs to be taken'''
             for ll in l.childItems():
