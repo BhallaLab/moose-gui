@@ -17,7 +17,7 @@ __updated__     =   "Sep 11 2018"
 #code
 
 import math
-import sysct
+import sys
 from PyQt4 import QtGui, QtCore, Qt
 from default import *
 from moose import *

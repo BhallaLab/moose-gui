@@ -144,13 +144,14 @@ class GraphicalView(QtGui.QGraphicsView):
                     elif gsolution[1] == GROUP_INTERIOR:
                         groupInteriorfound = True
                         groupList.append(gsolution)
-
                 if item.name == COMPARTMENT:
                     csolution = (item, self.resolveCompartmentInteriorAndBoundary(item, position))
                     if csolution[1] == COMPARTMENT_BOUNDARY:
+                        return csolution
+                    elif csolution[1] == COMPARTMENT_INTERIOR:
                         comptInteriorfound = True
                         comptBoundary.append(csolution)
-
+        
         if groupInteriorfound:
             if comptInteriorfound:
                 return comptBoundary[0]
@@ -181,7 +182,6 @@ class GraphicalView(QtGui.QGraphicsView):
                 ##This is kept for reference, so that if object (P,R,E,Tab,Fun) is moved outside the compartment,
                 #then it need to be pull back to original position
                 self.state["press"]["scenepos"]  = item.parent().scenePos() 
-            
             if itemType == COMPARTMENT_INTERIOR or itemType == GROUP_BOUNDARY  or itemType == GROUP_INTERIOR:
                 self.removeConnector()
                 
