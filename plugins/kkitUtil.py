@@ -5,15 +5,16 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Sep 11 2018"
+__updated__     =   "Sep 17 2018"
 
 '''
 2018
+Sep 17: when vertical or horizontal layout is applied for group, compartment size is recalculated
 Sep 11: group size is calculated based on sceneBoundingRect for compartment size
 2017
 Oct 18  some of the function moved to this file from kkitOrdinateUtils
 '''
-from moose import Annotator,element
+from moose import Annotator,element,ChemCompt
 from kkitQGraphics import PoolItem, ReacItem,EnzItem,CplxItem,GRPItem,ComptItem
 from PyQt4 import QtCore,QtGui,QtSvg
 from PyQt4.QtGui import QColor
@@ -130,9 +131,10 @@ def moveX(reference, collider, layoutPt, margin):
     layoutPt.drawLine_arrow(itemignoreZooming=False)
 
 def handleCollisions(compartments, moveCallback, layoutPt,margin = 5.0):
-    
+    print " handelCollision"
     if len(compartments) is 0 : return
     compartments = sorted(compartments, key = lambda c: c.sceneBoundingRect().center().x())
+    print " compartment ",compartments
     reference = compartments.pop(0);
     print (reference.name)
     referenceRect = reference.sceneBoundingRect()
@@ -141,6 +143,18 @@ def handleCollisions(compartments, moveCallback, layoutPt,margin = 5.0):
                       )
     for collider in colliders:
         moveCallback(reference, collider, layoutPt,margin)
+    #print (reference.mobj).parent
+    if isinstance(element(((reference.mobj).parent)),ChemCompt):
+        v = layoutPt.qGraCompt[element(((reference.mobj).parent))]
+        #layoutPt.updateCompartmentSize(x)
+        rectcompt = calculateChildBoundingRect(v)
+        comptBoundingRect = v.boundingRect()
+        if not comptBoundingRect.contains(rectcompt):
+            layoutPt.updateCompartmentSize(v)
+                    
+        else:
+            rectcompt = calculateChildBoundingRect(v)
+            v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
     return handleCollisions(compartments, moveCallback, layoutPt,margin)
 
 def calculateChildBoundingRect(compt):
