@@ -377,7 +377,13 @@ class GraphicalView(QtGui.QGraphicsView):
                                     if moose.exists(grpCmpt.mobj.path+'/'+parentPool.name+'/'+movedGraphObj.name):
                                         self.objectpullback("Enzyme",grpCmpt,movedGraphObj,xx,yy)
                                     else:
-                                        self.moveObjSceneParent(grpCmpt,movedGraphObj,item.pos(),self.mapToScene(event.pos()))
+                                        reply = QtGui.QMessageBox.question(self, "Moving the Object",'Do want to move the \'{movedGraphObj}\' to \'{grpCmpt}\''.format(movedGraphObj=movedGraphObj.mobj.name,grpCmpt=grpCmpt.mobj.name),
+                                                   QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+                                        if reply == QtGui.QMessageBox.No: 
+                                            movedGraphObj.moveBy(-xx,-yy)
+                                            self.layoutPt.updateArrow(movedGraphObj)
+                                        else:
+                                            self.moveObjSceneParent(grpCmpt,movedGraphObj,item.pos(),self.mapToScene(event.pos()))
                                 else:
                                     self.objectpullback("Enzymeparent",grpCmpt,movedGraphObj,xx,yy)
                         else:
@@ -385,7 +391,13 @@ class GraphicalView(QtGui.QGraphicsView):
                             if moose.exists(grpCmpt.mobj.path+'/'+movedGraphObj.mobj.name):
                                 self.objectpullback("All",grpCmpt,movedGraphObj,xx,yy)
                             else:
-                                self.moveObjSceneParent(grpCmpt,movedGraphObj,item.pos(),self.mapToScene(event.pos()))
+                                reply = QtGui.QMessageBox.question(self, "Moving the Object",'Do want to move the \'{movedGraphObj}\' to \'{grpCmpt}\''.format(movedGraphObj=movedGraphObj.mobj.name,grpCmpt=grpCmpt.mobj.name),
+                                                   QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+                                if reply == QtGui.QMessageBox.No: 
+                                    movedGraphObj.moveBy(-xx,-yy)
+                                    self.layoutPt.updateArrow(movedGraphObj)
+                                else:
+                                    self.moveObjSceneParent(grpCmpt,movedGraphObj,item.pos(),self.mapToScene(event.pos()))
                     else:
                         '''Same compt/grp to which it was belong to '''
                         if isinstance(grpCmpt,GRPItem):
