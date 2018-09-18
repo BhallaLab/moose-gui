@@ -5,11 +5,11 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Sep 7 2018"
+__updated__     =   "Sep 18 2018"
 
 '''
 2018
-
+sep 18  : one can close the messagebox if doesn't want to plot
 Sep 07  : when object qgraphicalparent is changed then connecting arrow's parent also need to be changed 
 Jun 08  : If object is moved from one group or compartment to another group or with in same Compartment, 
            then both at moose level (group or compartment path is updated ) and qt level the setParentItem is set
@@ -34,6 +34,8 @@ from kkitUtil import  *
 #from setsolver import *
 from PyQt4 import QtSvg
 from moose import utils
+from functools import partial
+
 
 class GraphicalView(QtGui.QGraphicsView):
 
@@ -432,29 +434,17 @@ class GraphicalView(QtGui.QGraphicsView):
             elif actionType == "plot":
                 element = moose.element(item.parent().mobj.path)
                 if isinstance (element,moose.PoolBase):
-                    if moose.exists(self.modelRoot+'/data/graph_0'):
-                        self.graph = moose.element(self.modelRoot+'/data/graph_0')
-                    else:
-                        moose.Neutral(self.modelRoot+'/data')
-                        moose.Neutral(self.modelRoot+'/data/graph_0')
-                        self.graph = moose.element(self.modelRoot+'/data/graph_0')
-                    plotType = "Conc"
                     msgBox = QtGui.QMessageBox()
                     msgBox.setText('What to plot?')
-                    msgBox.addButton(QtGui.QPushButton('Number'), QtGui.QMessageBox.YesRole)
-                    msgBox.addButton(QtGui.QPushButton('Concentration'), QtGui.QMessageBox.NoRole)
-                    ret = msgBox.exec_()
-                    if ret == 0:
-                        plotType = "N"
-                    tablePath = moose.utils.create_table_path(moose.element(self.modelRoot), self.graph, element, plotType)
-                    table     = moose.utils.create_table(tablePath, element, plotType,"Table2")
-                    '''
-                    tablePath = utils.create_table_path(moose.element(self.modelRoot), self.graph, element, "Conc")
-                    table     = utils.create_table(tablePath, element, "Conc","Table2")
-                    '''
-                    self.layoutPt.plugin.view.getCentralWidget().plotWidgetContainer.plotAllData()
-                    reply = QtGui.QMessageBox.information(self, "plot Object","Plot is added to Graph1",
-                                                   QtGui.QMessageBox.Ok)
+                    self.pushButtonNumber = QtGui.QPushButton(('Number'))#, QtGui.QMessageBox.YesRole)
+                    self.pushButtonConc = QtGui.QPushButton('Concentration')#, QtGui.QMessageBox.NoRole
+                    self.pushButtonConc.setAutoDefault(False)
+                    self.pushButtonNumber.setAutoDefault(False)
+                    msgBox.addButton(self.pushButtonNumber,QtGui.QMessageBox.YesRole)
+                    msgBox.addButton(self.pushButtonConc,QtGui.QMessageBox.NoRole)
+                    msgBox.buttonClicked.connect(partial(self.onClicked, str(self.modelRoot),element))
+                    msgBox.exec_()
+                    self.removeConnector()
             elif actionType == "clone":
                 if self.state["move"]["happened"]:
                     QtGui.QApplication.setOverrideCursor(QtGui.QCursor(Qt.Qt.ArrowCursor))
@@ -564,7 +554,33 @@ class GraphicalView(QtGui.QGraphicsView):
                 popupmenu.addAction("Move",   lambda: self.moveSelections())
                 popupmenu.exec_(self.mapToGlobal(event.pos()))        
         self.resetState()
-    
+
+    def onClicked(self,modelRoot,element, btn):
+        self.modelRoot = modelRoot
+        if moose.exists(self.modelRoot+'/data/graph_0'):
+            self.graph = moose.element(self.modelRoot+'/data/graph_0')
+        else:
+            moose.Neutral(self.modelRoot+'/data')
+            moose.Neutral(self.modelRoot+'/data/graph_0')
+            self.graph = moose.element(self.modelRoot+'/data/graph_0')
+
+        plotType = "Conc"
+        if btn.text() == "Number":
+            plotType = "N"
+        else:
+            plotType = "Conc"
+
+        tablePath = moose.utils.create_table_path(moose.element(self.modelRoot), self.graph, element, plotType)
+        table     = moose.utils.create_table(tablePath, element, plotType,"Table2")
+        '''
+        tablePath = utils.create_table_path(moose.element(self.modelRoot), self.graph, element, "Conc")
+        table     = utils.create_table(tablePath, element, "Conc","Table2")
+        '''
+        self.layoutPt.plugin.view.getCentralWidget().plotWidgetContainer.plotAllData()
+        reply = QtGui.QMessageBox.information(self, "plot Object","Plot is added to Graph1",
+                                      QtGui.QMessageBox.Ok)
+        self.removeConnector()
+
     def objectpullback(self,messgtype,item,movedGraphObj,xx,yy):
         if messgtype.lower() != "empty":
             desObj = item.mobj.className
@@ -877,6 +893,7 @@ class GraphicalView(QtGui.QGraphicsView):
                 #if ( isinstance(v, PoolItem) or isinstance(v, ReacItem) or isinstance(v, EnzItem) or isinstance(v, CplxItem) ):
                 if isinstance(v,KineticsDisplayItem):
                     v.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations, on)
+
     def keyPressEvent(self,event):
         key = event.key()
         self.removeConnector()
