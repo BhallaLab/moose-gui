@@ -6,7 +6,7 @@
 # Maintainer: HarshaRani
 # Created: Mon Nov 12 09:38:09 2012 (+0530)
 # Version:
-# Last-Updated: Fri Sep 7 14:54:33 2017 (+0530)
+# Last-Updated: Fri Sep 19 17:54:33 2018 (+0530)
 #           By: Harsha
 #     Update #:
 # URL:
@@ -45,13 +45,16 @@
 
 ''''
 2018
-Sep 7: popup is closed if exist
+Sep 19 : From the cmd line if a directory is passed, then Gui opens up the dialog file for the folder, 
+         window is resized to maximum width, clean warning message if filename or path is wrong
+         Added model info QmessageBox
+Sep 7  : popup is closed if exist
 2017
-Aug 31: Pass file from the command to load into gui
-      : added dsolver in disableModel function is used to unset the solver for the model
-        into moose-gui which are not to be run.
+Aug 31 : Pass file from the command to load into gui
+       : added dsolver in disableModel function is used to unset the solver for the model
+         into moose-gui which are not to be run.
 
-Oct 5: clean up with round trip of dialog_exe
+Oct 5  : clean up with round trip of dialog_exe
 
 '''
 # Code:
@@ -230,6 +233,7 @@ class MWindow(QtGui.QMainWindow):
                 self.loadModelDialogSlot(cmdfilepath)
                 
             else:
+                print " 235 "
                 filePath = filepath+'/'+fileName
                 ret = loadFile(str(filePath), '%s' % (modelRoot), solver, merge=False)
                 self.objectEditSlot('/',False)
@@ -257,26 +261,27 @@ class MWindow(QtGui.QMainWindow):
 
                 modelAnno.dirpath = str(filepath)
                 self.setPlugin(pluginName, ret['model'].path)
+                self.setWindowState(QtCore.Qt.WindowMaximized)
                 self.show()
-                # if pluginName == 'kkit':
-                #     QtCore.QCoreApplication.sendEvent(self.plugin.getEditorView().getCentralWidget().view, QtGui.QKeyEvent(QtCore.QEvent.KeyPress, Qt.Qt.Key_A, Qt.Qt.NoModifier))
+                if pluginName == 'kkit':
+                    QtCore.QCoreApplication.sendEvent(self.plugin.getEditorView().getCentralWidget().view, QtGui.QKeyEvent(QtCore.QEvent.KeyPress, Qt.Qt.Key_A, Qt.Qt.NoModifier))
                     
-                #     noOfCompt = len(moose.wildcardFind(ret['model'].path+'/##[ISA=ChemCompt]'))
-                #     grp = 0
-                #     for c in moose.wildcardFind(ret['model'].path+'/##[ISA=ChemCompt]'):
-                #         noOfGrp   = moose.wildcardFind(moose.element(c).path+'/#[TYPE=Neutral]')
-                #         grp = grp+len(noOfGrp)
+                    noOfCompt = len(moose.wildcardFind(ret['model'].path+'/##[ISA=ChemCompt]'))
+                    grp = 0
+                    for c in moose.wildcardFind(ret['model'].path+'/##[ISA=ChemCompt]'):
+                        noOfGrp   = moose.wildcardFind(moose.element(c).path+'/#[TYPE=Neutral]')
+                        grp = grp+len(noOfGrp)
 
-                #     noOfPool  = len(moose.wildcardFind(ret['model'].path+'/##[ISA=PoolBase]'))
-                #     noOfFunc  = len(moose.wildcardFind(ret['model'].path+'/##[ISA=Function]'))
-                #     noOfReac  = len(moose.wildcardFind(ret['model'].path+'/##[ISA=ReacBase]'))
-                #     noOfEnz   = len(moose.wildcardFind(ret['model'].path+'/##[ISA=EnzBase]'))
-                #     noOfStimtab  = len(moose.wildcardFind(ret['model'].path+'/##[ISA=StimulusTable]'))
+                    noOfPool  = len(moose.wildcardFind(ret['model'].path+'/##[ISA=PoolBase]'))
+                    noOfFunc  = len(moose.wildcardFind(ret['model'].path+'/##[ISA=Function]'))
+                    noOfReac  = len(moose.wildcardFind(ret['model'].path+'/##[ISA=ReacBase]'))
+                    noOfEnz   = len(moose.wildcardFind(ret['model'].path+'/##[ISA=EnzBase]'))
+                    noOfStimtab  = len(moose.wildcardFind(ret['model'].path+'/##[ISA=StimulusTable]'))
                     
-                #     reply = QtGui.QMessageBox.information(self,"Model Info","Model has : \n %s Compartment \t \n %s Group \t \n %s Pool  \t \n %s Function \t \n %s reaction \t \n %s Enzyme \t \n %s StimulusTable" %(noOfCompt, grp, noOfPool, noOfFunc, noOfReac, noOfEnz, noOfStimtab))
-                #     if reply == QtGui.QMessageBox.Ok:
-                #         QtGui.QApplication.restoreOverrideCursor()
-                #         return
+                    reply = QtGui.QMessageBox.information(self,"Model Info","Model has : \n %s Compartment \t \n %s Group \t \n %s Pool  \t \n %s Function \t \n %s reaction \t \n %s Enzyme \t \n %s StimulusTable" %(noOfCompt, grp, noOfPool, noOfFunc, noOfReac, noOfEnz, noOfStimtab))
+                    if reply == QtGui.QMessageBox.Ok:
+                        QtGui.QApplication.restoreOverrideCursor()
+                        return
         else: 
             self.createPopup()
 
