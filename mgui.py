@@ -196,6 +196,7 @@ class MWindow(QtGui.QMainWindow):
             pass
         else:
             cmdfilepath = os.path.abspath(sys.argv[1])
+
         try:
             sys.argv[2]
         except:
@@ -207,6 +208,7 @@ class MWindow(QtGui.QMainWindow):
             filepath,fileName = os.path.split(cmdfilepath)
             modelRoot,extension = os.path.splitext(fileName)
             if extension == '.py':
+                self.setWindowState(QtCore.Qt.WindowMaximized)
                 self.show()
                 self.createPopup()
                 freeCursor()
@@ -215,12 +217,18 @@ class MWindow(QtGui.QMainWindow):
                     QtGui.QApplication.restoreOverrideCursor()
                     return
             if not os.path.exists(cmdfilepath):
+                self.setWindowState(QtCore.Qt.WindowMaximized)
                 self.show()
                 self.createPopup()
-                reply = QtGui.QMessageBox.information(self,"Model file can not open","Check filename or filepath ",QtGui.QMessageBox.Ok)
+                reply = QtGui.QMessageBox.information(self,"Model file can not open","File Not Found \n \nCheck filename or filepath\n ",QtGui.QMessageBox.Ok)
                 if reply == QtGui.QMessageBox.Ok:
                     QtGui.QApplication.restoreOverrideCursor()
                     return
+            if os.path.isdir(cmdfilepath):
+                self.setWindowState(QtCore.Qt.WindowMaximized)
+                self.show()
+                self.loadModelDialogSlot(cmdfilepath)
+                
             else:
                 filePath = filepath+'/'+fileName
                 ret = loadFile(str(filePath), '%s' % (modelRoot), solver, merge=False)
@@ -1222,7 +1230,7 @@ class MWindow(QtGui.QMainWindow):
         for table in moose.wildcardFind( modelPath+'/data/graph#/#' ):
             table.tick = -1
 
-    def loadModelDialogSlot(self):
+    def loadModelDialogSlot(self,directorypassed=""):
         """Start a file dialog to choose a model file.
 
         Once the dialog succeeds, we should hand-over the duty of
@@ -1244,7 +1252,7 @@ class MWindow(QtGui.QMainWindow):
             self.popup.close()
         activeWindow = None # This to be used later to refresh the current widget with newly loaded model
         dialog = LoaderDialog(self,
-                              self.tr('Load model from file'))
+                              self.tr('Load model from file'),directorypassed)
 
         if dialog.exec_():
             valid = False
