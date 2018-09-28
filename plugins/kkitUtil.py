@@ -5,10 +5,11 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Sep 17 2018"
+__updated__     =   "Sep 28 2018"
 
 '''
 2018
+Sep 28: spell corrected cyclMesh to cylMesh
 Sep 17: when vertical or horizontal layout is applied for group, compartment size is recalculated
 Sep 11: group size is calculated based on sceneBoundingRect for compartment size
 2017
@@ -131,10 +132,8 @@ def moveX(reference, collider, layoutPt, margin):
     layoutPt.drawLine_arrow(itemignoreZooming=False)
 
 def handleCollisions(compartments, moveCallback, layoutPt,margin = 5.0):
-    print " handelCollision"
     if len(compartments) is 0 : return
     compartments = sorted(compartments, key = lambda c: c.sceneBoundingRect().center().x())
-    print " compartment ",compartments
     reference = compartments.pop(0);
     print (reference.name)
     referenceRect = reference.sceneBoundingRect()
@@ -208,7 +207,7 @@ def mooseIsInstance(melement, classNames):
     return element(melement).__class__.__name__ in classNames
 
 def findCompartment(melement):
-    while not mooseIsInstance(melement, ["CubeMesh", "CyclMesh"]):
+    while not mooseIsInstance(melement, ["CubeMesh", "CylMesh"]):
         melement = melement.parent
     return melement
 
@@ -218,6 +217,6 @@ def findGroup(melement):
     return melement
 
 def findGroup_compt(melement):
-    while not (mooseIsInstance(melement, ["Neutral","CubeMesh", "CyclMesh"])):
+    while not (mooseIsInstance(melement, ["Neutral","CubeMesh", "CylMesh"])):
         melement = melement.parent
     return melement
