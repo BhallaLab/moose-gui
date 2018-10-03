@@ -7,17 +7,15 @@ notifications:
 
 
 install:
-    - wget http://download.opensuse.org/repositories/home:moose/xUbuntu_14.04/Release.key
-    - sudo apt-key add - < Release.key  
-    - sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/moose/xUbuntu_14.04/ /' >> /etc/apt/sources.list.d/moose.list"
     - sudo apt-get -y update
-    - sudo apt-get -y --force-yes install python3 python-pip
-    - sudo apt-get -y --force-yes install moose
-    - sudo -H pip install python-libsbml
+    - sudo apt-get -y --force-yes install python3 python-pip python3-pip
+    - sudo -H pip install python-libsbml 
+    - sudo -H pip install pymoose --pre 
 
 script:
     - # Making sure no python incompatible file is added.
     - python -m compileall -q .
+    - python3 -m compileall -q . || echo "Python3 is allowed to fail"
     - python -c 'import moose'
-    - #python -c 'import moogli'
     - # More tests here for gui.
+    - echo "There are not tests for gui"
