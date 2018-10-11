@@ -6,12 +6,13 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Sep 11 2018"
+__updated__     =   "Oct 11 2018"
 
 #Change log:
 # 2018 
-#oct 10: filedialog default is sbml
-#sep 11: comparment size is calculated based on group sceneBoundingRect size
+#Oct 10: filedialog default is sbml
+#         layout co-ordainates are updated with scenepos 
+#Sep 11: comparment size is calculated based on group sceneBoundingRect size
 #Sep 07: in positionChange all the group's boundingRect is calculated
 #        and when group is moved the children's position are stored
 #Jun 18: update the color of the group from objecteditor

@@ -5,10 +5,11 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Sep 28 2018"
+__updated__     =   "Oct 11 2018"
 
 '''
 2018
+Oct 11: when collision is handled an update of position is done
 Sep 28: spell corrected cyclMesh to cylMesh
 Sep 17: when vertical or horizontal layout is applied for group, compartment size is recalculated
 Sep 11: group size is calculated based on sceneBoundingRect for compartment size
@@ -154,6 +155,7 @@ def handleCollisions(compartments, moveCallback, layoutPt,margin = 5.0):
         else:
             rectcompt = calculateChildBoundingRect(v)
             v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
+    layoutPt.positionChange(compartments)
     return handleCollisions(compartments, moveCallback, layoutPt,margin)
 
 def calculateChildBoundingRect(compt):
