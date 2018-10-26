@@ -5,10 +5,11 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Oct 10 2018"
+__updated__     =   "Oct 27 2018"
 
 '''
 2018
+Oct 27  : When group is moved within another group, outer group is resize inturn compartmet is also resized
 Oct 10  : Groups are handled with collision detection, 
           messagebox when object moved from one group to another
           layout updated when object moved etc
@@ -284,6 +285,9 @@ class GraphicalView(QtGui.QGraphicsView):
             final = self.mapToScene(event.pos())
             displacement = final - initial
             item.moveBy(displacement.x(), displacement.y())
+            if isinstance(item.parentItem(),GRPItem):
+                self.layoutPt.updateGrpSize(item.parentItem())
+
             self.layoutPt.positionChange(item.mobj.path)
             self.state["press"]["pos"] = event.pos()
 
