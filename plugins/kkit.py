@@ -6,10 +6,12 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Oct 11 2018"
+__updated__     =   "Oct 26 2018"
 
 #Change log:
 # 2018 
+#Oct 26: xfer cross compartment molecules are hidden and for cross compartment reaction's
+#        connection are now dotted line 
 #Oct 10: filedialog default is sbml
 #         layout co-ordainates are updated with scenepos 
 #Sep 11: comparment size is calculated based on group sceneBoundingRect size
@@ -40,6 +42,7 @@ import RunWidget
 from os.path import expanduser
 #from setsolver import *
 from moose.chemUtil.add_Delete_ChemicalSolver import *
+import re
 
 class KkitPlugin(MoosePlugin):
     """Default plugin for MOOSE GUI"""
@@ -761,6 +764,7 @@ class  KineticsWidget(EditorWidgetBase):
             #    key is Function and value is [list of pool] (list)
 
             #src = self.mooseId_GObj[inn]
+            linetype = "regular"
             if isinstance(out,tuple):
                 src = self.mooseId_GObj[inn]
                 if len(out[0])== 0:
@@ -768,13 +772,31 @@ class  KineticsWidget(EditorWidgetBase):
                 else:
                     for items in (items for items in out[0] ):
                         des = self.mooseId_GObj[element(items[0])]
-                        self.lineCord(src,des,items,itemignoreZooming)
+                        if re.search("xfer",element(items[0]).name):
+                            xrefPool = items[0].name[:items[0].name.index("_xfer_")]
+                            xrefCompt = items[0].name[items[0].name.index("_xfer_") + len("_xfer_"):]
+                            orgCompt = moose.wildcardFind(self.modelRoot+'/##[FIELD(name)='+xrefCompt+']')[0]
+                            orgPool = moose.wildcardFind(orgCompt.path+'/##[FIELD(name)='+xrefPool+']')[0]
+                            itemslist = list(items)
+                            itemslist[0] = orgPool
+                            items = tuple(itemslist)
+                            linetype = "crosscompt"
+                        self.lineCord(src,des,items,itemignoreZooming,linetype)
                 if len(out[1]) == 0:
                     print (inn.className + ' : ' +inn.name+ " doesn't output message")
                 else:
                     for items in (items for items in out[1] ):
+                        if re.search("xfer",element(items[0]).name):
+                            xrefPool = items[0].name[:items[0].name.index("_xfer_")]
+                            xrefCompt = items[0].name[items[0].name.index("_xfer_") + len("_xfer_"):]
+                            orgCompt = moose.wildcardFind(self.modelRoot+'/##[FIELD(name)='+xrefCompt+']')[0]
+                            orgPool = moose.wildcardFind(orgCompt.path+'/##[FIELD(name)='+xrefPool+']')[0]
+                            itemslist = list(items)
+                            itemslist[0] = orgPool
+                            items = tuple(itemslist)
+                            linetype = "crosscompt"
                         des = self.mooseId_GObj[element(items[0])]
-                        self.lineCord(src,des,items,itemignoreZooming)
+                        self.lineCord(src,des,items,itemignoreZooming,linetype)
             elif isinstance(out,list):
                 if len(out) == 0:
                     if inn.className == "StimulusTable":
@@ -784,9 +806,19 @@ class  KineticsWidget(EditorWidgetBase):
                 else:
                     src = self.mooseId_GObj[inn]
                     for items in (items for items in out ):
+                        if re.search("xfer",element(items[0]).name):
+                            xrefPool = items[0].name[:items[0].name.index("_xfer_")]
+                            xrefCompt = items[0].name[items[0].name.index("_xfer_") + len("_xfer_"):]
+                            orgCompt = moose.wildcardFind(self.modelRoot+'/##[FIELD(name)='+xrefCompt+']')[0]
+                            orgPool = moose.wildcardFind(orgCompt.path+'/##[FIELD(name)='+xrefPool+']')[0]
+                            itemslist = list(items)
+                            itemslist[0] = orgPool
+                            items = tuple(itemslist)
+                            linetype = "crosscompt"
                         des = self.mooseId_GObj[element(items[0])]
-                        self.lineCord(src,des,items,itemignoreZooming)
-    def lineCord(self,src,des,type_no,itemignoreZooming):
+                        self.lineCord(src,des,items,itemignoreZooming,linetype)
+
+    def lineCord(self,src,des,type_no,itemignoreZooming,linetype):
         srcdes_list = []
         endtype = type_no[1]
         line = 0
@@ -795,18 +827,18 @@ class  KineticsWidget(EditorWidgetBase):
             return
         srcdes_list = [src,des,endtype,line]
         arrow = calcArrow(srcdes_list,itemignoreZooming,self.iconScale)
-        self.drawLine(srcdes_list,arrow)
+        self.drawLine(srcdes_list,arrow,linetype)
 
         while(type_no[2] > 1 and line <= (type_no[2]-1)):
             srcdes_list =[src,des,endtype,line]
             arrow = calcArrow(srcdes_list,itemignoreZooming,self.iconScale)
-            self.drawLine(srcdes_list,arrow)
+            self.drawLine(srcdes_list,arrow,linetype)
             line = line +1
 
         if type_no[2] > 5:
             print ("Higher order reaction will not be displayed")
 
-    def drawLine(self,srcdes_list,arrow):
+    def drawLine(self,srcdes_list,arrow,linetype="solid"):
         src = srcdes_list[0]
         des = srcdes_list[1]
         endtype = srcdes_list[2]
@@ -824,7 +856,12 @@ class  KineticsWidget(EditorWidgetBase):
         qgLineitem = self.sceneContainer.addPolygon(arrow)
         qgLineitem.setParentItem(src.parentItem())
         pen = QtGui.QPen(QtCore.Qt.green, 0, Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin)
+        if linetype == "crosscompt":
+            pen.setStyle(Qt.Qt.CustomDashLine)
+            pen.setDashPattern([1, 5, 1, 5])
+
         pen.setWidth(self.arrowsize)
+
         # Green is default color moose.ReacBase and derivatives - already set above
         if  isinstance(source, EnzBase):
             if ( (endtype == 's') or (endtype == 'p')):
@@ -844,6 +881,7 @@ class  KineticsWidget(EditorWidgetBase):
         self.object2line[ src ].append( ( qgLineitem, des,endtype,line) )
         self.object2line[ des ].append( ( qgLineitem, src,endtype,line ) )
         qgLineitem.setPen(pen)
+
     def positionChange(self,mooseObject):
          #If the item position changes, the corresponding arrow's are calculated
         print mooseObject
