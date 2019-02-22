@@ -6,9 +6,11 @@ __version__     =   "1.0.0"
 __maintainer__  =   "HarshaRani"
 __email__       =   "hrani@ncbs.res.in"
 __status__      =   "Development"
-__updated__     =   "Oct 26 2018"
+__updated__     =   "Feb 22 2019"
 
 #Change log:
+#2019
+#Feb 22: cross compartment molecules are checked for destination 
 # 2018 
 #Oct 26: xfer cross compartment molecules are hidden and for cross compartment reaction's
 #        connection are now dotted line 
@@ -771,7 +773,6 @@ class  KineticsWidget(EditorWidgetBase):
                     print (inn.className + ' : ' +inn.name+ " doesn't output message")
                 else:
                     for items in (items for items in out[0] ):
-                        des = self.mooseId_GObj[element(items[0])]
                         if re.search("xfer",element(items[0]).name):
                             xrefPool = items[0].name[:items[0].name.index("_xfer_")]
                             xrefCompt = items[0].name[items[0].name.index("_xfer_") + len("_xfer_"):]
@@ -781,6 +782,7 @@ class  KineticsWidget(EditorWidgetBase):
                             itemslist[0] = orgPool
                             items = tuple(itemslist)
                             linetype = "crosscompt"
+                        des = self.mooseId_GObj[element(items[0])]
                         self.lineCord(src,des,items,itemignoreZooming,linetype)
                 if len(out[1]) == 0:
                     print (inn.className + ' : ' +inn.name+ " doesn't output message")
