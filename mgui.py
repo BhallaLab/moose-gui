@@ -237,7 +237,8 @@ class MWindow(QtGui.QMainWindow):
             else:
                 filePath = filepath+'/'+fileName
                 ret = loadFile(str(filePath), '%s' % (modelRoot), solver, merge=False)
-                self.objectEditSlot('/',False)
+                #self.objectEditSlot('/',False)
+                self.objectEditSlot(ret['model'].path,False)
                 pluginLookup = '%s/%s' % (ret['modeltype'], ret['subtype'])
                 try:
                     pluginName = subtype_plugin_map['%s/%s' % (ret['modeltype'], ret['subtype'])]
@@ -568,7 +569,6 @@ class MWindow(QtGui.QMainWindow):
         if name == 'kkit':
             self.objectEditDockWidget.objectNameChanged.connect(self.plugin.getEditorView().getCentralWidget().updateItemSlot)
             self.objectEditDockWidget.colorChanged.connect(self.plugin.getEditorView().getCentralWidget().updateColorSlot)
-
         self.setCurrentView('editor')
         freeCursor()
         return self.plugin
@@ -643,7 +643,8 @@ class MWindow(QtGui.QMainWindow):
         self.plugin.setCurrentView(view)
         if view =='run':
             #Harsha: This will clear out object editor's objectpath and make it invisible
-            self.objectEditSlot('/',False)
+            #self.objectEditSlot('/',False)
+            self.objectEditDockWidget.setVisible(False)
 
         targetView = None
         newSubWindow = True
