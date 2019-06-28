@@ -65,8 +65,6 @@ import inspect
 import code
 import traceback
 import sys
-sys.path.append('../python')
-#sys.path.append('utils')
 import os
 from collections import defaultdict
 import posixpath # We use this to create MOOSE paths
@@ -485,7 +483,7 @@ class MWindow(QtGui.QMainWindow):
         if the first is not available"""
         if not hasattr(self, 'shellWidget') or self.shellWidget is None:
             self.shellWidget = get_shell_class()( code.InteractiveInterpreter()
-                                                , message='MOOSE version %s' % (moose._moose.__version__)
+                                                , message='MOOSE version %s' % (moose.version())
                                                 )
             self.shellWidget.interpreter.runsource('from moose import *')
             self.shellWidget.setVisible(False)
