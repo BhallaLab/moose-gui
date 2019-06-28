@@ -16,6 +16,7 @@ Oct 18: moved some function to kkitUtil
 getxyCord, etc function are added
 '''
 import collections
+import moose
 from moose import *
 import numpy as np
 from moose import wildcardFind,element,PoolBase,CplxEnzBase,Annotator,exists
@@ -25,7 +26,6 @@ import networkx as nx
 from kkitUtil import getRandColor,colorCheck,findCompartment, findGroup, findGroup_compt, mooseIsInstance
 from PyQt4.QtGui import QColor
 import re
-import moose._moose as moose
 
 def getxyCord(xcord,ycord,list1):
     for item in list1:
