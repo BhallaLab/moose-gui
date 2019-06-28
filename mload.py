@@ -61,7 +61,6 @@ from PyQt4 import QtGui, QtCore, Qt
 from plugins.setsolver import *
 from moose.SBML import *
 from plugins.kkitOrdinateUtil import *
-import moose._moose as moose
 import moose.utils as mutils
 def loadGenCsp(target,filename,solver="gsl"):
     target = target.replace(" ", "")
